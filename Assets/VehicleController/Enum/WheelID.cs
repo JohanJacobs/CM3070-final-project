@@ -1,6 +1,6 @@
 namespace vc
 {
-    enum WheelID
+    public enum WheelID
     {
         LeftFront,
         RightFront,
