@@ -3163,6 +3163,9 @@ MonoBehaviour:
   - ID: 3
     Config: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     mountPoint: {fileID: 889438523}
+  steerStrength: 6
+  throttleStrength: 4
+  breakPedalStrength: 8
 --- !u!1 &1048150672
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 
@@ -30,8 +31,17 @@ namespace vc
             }
 
             SetupVehicle();
+            SetupInputHandlers();
         }
 
+        private void OnEnable()
+        {
+            SubscribeToInput();
+        }
+        private void OnDisable()
+        {
+            UnsubscribeToInput();
+        }
         public void Update()
         {            
         }
@@ -69,6 +79,107 @@ namespace vc
         }
         #endregion Vehicle
 
+
+        #region Input Management
+        VehicleControllerInputActions inputActions;
+        bool inputActionsSetupComplete =false;
+        public enum InputSmootherObjectType
+        {
+            Steer,
+            Brake,
+            Throttle,
+            Handbrake
+        }
+        Dictionary<InputSmootherObjectType,InputSmoother> inputSmoothers;
+        [Header("Input Configuration")]
+        [SerializeField]
+        float steerStrength;
+        [SerializeField]
+        float throttleStrength;
+        [SerializeField]
+        float breakPedalStrength;
+
+        private void SetupInputHandlers()
+        {
+            inputSmoothers = new();
+            inputSmoothers.Add(InputSmootherObjectType.Steer, new InputSmoother(steerStrength, "Steer"));
+            inputSmoothers.Add(InputSmootherObjectType.Throttle, new InputSmoother(throttleStrength, "Throttle"));
+            inputSmoothers.Add(InputSmootherObjectType.Brake, new InputSmoother(breakPedalStrength, "Brake"));
+            inputSmoothers.Add(InputSmootherObjectType.Handbrake, new InputSmoother(100f, "Handbrake"));
+            inputActions = new VehicleControllerInputActions();
+            inputActions.Enable();
+            inputActionsSetupComplete = true;
+
+        }
+
+        private void SubscribeToInput()
+        {
+            if (!inputActionsSetupComplete)
+            {
+                Debug.LogError("Please call SetupInputHandlers. Input is currently disabled");
+                return;
+            }
+
+            inputActions.VehicleControllerInputs.Steer.performed += Input_Steer;
+            inputActions.VehicleControllerInputs.Steer.canceled += Input_Steer;
+
+            inputActions.VehicleControllerInputs.Throttle.performed += Input_Throttle;
+            inputActions.VehicleControllerInputs.Throttle.canceled += Input_Throttle;
+
+            inputActions.VehicleControllerInputs.Brake.performed += Input_Brake;
+            inputActions.VehicleControllerInputs.Brake.canceled += Input_Brake;
+
+            inputActions.VehicleControllerInputs.HandBrake.performed += Input_Handbrake;
+            inputActions.VehicleControllerInputs.HandBrake.canceled += Input_Handbrake;
+        }
+
+        private void UnsubscribeToInput()
+        {
+            if (!inputActionsSetupComplete)
+            {
+                Debug.LogError("Please call SetupInputHandlers. Input is currently disabled");
+                return;
+            }
+
+            inputActions.VehicleControllerInputs.Steer.performed -= Input_Steer;
+            inputActions.VehicleControllerInputs.Steer.canceled -= Input_Steer;
+
+            inputActions.VehicleControllerInputs.Throttle.performed -= Input_Throttle;
+            inputActions.VehicleControllerInputs.Throttle.canceled -= Input_Throttle;
+
+            inputActions.VehicleControllerInputs.Brake.performed -= Input_Brake;
+            inputActions.VehicleControllerInputs.Brake.canceled -= Input_Brake;
+
+            inputActions.VehicleControllerInputs.HandBrake.performed -= Input_Handbrake;
+            inputActions.VehicleControllerInputs.HandBrake.canceled -= Input_Handbrake;
+        }
+        public void Input_Throttle(InputAction.CallbackContext ctx)
+        {
+            Debug.Log("Throttle");
+            Debug.Log(ctx);
+            inputSmoothers[InputSmootherObjectType.Throttle].SetTarget(ctx.ReadValue<float>());
+        }
+        public void Input_Brake(InputAction.CallbackContext ctx)
+        {
+            Debug.Log("Brake");
+            Debug.Log(ctx);
+            inputSmoothers[InputSmootherObjectType.Brake].SetTarget(ctx.ReadValue<float>());
+        }
+
+        public void Input_Steer(InputAction.CallbackContext ctx)
+        {
+            Debug.Log("steer");
+            Debug.Log(ctx);
+            inputSmoothers[InputSmootherObjectType.Steer].SetTarget(ctx.ReadValue<float>());
+        }
+        public void Input_Handbrake(InputAction.CallbackContext ctx)
+        {
+            Debug.Log("handbrake");
+            Debug.Log(ctx);
+            inputSmoothers[InputSmootherObjectType.Handbrake].SetTarget(ctx.ReadValue<float>());
+        }
+
+        #endregion Input Management
 
         #region DebugInformation
 
