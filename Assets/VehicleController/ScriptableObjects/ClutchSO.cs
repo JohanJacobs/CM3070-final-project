@@ -8,8 +8,8 @@ namespace vc
         [CreateAssetMenu(fileName = "Clutch", menuName = "Components/Clutch SO")]
         public class ClutchSO: ScriptableObjectBase
         {
-            [Range(0f, 0.5f)]
-            public float Intertia;// kg/m2
+            public FloatVariable engineTorque;
+
             public static ComponentTypes GetVehicleComponentType()
             {
                 return ComponentTypes.Clutch;
@@ -17,7 +17,6 @@ namespace vc
             public static ClutchSO CreateDefault()
             {
                 var clutch = new ClutchSO();
-                clutch.Intertia = 0.15f;
                 return clutch;
             }
         }

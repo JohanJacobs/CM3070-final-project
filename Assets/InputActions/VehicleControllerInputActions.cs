@@ -126,6 +126,33 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CameraInteract"",
+                    ""type"": ""Button"",
+                    ""id"": ""56656d7d-9e58-4fed-ba59-1e4e5be27357"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CameraMove"",
+                    ""type"": ""Value"",
+                    ""id"": ""b0123986-ea26-4457-9498-eaa730562803"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""CameraZoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""32798567-cd92-4ccc-93fd-a7102741b070"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -146,7 +173,7 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard"",
                     ""action"": ""Steer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -157,7 +184,40 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Steer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""2ac89e11-9310-4cfe-a525-2dc853f096d4"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
                     ""groups"": """",
+                    ""action"": ""Steer"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""aee6b766-9526-41fe-92aa-58e7f6302933"",
+                    ""path"": ""<Gamepad>/leftStick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Steer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""15846fa8-fd3f-4d45-8667-0446578c4b18"",
+                    ""path"": ""<Gamepad>/leftStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
                     ""action"": ""Steer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -168,7 +228,18 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Throttle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""82770d99-7a96-4104-bc9e-f1a9bddabf78"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
                     ""action"": ""Throttle"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -186,6 +257,17 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                 },
                 {
                     ""name"": """",
+                    ""id"": ""235d9262-0398-4e1e-9791-5878ff1aa002"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""HandBrake"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""c296472b-fb96-4117-b1e4-a1393668061b"",
                     ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
@@ -194,6 +276,83 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""action"": ""Brake"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e5b547a8-2d67-4a28-83a5-e37c5cc56731"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Brake"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""47494038-f29c-431c-8e72-7c60438e265f"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CameraInteract"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aedfb261-2bf1-45c0-b160-6fd0fee8e48b"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CameraInteract"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""91c593b0-7d0e-46c5-a95e-30bd2c6085f0"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CameraMove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""e59cc0a7-3726-4f5f-bb01-98d1a0b3c2f0"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CameraZoom"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""318c6e26-d4e0-4e68-9d28-443b045b817e"",
+                    ""path"": ""<Mouse>/scroll/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CameraZoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""d3a12016-29e0-4735-9611-79504d483c18"",
+                    ""path"": ""<Mouse>/scroll/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""CameraZoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -217,6 +376,9 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
         m_VehicleControllerInputs_Throttle = m_VehicleControllerInputs.FindAction("Throttle", throwIfNotFound: true);
         m_VehicleControllerInputs_Brake = m_VehicleControllerInputs.FindAction("Brake", throwIfNotFound: true);
         m_VehicleControllerInputs_HandBrake = m_VehicleControllerInputs.FindAction("HandBrake", throwIfNotFound: true);
+        m_VehicleControllerInputs_CameraInteract = m_VehicleControllerInputs.FindAction("CameraInteract", throwIfNotFound: true);
+        m_VehicleControllerInputs_CameraMove = m_VehicleControllerInputs.FindAction("CameraMove", throwIfNotFound: true);
+        m_VehicleControllerInputs_CameraZoom = m_VehicleControllerInputs.FindAction("CameraZoom", throwIfNotFound: true);
     }
 
     ~@VehicleControllerInputActions()
@@ -301,6 +463,9 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
     private readonly InputAction m_VehicleControllerInputs_Throttle;
     private readonly InputAction m_VehicleControllerInputs_Brake;
     private readonly InputAction m_VehicleControllerInputs_HandBrake;
+    private readonly InputAction m_VehicleControllerInputs_CameraInteract;
+    private readonly InputAction m_VehicleControllerInputs_CameraMove;
+    private readonly InputAction m_VehicleControllerInputs_CameraZoom;
     /// <summary>
     /// Provides access to input actions defined in input action map "VehicleControllerInputs".
     /// </summary>
@@ -328,6 +493,18 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
         /// Provides access to the underlying input action "VehicleControllerInputs/HandBrake".
         /// </summary>
         public InputAction @HandBrake => m_Wrapper.m_VehicleControllerInputs_HandBrake;
+        /// <summary>
+        /// Provides access to the underlying input action "VehicleControllerInputs/CameraInteract".
+        /// </summary>
+        public InputAction @CameraInteract => m_Wrapper.m_VehicleControllerInputs_CameraInteract;
+        /// <summary>
+        /// Provides access to the underlying input action "VehicleControllerInputs/CameraMove".
+        /// </summary>
+        public InputAction @CameraMove => m_Wrapper.m_VehicleControllerInputs_CameraMove;
+        /// <summary>
+        /// Provides access to the underlying input action "VehicleControllerInputs/CameraZoom".
+        /// </summary>
+        public InputAction @CameraZoom => m_Wrapper.m_VehicleControllerInputs_CameraZoom;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -366,6 +543,15 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
             @HandBrake.started += instance.OnHandBrake;
             @HandBrake.performed += instance.OnHandBrake;
             @HandBrake.canceled += instance.OnHandBrake;
+            @CameraInteract.started += instance.OnCameraInteract;
+            @CameraInteract.performed += instance.OnCameraInteract;
+            @CameraInteract.canceled += instance.OnCameraInteract;
+            @CameraMove.started += instance.OnCameraMove;
+            @CameraMove.performed += instance.OnCameraMove;
+            @CameraMove.canceled += instance.OnCameraMove;
+            @CameraZoom.started += instance.OnCameraZoom;
+            @CameraZoom.performed += instance.OnCameraZoom;
+            @CameraZoom.canceled += instance.OnCameraZoom;
         }
 
         /// <summary>
@@ -389,6 +575,15 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
             @HandBrake.started -= instance.OnHandBrake;
             @HandBrake.performed -= instance.OnHandBrake;
             @HandBrake.canceled -= instance.OnHandBrake;
+            @CameraInteract.started -= instance.OnCameraInteract;
+            @CameraInteract.performed -= instance.OnCameraInteract;
+            @CameraInteract.canceled -= instance.OnCameraInteract;
+            @CameraMove.started -= instance.OnCameraMove;
+            @CameraMove.performed -= instance.OnCameraMove;
+            @CameraMove.canceled -= instance.OnCameraMove;
+            @CameraZoom.started -= instance.OnCameraZoom;
+            @CameraZoom.performed -= instance.OnCameraZoom;
+            @CameraZoom.canceled -= instance.OnCameraZoom;
         }
 
         /// <summary>
@@ -483,5 +678,26 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHandBrake(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CameraInteract" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCameraInteract(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CameraMove" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCameraMove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CameraZoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCameraZoom(InputAction.CallbackContext context);
     }
 }

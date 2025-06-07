@@ -11,7 +11,7 @@ namespace vc
         {
             public WheelID id { get; private set; }
             SuspensionSO config;
-            Transform mountPoint;
+            public Transform mountPoint { get; private set; }
             WheelComponent wheelComponent;
 
             float restLength; // meters;
@@ -41,6 +41,7 @@ namespace vc
                 this.damperStrength = config.DamperStrength;
                 
                 this.hitData = new WheelHitData();
+                this.hitData.mountPoint = mountPoint;
                 this.hitData.rb = rb;
                 wheel.SetWheelHitData(this.hitData);
 
@@ -77,6 +78,10 @@ namespace vc
                     this.hitData.normalForce = normalForce;
                     this.hitData.hitPoint = hitInfo.point;
                     this.hitData.hitNormal = hitInfo.normal;
+
+                    // calculate the linear velocity at the hit point
+                    this.hitData.linearVelocityWS = hitData.rb.GetPointVelocity(hitInfo.point);//meters per seconds  world space
+                    this.hitData.linearVelocityLS = mountPoint.transform.InverseTransformDirection(this.hitData.linearVelocityWS);//meters per seconds local space
                 }
                 else
                 {
@@ -92,10 +97,7 @@ namespace vc
                 }
             }
             #region IVehicleComponent
-            public ComponentTypes GetComponentType()
-            {
-                return ComponentTypes.Suspension;
-            }
+            public ComponentTypes GetComponentType() => ComponentTypes.Suspension;
 
             public void Start()
             {                
@@ -118,6 +120,10 @@ namespace vc
             #region IDebugInformation
             public void DrawGizmos()
             {
+                Gizmos.color = Color.white;
+                Gizmos.DrawRay(hitData.mountPoint.position, -hitData.mountPoint.up * currentLength);
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(hitData.hitPoint, 0.01f);
 
             }
 

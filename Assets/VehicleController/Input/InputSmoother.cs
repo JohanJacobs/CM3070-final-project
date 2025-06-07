@@ -1,74 +1,102 @@
+
 using Sirenix.OdinInspector;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using static vc.VehicleController;
+using UnityEngine.InputSystem;
+using static UnityEngine.GraphicsBuffer;
 
 namespace vc
-{ 
-    public class InputSmoother
+{
+    public class InputSmoother:MonoBehaviour
     {
-        public float Target => target;
-        public float Value => currentValue;
-        public string Label => label;
+        [SerializeField] FloatVariable steerVariable;
+        [SerializeField] FloatVariable throttleVariable;
+        [SerializeField] FloatVariable brakeVariable;
+        [SerializeField] FloatVariable handbrakeVariable;
+                
+        [Header("Input Configuration")]
+        [SerializeField]
+        float steerStrength;
+        [SerializeField]
+        float throttleStrength;
+        [SerializeField]
+        float brakeStrength;
+        VehicleControllerInputActions inputActions;
 
-        
-        float strength;        
-        float target;        
-        float currentValue;        
-        string label;
-        
-        public InputSmoother(float strength, string label)
+        float steerTrarget;
+        float throttleTarget;
+        float brakeTarget;
+        float handBrakeTarget;
+
+        private void Awake()
         {
-            GameObject go = new GameObject($"InputSmoother - {label}");
-            var mh = go.AddComponent<MonoHolder>();
-            mh.SetSmoother(this);
-
-            this.strength = strength;
-            this.target = 0f;
-            this.currentValue = 0f;
+            inputActions = new VehicleControllerInputActions();
+            inputActions.Enable();
+        }
+        private void Update()
+        {
+            updateValue(steerVariable, steerTrarget,steerStrength);
+            updateValue(throttleVariable, throttleTarget, throttleStrength);
+            updateValue(brakeVariable, brakeTarget, brakeStrength);
+            updateValue(handbrakeVariable, handBrakeTarget, 100f);
         }
 
-        public void SetTarget(float target)
+        private void updateValue(FloatVariable currentValue, float target, float strength)
         {
-            this.target = target;
-        }
-        public void UpdateSmoothing(float dt)
-        {
-            if (currentValue == target)
+            if (currentValue.Value == target)
                 return;
 
             var s = (target == 0f) ? strength * 2f : strength;
-            currentValue = Mathf.MoveTowards(currentValue, target, dt * s);
+            currentValue.Value = Mathf.MoveTowards(currentValue.Value, target, Time.deltaTime * s);
         }
 
-
-        // Game Object to hold the input smoothing component in
-        public class MonoHolder : MonoBehaviour
+        private void OnEnable()
         {
-            InputSmoother smoother;
-            [SerializeField, Sirenix.OdinInspector.ReadOnly]
-            float strength;
-            [SerializeField, Sirenix.OdinInspector.ReadOnly]
-            float value;
-            [SerializeField, Sirenix.OdinInspector.ReadOnly]
-            float target;
+            inputActions.VehicleControllerInputs.Steer.performed += Input_Steer;
+            inputActions.VehicleControllerInputs.Steer.canceled += Input_Steer;
 
-            public void Update()
-            {
-                smoother.UpdateSmoothing(Time.deltaTime);
-            }
+            inputActions.VehicleControllerInputs.Throttle.performed += Input_Throttle;
+            inputActions.VehicleControllerInputs.Throttle.canceled += Input_Throttle;
 
-            public void LateUpdate()
-            {
-                strength = smoother.strength;
-                value = smoother.Value;
-                target = smoother.Target;
-            }
+            inputActions.VehicleControllerInputs.Brake.performed += Input_Brake;
+            inputActions.VehicleControllerInputs.Brake.canceled += Input_Brake;
 
-            public void SetSmoother(InputSmoother smoother)
-            {
-                this.smoother = smoother;
-            }
+            inputActions.VehicleControllerInputs.HandBrake.performed += Input_Handbrake;
+            inputActions.VehicleControllerInputs.HandBrake.canceled += Input_Handbrake;
         }
 
+        private void OnDisable()
+        {
+            inputActions.VehicleControllerInputs.Steer.performed -= Input_Steer;
+            inputActions.VehicleControllerInputs.Steer.canceled -= Input_Steer;
+
+            inputActions.VehicleControllerInputs.Throttle.performed -= Input_Throttle;
+            inputActions.VehicleControllerInputs.Throttle.canceled -= Input_Throttle;
+
+            inputActions.VehicleControllerInputs.Brake.performed -= Input_Brake;
+            inputActions.VehicleControllerInputs.Brake.canceled -= Input_Brake;
+
+            inputActions.VehicleControllerInputs.HandBrake.performed -= Input_Handbrake;
+            inputActions.VehicleControllerInputs.HandBrake.canceled -= Input_Handbrake;
+        }
+        public void Input_Throttle(InputAction.CallbackContext ctx)
+        {
+            throttleTarget = ctx.ReadValue<float>();
+        }
+        public void Input_Brake(InputAction.CallbackContext ctx)
+        {
+            brakeTarget = ctx.ReadValue<float>();
+        }
+
+        public void Input_Steer(InputAction.CallbackContext ctx)
+        {
+            steerTrarget = ctx.ReadValue<float>();
+        }
+        public void Input_Handbrake(InputAction.CallbackContext ctx)
+        {
+            handBrakeTarget = ctx.ReadValue<float>();   
+        }        
     }
 }
