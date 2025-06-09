@@ -50,7 +50,7 @@ public class EngineFeedback : MonoBehaviour
 
     private void engineRPM_OnValueChanged(float value)
     {
-        engineTorqueText.text = $"RPM: {value.ToString("F1")}";
+        rpmText.text = $"RPM: {value.ToString("F1")}";
     }
 
 }

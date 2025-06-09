@@ -12,6 +12,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 885de2b875b92c6419167cc619a00fdc, type: 3}
   m_Name: BasicEngineSO
   m_EditorClassIdentifier: 
+  redlineRPM: 7500
+  idleRPM: 900
+  torqueCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.20340702
+      outSlope: 0.20340702
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.08354684
+    - serializedVersion: 3
+      time: 1528
+      value: 275
+      inSlope: 0.060871292
+      outSlope: 0.060871292
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.101543486
+    - serializedVersion: 3
+      time: 4500
+      value: 400
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 9000
+      value: 0
+      inSlope: -0.19175388
+      outSlope: -0.19175388
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.020488715
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   throttleVariable: {fileID: 11400000, guid: e19849970ec0b34419cebfea16613ef8, type: 2}
-  RPM: {fileID: 11400000, guid: ea6e3b1c545c26c418953308e63736a2, type: 2}
-  EngineTorque: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d, type: 2}
+  engineRPMVariable: {fileID: 11400000, guid: ea6e3b1c545c26c418953308e63736a2, type: 2}
+  engineRedlineRPMVariable: {fileID: 11400000, guid: 0af93a5a9b9e12c4e894dde91d84a28c,
+    type: 2}
+  engineIdleRPMVariable: {fileID: 11400000, guid: 54c57da9ca8168940a98854940583ac7,
+    type: 2}
+  engineEffectiveTorque: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d,
+    type: 2}
+  EngineTorqueVariable: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d,
+    type: 2}

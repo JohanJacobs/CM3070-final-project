@@ -54,7 +54,7 @@ namespace vc
 
             public void Update(float dt)
             {
-
+                Update(dt, 0f);
             }
             #endregion IVehicleComponent
 

@@ -8,12 +8,19 @@ namespace vc
         [CreateAssetMenu(fileName = "Engine", menuName = "Components/Engine SO")]
         public class EngineSO: ScriptableObjectBase
         {
+            [Header("Configuration")]
+            public float redlineRPM;
+            public float idleRPM;
+            public AnimationCurve torqueCurve;
+
             [Header("Input")]
             public FloatVariable throttleVariable;
 
             [ Header("Variables")]
-            public FloatVariable RPM;
-            public FloatVariable EngineTorque;            
+            public FloatVariable engineRPMVariable;
+            public FloatVariable engineRedlineRPMVariable;
+            public FloatVariable engineIdleRPMVariable;
+            public FloatVariable engineEffectiveTorque;                       
 
             public static ComponentTypes GetVehicleComponentType()
             {

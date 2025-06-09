@@ -51,21 +51,24 @@ namespace vc
         {
 
             float dt = Time.fixedDeltaTime;
-            
+            vehicle.engine.Update(dt);
+
             vehicle.suspension[WheelID.LeftFront].Update(dt);
             vehicle.suspension[WheelID.RightFront].Update(dt);
             vehicle.suspension[WheelID.LeftRear].Update(dt);
             vehicle.suspension[WheelID.RightRear].Update(dt);
 
-            float driveTorque = throttleInput.Value - brakeInput.Value ;
 
-            vehicle.wheels[WheelID.LeftFront].Update(dt, driveTorque);
-            vehicle.wheels[WheelID.RightFront].Update(dt, driveTorque);
+            vehicle.wheels[WheelID.LeftFront].Update(dt);
+            vehicle.wheels[WheelID.RightFront].Update(dt);
+
+            float driveTorque = vehicle.engine.effectiveTorque;
 
             vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque);
             vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque);
 
             vehicle.body.Update(dt);
+            
         }
 
         #region Vehicle
@@ -104,7 +107,10 @@ namespace vc
             vehicle.differential = new DifferentialComponent(differentialConfig);
             vehicle.transmission = new TransmissionComponent(transmissionConfig);
             vehicle.clutch = new ClutchComponent(ClutchConfig);
+
             vehicle.engine = new EngineComponent(EngineConfig);
+            vehicle.engine.Start();
+
             vehicle.body = new BodyComponent(bodyConfig, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);
         }
         #endregion Vehicle
@@ -117,16 +123,16 @@ namespace vc
             if (!Application.isPlaying)
                 return;
 
-            vehicle.wheels[WheelID.RightFront].DrawGizmos();
-            vehicle.wheels[WheelID.LeftFront].DrawGizmos();
-            vehicle.wheels[WheelID.RightRear].DrawGizmos();
-            vehicle.wheels[WheelID.LeftRear].DrawGizmos();
+            //vehicle.wheels[WheelID.RightFront].DrawGizmos();
+            //vehicle.wheels[WheelID.LeftFront].DrawGizmos();
+            //vehicle.wheels[WheelID.RightRear].DrawGizmos();
+            //vehicle.wheels[WheelID.LeftRear].DrawGizmos();
 
 
-            vehicle.suspension[WheelID.RightFront].DrawGizmos();
-            vehicle.suspension[WheelID.LeftFront].DrawGizmos();
-            vehicle.suspension[WheelID.RightRear].DrawGizmos();
-            vehicle.suspension[WheelID.LeftRear].DrawGizmos();
+            //vehicle.suspension[WheelID.RightFront].DrawGizmos();
+            //vehicle.suspension[WheelID.LeftFront].DrawGizmos();
+            //vehicle.suspension[WheelID.RightRear].DrawGizmos();
+            //vehicle.suspension[WheelID.LeftRear].DrawGizmos();
 
         }
 
@@ -135,6 +141,8 @@ namespace vc
             float yOffset = 10f;
             float yStep = 20f;
             float xPos = 10f;
+
+            vehicle.engine.OnGUI(xPos, yOffset, yStep);
          
         }
         #endregion

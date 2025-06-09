@@ -3,7 +3,17 @@ guid: e244673b7c674604286d6292c82622f8
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - engineTorque: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d, type: 2}
+  - engineRPM: {fileID: 11400000, guid: 54c57da9ca8168940a98854940583ac7, type: 2}
+  - clutch: {instanceID: 0}
+  - transmission: {instanceID: 0}
+  - differential: {instanceID: 0}
+  - rpmText: {instanceID: 0}
+  - engineTorqueText: {instanceID: 0}
+  - clutchText: {instanceID: 0}
+  - TransmissionText: {instanceID: 0}
+  - DifferentialText: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
