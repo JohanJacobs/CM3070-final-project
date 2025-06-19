@@ -31,12 +31,12 @@ namespace vc
         BodySO bodyConfig;
 
 
-        Rigidbody rb;
+        Rigidbody carRigidbody;
         
         public void Awake()
         {
-            rb = GetComponent<Rigidbody>();
-            if (rb == null)
+            carRigidbody = GetComponent<Rigidbody>();
+            if (carRigidbody == null)
             {
                 Debug.LogError("Missing rigid body!");
             }
@@ -47,28 +47,29 @@ namespace vc
         public void Update()
         {            
         }
+        
         private void FixedUpdate()
         {
-
             float dt = Time.fixedDeltaTime;
-            vehicle.engine.Update(dt);
+            float throttle = throttleInput.Value;
+            float brake = brakeInput.Value;
+            vehicle.body.Update(dt);
 
+            
             vehicle.suspension[WheelID.LeftFront].Update(dt);
             vehicle.suspension[WheelID.RightFront].Update(dt);
             vehicle.suspension[WheelID.LeftRear].Update(dt);
             vehicle.suspension[WheelID.RightRear].Update(dt);
 
+            vehicle.rollbarFront.Update(dt);
+            vehicle.rollbarRear.Update(dt);
 
-            vehicle.wheels[WheelID.LeftFront].Update(dt);
-            vehicle.wheels[WheelID.RightFront].Update(dt);
+            vehicle.wheels[WheelID.LeftFront].Update(dt, throttle, brake);
+            vehicle.wheels[WheelID.RightFront].Update(dt, throttle, brake);
 
-            float driveTorque = vehicle.engine.effectiveTorque;
+            vehicle.wheels[WheelID.LeftRear].Update(dt, throttle, brake);
+            vehicle.wheels[WheelID.RightRear].Update(dt, throttle, brake);
 
-            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque);
-            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque);
-
-            vehicle.body.Update(dt);
-            
         }
 
         #region Vehicle
@@ -81,6 +82,7 @@ namespace vc
             public EngineComponent engine;
             public ClutchComponent clutch;
             public BodyComponent body;
+            public RollbarComponet rollbarFront, rollbarRear;
         }
         Vehicle vehicle;
 
@@ -89,29 +91,32 @@ namespace vc
             vehicle = new();
 
 
+            var wheelHitData = WheelHitData.SetupDefault(carRigidbody);
+            
             // wheels 
             vehicle.wheels = new();
-            foreach (var wc in wheelConfig) 
-            {                
-                var w = new WheelComponent(wc.Config, wc.ID);
-                vehicle.wheels.Add(w.id, w);
+            foreach (var wc in wheelConfig)
+            {
+                vehicle.wheels.Add(wc.ID, new WheelComponent(wc.ID, wc.Config, wheelHitData[wc.ID]));
             }
 
             // Setup Suspensions            
             vehicle.suspension = new();
             foreach (var susp in suspensionConfig)
             {
-                vehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, vehicle.wheels[susp.ID], susp.mountPoint, rb));
+                vehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
             }
 
-            vehicle.differential = new DifferentialComponent(differentialConfig);
-            vehicle.transmission = new TransmissionComponent(transmissionConfig);
-            vehicle.clutch = new ClutchComponent(ClutchConfig);
+            // car body
+            vehicle.body = new BodyComponent(bodyConfig, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);                       
+            foreach (var whd in wheelHitData)
+            {
+                whd.Value.body = vehicle.body;
+            }
 
-            vehicle.engine = new EngineComponent(EngineConfig);
-            vehicle.engine.Start();
+            vehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
+            vehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
 
-            vehicle.body = new BodyComponent(bodyConfig, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);
         }
         #endregion Vehicle
 
@@ -123,16 +128,16 @@ namespace vc
             if (!Application.isPlaying)
                 return;
 
-            //vehicle.wheels[WheelID.RightFront].DrawGizmos();
-            //vehicle.wheels[WheelID.LeftFront].DrawGizmos();
-            //vehicle.wheels[WheelID.RightRear].DrawGizmos();
-            //vehicle.wheels[WheelID.LeftRear].DrawGizmos();
+            vehicle.wheels[WheelID.RightFront].DrawGizmos();
+            vehicle.wheels[WheelID.LeftFront].DrawGizmos();
+            vehicle.wheels[WheelID.RightRear].DrawGizmos();
+            vehicle.wheels[WheelID.LeftRear].DrawGizmos();
 
 
-            //vehicle.suspension[WheelID.RightFront].DrawGizmos();
-            //vehicle.suspension[WheelID.LeftFront].DrawGizmos();
-            //vehicle.suspension[WheelID.RightRear].DrawGizmos();
-            //vehicle.suspension[WheelID.LeftRear].DrawGizmos();
+            vehicle.suspension[WheelID.RightFront].DrawGizmos();
+            vehicle.suspension[WheelID.LeftFront].DrawGizmos();
+            vehicle.suspension[WheelID.RightRear].DrawGizmos();
+            vehicle.suspension[WheelID.LeftRear].DrawGizmos();
 
         }
 
@@ -142,8 +147,17 @@ namespace vc
             float yStep = 20f;
             float xPos = 10f;
 
-            vehicle.engine.OnGUI(xPos, yOffset, yStep);
-         
+            yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
+
+            //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
+
         }
         #endregion
     }

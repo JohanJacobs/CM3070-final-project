@@ -11,5 +11,6 @@ namespace vc
         Aero,
         Brake,
         Body,
+        AnitRollbar
     }
 }

@@ -6,7 +6,7 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class BodyComponent : IVehicleComponent 
+        public class BodyComponent : IVehicleComponent , IDebugInformation
         {
             BodySO config;
             FloatVariable steerInput;
@@ -20,6 +20,14 @@ namespace vc
 
             float ackermanAngleLeft = 0f;
             float ackermanAngleRight = 0f;
+
+
+            float aeroDrag => 0f; // TODO:
+            float bodyDrag => 0f; // TODO:
+            public float DragForce => aeroDrag + bodyDrag;
+            public float mass => 1500; // kg
+
+
 
             public BodyComponent( BodySO config, Transform leftWheel, Transform rightWheel)
             {
@@ -55,11 +63,11 @@ namespace vc
             #region bodycomponent
             void UpdateAckermanSteering()
             {
-                // calculate angle in degrees 
 
                 float steerValue = steerInput.Value;
 
                 
+                // calculate angle in degrees 
                 if (steerValue < 0f)
                 {
                     ackermanAngleLeft = Mathf.Rad2Deg * Mathf.Atan(wheelBaseLength / (turnRadius - (wheelBaseRearTrackLength / 2))) * steerValue;
@@ -71,10 +79,22 @@ namespace vc
                     ackermanAngleRight = Mathf.Rad2Deg * Mathf.Atan(wheelBaseLength / (turnRadius - (wheelBaseRearTrackLength / 2))) * steerValue;
                 }
 
+                // Rotate the steering geometry
                 leftWheel.localRotation = Quaternion.Euler(new Vector3(leftWheel.localRotation.x, ackermanAngleLeft, leftWheel.localRotation.z));
                 rightWheel.localRotation = Quaternion.Euler(new Vector3(rightWheel.localRotation.x, ackermanAngleLeft, rightWheel.localRotation.z));
             }
 
+            public void DrawGizmos()
+            {
+                
+            }
+
+            public float OnGUI(float xOffset, float yOffset, float yStep)
+            {
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"- BODY:");
+                
+                return yOffset;
+            }
             #endregion bodycomponent
         }
     }

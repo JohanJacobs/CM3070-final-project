@@ -21,14 +21,20 @@ namespace vc
         float steerStrength;
         [SerializeField]
         float throttleStrength;
+
         [SerializeField]
         float brakeStrength;
         VehicleControllerInputActions inputActions;
 
-        float steerTrarget;
-        float throttleTarget;
-        float brakeTarget;
-        float handBrakeTarget;
+        [SerializeField] float steerTrarget;
+        [SerializeField] float throttleTarget;
+        [SerializeField] float brakeTarget;
+        [SerializeField] float handBrakeTarget;
+
+
+        [SerializeField] float overrideValue;
+        [SerializeField] bool OverrideThrottle;
+        [SerializeField] bool OverrideBrake;
 
         private void Awake()
         {
@@ -37,6 +43,15 @@ namespace vc
         }
         private void Update()
         {
+            if (OverrideThrottle)
+            {
+                throttleTarget = overrideValue;
+            }
+            if (OverrideBrake)
+            {
+                brakeTarget= overrideValue;
+            }
+
             updateValue(steerVariable, steerTrarget,steerStrength);
             updateValue(throttleVariable, throttleTarget, throttleStrength);
             updateValue(brakeVariable, brakeTarget, brakeStrength);
@@ -83,20 +98,20 @@ namespace vc
         }
         public void Input_Throttle(InputAction.CallbackContext ctx)
         {
-            throttleTarget = ctx.ReadValue<float>();
+                throttleTarget = ctx.ReadValue<float>();
         }
         public void Input_Brake(InputAction.CallbackContext ctx)
         {
-            brakeTarget = ctx.ReadValue<float>();
+                brakeTarget = ctx.ReadValue<float>();
         }
 
         public void Input_Steer(InputAction.CallbackContext ctx)
         {
-            steerTrarget = ctx.ReadValue<float>();
+                steerTrarget = ctx.ReadValue<float>();
         }
         public void Input_Handbrake(InputAction.CallbackContext ctx)
         {
-            handBrakeTarget = ctx.ReadValue<float>();   
+                handBrakeTarget = ctx.ReadValue<float>();   
         }        
     }
 }

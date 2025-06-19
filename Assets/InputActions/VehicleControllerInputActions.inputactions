@@ -7,39 +7,39 @@
             "actions": [
                 {
                     "name": "Steer",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "0264c361-e2b8-4a11-abad-ad0cd4daf7f7",
-                    "expectedControlType": "",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Throttle",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "e6cabb92-ab89-4f1e-9c74-3e82463aaade",
-                    "expectedControlType": "",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Brake",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "8ebe1416-3ce8-4923-b7c5-780a0a052401",
-                    "expectedControlType": "",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "HandBrake",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "4a2eecd3-a562-498c-8a7a-787d40ea9f2b",
-                    "expectedControlType": "",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "CameraInteract",
@@ -231,6 +231,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard",
+                    "action": "CameraMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "81aecd9c-4fa5-4b57-8e07-bf4eaac4427e",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": false
