@@ -65,7 +65,7 @@ namespace vc
             void CalculateLateralForce(float dt)
             {
                 Fx = 0f;
-                currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.y))) * Mathf.Rad2Deg;
+                currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
 
                 var lateralSlipRatio = lsc.CalculateSlip(wheelData.velocityLS, dt);
                 var lateralSlipForce = lateralSlipRatio * (Mathf.Max(wheelData.normalforce, 0f) * 100f);
@@ -245,18 +245,19 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vx : {(this.wheelData.velocityLS.x).ToString("f5")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.longitudinalAngularVelocity).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.currentSlipRatio).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrTorq: {(this.brakeTorque).ToString("f3")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f1")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.longitudinalAngularVelocity).ToString("f3")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.currentSlipRatio).ToString("f3")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrTorq: {(this.brakeTorque).ToString("f3")}");
                 //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" intertia: {(this.wheelMomentOfInteria).ToString("f3")}");
 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx : {(this.Fx).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Plat: {(this.pacjekaLat).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Angle: {(this.currentSlipAngleDeg).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SARatio: {(this.lsc.slipRatio).ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SA: {(this.lsc.slipAngle).ToString("f4")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SADyn: {(this.lsc.slipAngleDynamic).ToString("f4")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SR: {(this.lsc.slipRatio).ToString("f4")}");
                 
 
                 return yOffset;
@@ -274,20 +275,58 @@ namespace vc
                 // -1 slipping to the left 
                 //  1 slipping to the right 
                 //  0 no slip
-                public float slipRatio;
+
+                public float slipRatio { get; private set; }
+                public float slipAngleDynamic = default;
+
                 // Relaxation Length
                 // the distance a tire travels before its lateral (sideways) force reaches a steady-state value
                 // after a sudden change in slip angle (the angle between the direction the tire is pointing and
                 // the direction it is actually traveling). It describes the delay between when a slip angle is
                 // introduced and when the cornering force reaches its steady-state value
-                //  Relaxations lengths have been found to be between 0.12 and 0.45 meters, with higher values corresponding to higher velocities and heavier loads - https://en.wikipedia.org/wiki/Relaxation_length
+                //  Relaxations lengths have been found to be between 0.12 and 0.45 meters, with higher values
+                //  corresponding to higher velocities and heavier loads - https://en.wikipedia.org/wiki/Relaxation_length
                 public float relaxationLength = 0.001f;
-                private float SteadyState(Vector3 veloLS) => MathHelper.Sign(veloLS.x / -1f);
 
-                private float RelaxationCoefficient(Vector3 veloLS, float dt) => (Mathf.Abs(veloLS.x) / relaxationLength) * dt;
-                private float NewSlip(Vector3 veloLS, float dt) => slipRatio + ((SteadyState(veloLS) - slipRatio) * RelaxationCoefficient(veloLS, dt));
+                // Slip Angle 
+                // angle between the direction in which a wheel is pointing and the direction in which it is actually traveling
+                // This slip angle results in a force, the cornering force, which is in the plane of the contact patch and
+                // perpendicular to the intersection of the contact patch and the midplane of the wheel.[1] This cornering force
+                // increases approximately linearly for the first few degrees of slip angle, then increases non-linearly to a
+                // maximum before beginning to decrease. (Pacejka, Hans B. (2006). Tire and Vehicle Dynamics (Second ed.). Society of Automotive Engineers. pp. 3, 612. ISBN 0-7680-1702-5.)
+                // https://en.wikipedia.org/wiki/Slip_angle
+                public float slipAngle { get; private set; }
 
-                public float CalculateSlip(Vector3 veloLS, float dt) => slipRatio = Mathf.Clamp(NewSlip(veloLS, dt), -1f, 1f);
+                public float slipAnglePeak = 15f; /// peak slip angle for maximum grip (8 degrees) 
+
+                private float RelaxationCoefficient(Vector3 veloLS, float dt) => Mathf.Clamp((Mathf.Abs(veloLS.x) / relaxationLength) * dt, 0f, 1f);
+
+                //private float SteadyState(Vector3 veloLS) => MathHelper.Sign(veloLS.x / -1f);
+                //private float NewSlip(Vector3 veloLS, float dt) => slipRatio + ((SteadyState(veloLS) - slipRatio) * RelaxationCoefficient(veloLS, dt));
+
+                private float HighSpeedSteadyState(Vector3 veloLS) 
+                {
+                    // slip angle
+                    slipAngle = Mathf.Atan(MathHelper.SafeDivide(-veloLS.x, Mathf.Abs(veloLS.z)))*Mathf.Rad2Deg;
+                    return slipAngle;
+                }
+                private float SteadyStateTransition(Vector3 veloLS) => MathHelper.MapAndClamp(veloLS.magnitude, 3f, 6f, 0f, 1f);
+                private float LowSpeedSteadyState(Vector3 veloLS) => slipAnglePeak * MathHelper.Sign(-1f*veloLS.x);
+                private float CaclulateDynamicSlipAngle(Vector3 veloLS, float dt)
+                {
+                    var steadyState = Mathf.Lerp(LowSpeedSteadyState(veloLS), HighSpeedSteadyState(veloLS), SteadyStateTransition(veloLS));
+                    var newSlipAngleDynamic = slipAngleDynamic + (steadyState - slipAngleDynamic) * RelaxationCoefficient(veloLS, dt);
+                    slipAngleDynamic = Mathf.Clamp(newSlipAngleDynamic, -90f, 90f);
+                    return slipAngleDynamic;
+                }
+
+                public float CalculateSlip(Vector3 veloLS, float dt)
+                {
+                    slipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
+                    slipRatio = Mathf.Clamp(MathHelper.SafeDivide(slipAngleDynamic,slipAnglePeak), -1f, 1f);
+                    //slipRatio = slipRatio < float.Epsilon ? 0f : slipRatio;
+                    return slipRatio;
+                }
             }
                         
         }

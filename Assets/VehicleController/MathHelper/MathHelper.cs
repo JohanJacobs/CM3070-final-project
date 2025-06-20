@@ -39,5 +39,6 @@ public class MathHelper
             return 0f;
         return a / b;
     }
+       
 
 }

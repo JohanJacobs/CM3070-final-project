@@ -8166,7 +8166,7 @@ MonoBehaviour:
   throttleVariable: {fileID: 11400000, guid: e19849970ec0b34419cebfea16613ef8, type: 2}
   brakeVariable: {fileID: 11400000, guid: c6de196d4a9ba724f824a44683e8d84d, type: 2}
   handbrakeVariable: {fileID: 11400000, guid: 572457dd301430e46af27ad10d78392c, type: 2}
-  steerStrength: 7
+  steerStrength: 3
   throttleStrength: 5
   brakeStrength: 5
   steerTrarget: 0
