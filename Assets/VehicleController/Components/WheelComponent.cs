@@ -58,7 +58,7 @@ namespace vc
             float pacjekaLat = default;
             float currentSlipAngleDeg =default;
             float lateralSlipRatio => currentSlipAngleDeg / 90f;
-            private WheelLateralSlipCalculator lsc = new();
+            private WheelLateralSlipCalculator latCalc = new();
 
                        
             void CalculateLateralForce(float dt)
@@ -66,7 +66,7 @@ namespace vc
                 Fx = 0f;
                 currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
 
-                var lateralSlipRatio = lsc.CalculateSlip(wheelData.velocityLS, dt);
+                var lateralSlipRatio = latCalc.CalculateSlip(wheelData.velocityLS, dt);
                 var lateralSlipForce = lateralSlipRatio * (Mathf.Max(wheelData.normalforce, 0f));
 
                 Fx =  lateralSlipForce;
@@ -86,7 +86,7 @@ namespace vc
 
             void CalculateLongitudinalForce(float dt, float driveTorque)
             {
-                var slipRatioZ = longCalc.CaclulateSlipRatio(dt, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, wheelMass, radius, WheelFrictionCoefficient);                
+                slipRatioZ = longCalc.CaclulateSlipRatio(dt, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, usefullMass, radius, WheelFrictionCoefficient);                
                 Fz = Mathf.Max(wheelData.normalforce, 0f) * slipRatioZ ;                
             }
 
@@ -166,26 +166,26 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" km/h : {(this.wheelData.SpeedKMH).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  m/s : {(this.wheelData.SpeedMS).ToString("f3")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vz : {(this.wheelData.velocityLS.z).ToString("f5")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vx : {(this.wheelData.velocityLS.x).ToString("f5")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vx : {(this.wheelData.velocityLS.x).ToString("f5")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
 
                 // Longitudinal 
-
-
 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.slipRatioZ).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.longCalc.driveAngularVelocity).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");                
-                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FrTorq: {(this.longCalc.driveFrictionTorque).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AccTorq: {(this.longCalc.driveAccelerationToruqe).ToString("f3")}");
+
                 // lateral 
                 //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx : {(this.Fx).ToString("f1")}");
                 //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Plat: {(this.pacjekaLat).ToString("f1")}");
                 //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SA: {(this.lsc.slipAngle).ToString("f4")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SADyn: {(this.lsc.slipAngleDynamic).ToString("f4")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SR: {(this.lsc.slipRatio).ToString("f4")}");
-                
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SADyn: {(this.lsc.slipAngleDynamic).ToString("f4")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SR: {(this.lsc.slipRatio).ToString("f4")}");
+
 
                 return yOffset;
             }
@@ -254,11 +254,12 @@ namespace vc
 
             class WheelLongitudinalSlipCalculator
             {
+                
                 public float slipRatio { get; private set; }
                 public float driveAngularVelocity { get; private set; }      // rad/s
                 private float wheelMomentOfInteria => 0.5f * wheelMassKG * wheelRadiusM * wheelRadiusM; // kg·m²
-                float driveFrictionTorque => (FzNM * 100f) * wheelRadiusM;      // nm
-                float driveAccelerationToruqe => driveTorqueNM - driveFrictionTorque;  // nm
+                public float driveFrictionTorque => (FzNM * 100f) * wheelRadiusM;      // nm
+                public float driveAccelerationToruqe => driveTorqueNM - driveFrictionTorque;  // nm
                 float driveAngularAcceleration => MathHelper.SafeDivide(driveAccelerationToruqe, wheelMomentOfInteria); // rad/s²
                 float wheelRadiusM = default;           // m
                 float wheelMassKG = default;            // KG
@@ -266,7 +267,7 @@ namespace vc
                 float dt = default;                     // second
                 float driveTorqueNM = default;          // nm
                 Vector3 veloLS = default;               // MS
-                float normalForce = default;              // nm
+                float normalForce = default;            // nm
                 float wheelFrictionCoefficient = default;
                 private float UpdateDriveAngularVelocity()
                 {
@@ -276,8 +277,8 @@ namespace vc
 
                 private float targetAngularVelocity => MathHelper.SafeDivide(veloLS.z, wheelRadiusM); // rad/s
                 private float targetAngularAcceleration => MathHelper.SafeDivide((driveAngularVelocity - targetAngularVelocity), dt); // rad/s²
-                private float targetTorque => targetAngularAcceleration * wheelMomentOfInteria;
-                private float maxFrictionTorque => normalForce * wheelRadiusM * wheelFrictionCoefficient;
+                private float targetTorque => targetAngularAcceleration * wheelMomentOfInteria; // nm
+                private float maxFrictionTorque => normalForce * wheelRadiusM * wheelFrictionCoefficient;// nm
                 private float newSlipRatio => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maxFrictionTorque), -1f, 1f);
                 private bool canAccelerate => Mathf.Abs(normalForce) > float.Epsilon;
                 public float CaclulateSlipRatio(float dt, float Fz, float normalForce, Vector3 veloLS, float driveTorqueNM, float wheelMassKG, float wheelRadiusM, float wheelFrictionCoefficient)

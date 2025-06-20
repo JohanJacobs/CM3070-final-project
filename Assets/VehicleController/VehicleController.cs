@@ -60,6 +60,8 @@ namespace vc
             float dt = Time.fixedDeltaTime;
             float throttle = throttleInput.Value;
             float brake = brakeInput.Value;
+            float maxTorque = 120f;
+
             vehicle.body.Update(dt);
 
             
@@ -72,16 +74,15 @@ namespace vc
             vehicle.rollbarRear.Update(dt);
 
             // front wheel 
-            vehicle.wheels[WheelID.LeftFront].Update(dt, 0f);
+            vehicle.wheels[WheelID.LeftFront ].Update(dt, 0f);
             vehicle.wheels[WheelID.RightFront].Update(dt, 0f);
 
-            float maxTorque = 120f;
 
             // rear wheels
             var diffTorque = vehicle.transmission.CalculateOutputTorque(maxTorque * throttle);
             var driveTorque = vehicle.differential.CalculateOutputTorque(diffTorque);
 
-            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque[0]);
+            vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0]);
             vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1]);
         }
 
@@ -225,14 +226,16 @@ namespace vc
             float xPos = 10f;
 
             yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
+
+            //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
-
             //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
