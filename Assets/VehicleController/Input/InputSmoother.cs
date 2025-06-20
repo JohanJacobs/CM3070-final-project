@@ -37,7 +37,7 @@ namespace vc
         [SerializeField] float throttleTarget;
         [SerializeField] float brakeTarget;
         [SerializeField] float handBrakeTarget;
-        [SerializeField] float gearUptarget;
+        [SerializeField] float gearUpTarget;
         [SerializeField] float gearDownTarget;
 
 
@@ -66,7 +66,7 @@ namespace vc
             updateValue(throttleVariable, throttleTarget, throttleStrength);
             updateValue(brakeVariable, brakeTarget, brakeStrength);
             updateValue(handbrakeVariable, handBrakeTarget, handbrakeStrength);
-            updateValue(GearUpVariable, gearUptarget, gearUpStrength);
+            updateValue(GearUpVariable, gearUpTarget, gearUpStrength);
             updateValue(GearDownVariable, gearDownTarget, gearDownStrength);
         }
 
@@ -92,6 +92,14 @@ namespace vc
 
             inputActions.VehicleControllerInputs.HandBrake.performed += Input_Handbrake;
             inputActions.VehicleControllerInputs.HandBrake.canceled += Input_Handbrake;
+
+            inputActions.VehicleControllerInputs.GearUp.performed += Input_GearUp;
+            inputActions.VehicleControllerInputs.GearUp.canceled += Input_GearUp;
+            ;
+
+            inputActions.VehicleControllerInputs.GearDown.performed += Input_GearDown;
+            inputActions.VehicleControllerInputs.GearDown.canceled += Input_GearDown;
+
         }
 
         private void OnDisable()
@@ -107,23 +115,38 @@ namespace vc
 
             inputActions.VehicleControllerInputs.HandBrake.performed -= Input_Handbrake;
             inputActions.VehicleControllerInputs.HandBrake.canceled -= Input_Handbrake;
+
+            inputActions.VehicleControllerInputs.GearUp.performed -= Input_GearUp;
+            inputActions.VehicleControllerInputs.GearUp.canceled -= Input_GearUp;
+
+            inputActions.VehicleControllerInputs.GearDown.performed -= Input_GearDown;
+            inputActions.VehicleControllerInputs.GearDown.canceled -= Input_GearDown;
         }
         public void Input_Throttle(InputAction.CallbackContext ctx)
         {
-                throttleTarget = ctx.ReadValue<float>();
+            throttleTarget = ctx.ReadValue<float>();
         }
         public void Input_Brake(InputAction.CallbackContext ctx)
         {
-                brakeTarget = ctx.ReadValue<float>();
+            brakeTarget = ctx.ReadValue<float>();
         }
 
         public void Input_Steer(InputAction.CallbackContext ctx)
         {
-                steerTrarget = ctx.ReadValue<float>();
+            steerTrarget = ctx.ReadValue<float>();
         }
         public void Input_Handbrake(InputAction.CallbackContext ctx)
         {
-                handBrakeTarget = ctx.ReadValue<float>();   
+            handBrakeTarget = ctx.ReadValue<float>();   
         }        
+
+        public void Input_GearUp(InputAction.CallbackContext ctx)
+        {
+            gearUpTarget = ctx.ReadValue<float>();
+        }
+        public void Input_GearDown(InputAction.CallbackContext ctx)
+        {
+            gearDownTarget = ctx.ReadValue<float>();
+        }
     }
 }

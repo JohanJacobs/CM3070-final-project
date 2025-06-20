@@ -153,6 +153,24 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""GearUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""9d1ce6ee-0025-4827-8c84-20e9f6c8c809"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GearDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""eaf19d3a-dd2d-4fbc-a779-ed3c56ae8888"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -364,6 +382,50 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""action"": ""CameraZoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5d736ea3-ac7d-43c8-9674-9f26bfa93efa"",
+                    ""path"": ""<Keyboard>/rightShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""GearUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""21d1eb4a-b015-49ff-a947-358e358c288b"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""GearUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e0905c37-e87b-4c62-91a0-83516925eaf4"",
+                    ""path"": ""<Keyboard>/rightCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""GearDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""702329e5-b74d-4ebc-b0a5-6c351adc0ea6"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GearDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -390,6 +452,8 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
         m_VehicleControllerInputs_CameraInteract = m_VehicleControllerInputs.FindAction("CameraInteract", throwIfNotFound: true);
         m_VehicleControllerInputs_CameraMove = m_VehicleControllerInputs.FindAction("CameraMove", throwIfNotFound: true);
         m_VehicleControllerInputs_CameraZoom = m_VehicleControllerInputs.FindAction("CameraZoom", throwIfNotFound: true);
+        m_VehicleControllerInputs_GearUp = m_VehicleControllerInputs.FindAction("GearUp", throwIfNotFound: true);
+        m_VehicleControllerInputs_GearDown = m_VehicleControllerInputs.FindAction("GearDown", throwIfNotFound: true);
     }
 
     ~@VehicleControllerInputActions()
@@ -477,6 +541,8 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
     private readonly InputAction m_VehicleControllerInputs_CameraInteract;
     private readonly InputAction m_VehicleControllerInputs_CameraMove;
     private readonly InputAction m_VehicleControllerInputs_CameraZoom;
+    private readonly InputAction m_VehicleControllerInputs_GearUp;
+    private readonly InputAction m_VehicleControllerInputs_GearDown;
     /// <summary>
     /// Provides access to input actions defined in input action map "VehicleControllerInputs".
     /// </summary>
@@ -516,6 +582,14 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
         /// Provides access to the underlying input action "VehicleControllerInputs/CameraZoom".
         /// </summary>
         public InputAction @CameraZoom => m_Wrapper.m_VehicleControllerInputs_CameraZoom;
+        /// <summary>
+        /// Provides access to the underlying input action "VehicleControllerInputs/GearUp".
+        /// </summary>
+        public InputAction @GearUp => m_Wrapper.m_VehicleControllerInputs_GearUp;
+        /// <summary>
+        /// Provides access to the underlying input action "VehicleControllerInputs/GearDown".
+        /// </summary>
+        public InputAction @GearDown => m_Wrapper.m_VehicleControllerInputs_GearDown;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -563,6 +637,12 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
             @CameraZoom.started += instance.OnCameraZoom;
             @CameraZoom.performed += instance.OnCameraZoom;
             @CameraZoom.canceled += instance.OnCameraZoom;
+            @GearUp.started += instance.OnGearUp;
+            @GearUp.performed += instance.OnGearUp;
+            @GearUp.canceled += instance.OnGearUp;
+            @GearDown.started += instance.OnGearDown;
+            @GearDown.performed += instance.OnGearDown;
+            @GearDown.canceled += instance.OnGearDown;
         }
 
         /// <summary>
@@ -595,6 +675,12 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
             @CameraZoom.started -= instance.OnCameraZoom;
             @CameraZoom.performed -= instance.OnCameraZoom;
             @CameraZoom.canceled -= instance.OnCameraZoom;
+            @GearUp.started -= instance.OnGearUp;
+            @GearUp.performed -= instance.OnGearUp;
+            @GearUp.canceled -= instance.OnGearUp;
+            @GearDown.started -= instance.OnGearDown;
+            @GearDown.performed -= instance.OnGearDown;
+            @GearDown.canceled -= instance.OnGearDown;
         }
 
         /// <summary>
@@ -710,5 +796,19 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCameraZoom(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "GearUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGearUp(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "GearDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGearDown(InputAction.CallbackContext context);
     }
 }

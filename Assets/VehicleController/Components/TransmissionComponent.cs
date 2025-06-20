@@ -40,6 +40,7 @@ namespace vc
             {
                 if (v < 1f)
                     return;
+                Debug.Log("Shift up");
 
                 // not in gear and at highest gear
                 if ((currentGear < numberOfGears) && isInGear)
@@ -51,6 +52,7 @@ namespace vc
                         currentGear += 1f; // TODO: MAke INT variable
                         GetRatio();
                         isInGear = true;
+                        Debug.Log($"Current gear : {currentGear}");
                     });
                 }
             }
@@ -60,6 +62,7 @@ namespace vc
                 if (v < 1f)
                     return;
 
+                Debug.Log("Shift down");
                 // check if we can down shift
                 if ((currentGear > -1) && isInGear)
                 {
@@ -70,6 +73,7 @@ namespace vc
                         currentGear -= 1f; // TODO: MAke INT variable
                         GetRatio();
                         isInGear = true;
+                        Debug.Log($"Current gear : {currentGear}");
                     });
                 }
             }
@@ -92,31 +96,25 @@ namespace vc
                 }
             }
 
-            public float GetOutputTorque(float inputTorque)
+            public float CalculateOutputTorque(float inputTorque)
             {
                 outputTorque = inputTorque * ratio;
                 return outputTorque;
             }
-
-            float inputShaftVelocity = default;
-            public float GetInputShaftVelocity(float outputShaftVelocity)
-            {
-                inputShaftVelocity = outputShaftVelocity * ratio;
-                return inputShaftVelocity;
-            }
-
             #endregion Transmission
 
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Differential;
             public void Shutdown()
             {
-
+                gearUpInput.OnValueChanged -= ShiftUp;
+                gearDownInput.OnValueChanged -= ShiftDown;
             }
 
             public void Start()
             {
-
+                gearUpInput.OnValueChanged += ShiftUp;
+                gearDownInput.OnValueChanged += ShiftDown;
             }
 
             public void Update(float dt)
@@ -135,8 +133,7 @@ namespace vc
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"TRANSMISSION");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentGear: {(int)currentGear}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentRaio: {GearRatio.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" shaftVelo: {inputShaftVelocity.ToString("F0")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentRaio: {GearRatio.ToString("F3")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" outputTorque: {outputTorque.ToString("F0")}");
                 return yOffset;
             }

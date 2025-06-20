@@ -29,7 +29,6 @@ namespace vc
             float WheelFrictionCoefficient = 1.0f;
             float RollingResistanceforce => wheelData.normalforce * RollingResistanceCoefficient;
 
-            float brakeTorque;
             float driveTorque;
 
 
@@ -43,12 +42,11 @@ namespace vc
                 this.wheelData = wheelHitData;
                 this.wheelData.wheel = this;
             }
-            public void UpdatePhysics(float dt, float driveTorque, float brakeTorque)
+            public void UpdatePhysics(float dt, float driveTorque)
             {
                 if (!wheelData.isGrounded)
                     return;
-                this.driveTorque = driveTorque;
-                this.brakeTorque = brakeTorque;
+                this.driveTorque = driveTorque;                
                 CalculateLongitudinalForce(dt, driveTorque);
                 CalculateLateralForce(dt);
 
@@ -114,9 +112,9 @@ namespace vc
             }
           
 
-            public void Update(float dt, float throttle, float brake)
+            public void Update(float dt, float driveTorque)
             {
-                UpdatePhysics(dt, throttle, brake );
+                UpdatePhysics(dt, driveTorque);
             }
             #endregion wheelComponent
 
@@ -138,7 +136,7 @@ namespace vc
             
             public void Update(float dt)
             {
-                UpdatePhysics(dt, 0f,0f);
+                UpdatePhysics(dt, 0f);
             }
 
             #endregion IVehicleComponent
@@ -179,10 +177,8 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.slipRatioZ).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.longCalc.driveAngularVelocity).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrTorq: {(this.brakeTorque).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");                
                 
-
                 // lateral 
                 //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx : {(this.Fx).ToString("f1")}");
                 //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Plat: {(this.pacjekaLat).ToString("f1")}");

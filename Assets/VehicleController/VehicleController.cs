@@ -71,19 +71,18 @@ namespace vc
             vehicle.rollbarFront.Update(dt);
             vehicle.rollbarRear.Update(dt);
 
-            vehicle.wheels[WheelID.LeftFront].Update(dt, 0f, 0f);
-            vehicle.wheels[WheelID.RightFront].Update(dt, 0f, 0f);
+            // front wheel 
+            vehicle.wheels[WheelID.LeftFront].Update(dt, 0f);
+            vehicle.wheels[WheelID.RightFront].Update(dt, 0f);
 
-            float maxTorque = 120f;            
-            float firstGear = 3.727f;
-            float reverseGear = -3.507f;
-            
-            var brakeTorque = maxTorque * reverseGear * brake;
+            float maxTorque = 120f;
 
-            var driveTorque = vehicle.differential.CalculateoOutputTorque(maxTorque * firstGear * throttle);
+            // rear wheels
+            var diffTorque = vehicle.transmission.CalculateOutputTorque(maxTorque * throttle);
+            var driveTorque = vehicle.differential.CalculateOutputTorque(diffTorque);
 
-            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque[0], brakeTorque);
-            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1], brakeTorque);
+            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque[0]);
+            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1]);
         }
 
         #region Vehicle
@@ -154,7 +153,12 @@ namespace vc
 
             SetupTweaks();
         }
-        
+
+
+        private void OnDestroy()
+        {
+            vehicle.transmission.Shutdown();
+        }
         #region Tweaking Car
         public void SetupTweaks()
         {

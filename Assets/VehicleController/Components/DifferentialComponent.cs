@@ -19,7 +19,7 @@ namespace vc
             }
 
             #region Differential Component
-            public float[] CalculateoOutputTorque(float transmissionTorque) 
+            public float[] CalculateOutputTorque(float transmissionTorque) 
             {   
                 float torque = MathHelper.SafeDivide(transmissionTorque * ratio, (float)connectedWheels);
 
