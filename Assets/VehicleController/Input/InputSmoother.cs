@@ -11,27 +11,37 @@ namespace vc
 {
     public class InputSmoother:MonoBehaviour
     {
+        [Header("Driving")]
         [SerializeField] FloatVariable steerVariable;
         [SerializeField] FloatVariable throttleVariable;
         [SerializeField] FloatVariable brakeVariable;
         [SerializeField] FloatVariable handbrakeVariable;
-                
+
+        [Header("Transmission")]
+        [SerializeField] FloatVariable GearUpVariable;
+        [SerializeField] FloatVariable GearDownVariable;
+
+
         [Header("Input Configuration")]
-        [SerializeField]
-        float steerStrength;
-        [SerializeField]
-        float throttleStrength;
 
-        [SerializeField]
-        float brakeStrength;
         VehicleControllerInputActions inputActions;
+        [SerializeField] float steerStrength;
+        [SerializeField] float throttleStrength;
+        [SerializeField] float brakeStrength;
+        [SerializeField] float handbrakeStrength = 100f;
+        [SerializeField] float gearUpStrength = 100f;
+        [SerializeField] float gearDownStrength = 100f;
 
+        [Header("DebugInfo")]
         [SerializeField] float steerTrarget;
         [SerializeField] float throttleTarget;
         [SerializeField] float brakeTarget;
         [SerializeField] float handBrakeTarget;
+        [SerializeField] float gearUptarget;
+        [SerializeField] float gearDownTarget;
 
 
+        [Header("Override")]
         [SerializeField] float overrideValue;
         [SerializeField] bool OverrideThrottle;
         [SerializeField] bool OverrideBrake;
@@ -55,7 +65,9 @@ namespace vc
             updateValue(steerVariable, steerTrarget,steerStrength);
             updateValue(throttleVariable, throttleTarget, throttleStrength);
             updateValue(brakeVariable, brakeTarget, brakeStrength);
-            updateValue(handbrakeVariable, handBrakeTarget, 100f);
+            updateValue(handbrakeVariable, handBrakeTarget, handbrakeStrength);
+            updateValue(GearUpVariable, gearUptarget, gearUpStrength);
+            updateValue(GearDownVariable, gearDownTarget, gearDownStrength);
         }
 
         private void updateValue(FloatVariable currentValue, float target, float strength)

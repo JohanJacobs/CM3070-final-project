@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7ee8f26a3f3bd1f41a0b8f15172dd3ee, type: 3}
-  m_Name: Trottle
+  m_Name: TrottleInputVariable
   m_EditorClassIdentifier: 
-  label: Throttle
+  label: Throttle Input
   initialValue: 0
   value: 0

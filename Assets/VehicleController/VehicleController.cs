@@ -149,6 +149,9 @@ namespace vc
             vehicle.differential = new(differentialConfig, 2);
             vehicle.differential.Start();
 
+            vehicle.transmission = new(transmissionConfig);
+            vehicle.transmission.Start();
+
             SetupTweaks();
         }
         

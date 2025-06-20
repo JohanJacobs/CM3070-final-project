@@ -10,6 +10,9 @@ namespace vc
         public class TransmissionSO: ScriptableObjectBase
         {
             public float GearRatio;
+            public FloatVariable gearUpInputVariable;
+            public FloatVariable gearDownInputVariable;
+
             public static ComponentTypes GetVehicleComponentType()
             {
                 return ComponentTypes.Transmission;
