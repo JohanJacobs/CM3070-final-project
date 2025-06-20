@@ -86,7 +86,8 @@ namespace vc
 
             void CalculateLongitudinalForce(float dt, float driveTorque)
             {
-                slipRatioZ = longCalc.CaclulateSlipRatio(dt, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, usefullMass, radius, WheelFrictionCoefficient);                
+                
+                slipRatioZ = longCalc.CaclulateSlipRatio(id, dt, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, wheelMass, radius, WheelFrictionCoefficient);                
                 Fz = Mathf.Max(wheelData.normalforce, 0f) * slipRatioZ ;                
             }
 
@@ -271,7 +272,7 @@ namespace vc
                 float wheelFrictionCoefficient = default;
                 private float UpdateDriveAngularVelocity()
                 {
-                    driveAngularVelocity = Mathf.Clamp(driveAngularVelocity + (driveAngularAcceleration * dt), -120f, 120f);
+                    driveAngularVelocity = driveAngularVelocity + (driveAngularAcceleration * dt);
                     return driveAngularVelocity;
                 }
 
@@ -281,8 +282,12 @@ namespace vc
                 private float maxFrictionTorque => normalForce * wheelRadiusM * wheelFrictionCoefficient;// nm
                 private float newSlipRatio => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maxFrictionTorque), -1f, 1f);
                 private bool canAccelerate => Mathf.Abs(normalForce) > float.Epsilon;
-                public float CaclulateSlipRatio(float dt, float Fz, float normalForce, Vector3 veloLS, float driveTorqueNM, float wheelMassKG, float wheelRadiusM, float wheelFrictionCoefficient)
+                public float CaclulateSlipRatio(WheelID id,float dt, float Fz, float normalForce, Vector3 veloLS, float driveTorqueNM, float wheelMassKG, float wheelRadiusM, float wheelFrictionCoefficient)
                 {
+                    if (WheelID.RightRear == id)
+                    {
+                        int t = 1;
+                    }
                     this.dt = dt;
                     this.FzNM = Fz;
                     this.wheelMassKG = wheelMassKG;
