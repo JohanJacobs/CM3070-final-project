@@ -49,12 +49,11 @@ namespace vc
                     return;
                 this.driveTorque = driveTorque;
                 this.brakeTorque = brakeTorque;
-                CalculateLongitudinalForce(dt, driveTorque, brakeTorque);
+                CalculateLongitudinalForce(dt, driveTorque);
                 CalculateLateralForce(dt);
 
                 AddTireForce();
             }
-
 
             #region Lateral Forces
             float Fx;
@@ -84,75 +83,21 @@ namespace vc
 
             public float LongitudinalSlipRatio => slipRatioZ;
             float slipRatioZ = default;
-            float Fz = default;                
-                                    
+            float Fz = default;
             private WheelLongitudinalSlipCalculator longCalc =new();
 
-            void CalculateLongitudinalForce(float dt, float driveTorque, float brakeTorque)
+            void CalculateLongitudinalForce(float dt, float driveTorque)
             {
-                if (driveTorque > 100f)
-                {
-                    int tttt = 1;
-                }
-
-
-                var slipRatioZ = longCalc.CaclulateSlipRatio(dt, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, wheelMass, radius, WheelFrictionCoefficient);
-                
-                Fz = Mathf.Max(wheelData.normalforce, 0f) * slipRatioZ ;
-                //Fz += brakeTorque/radius;
+                var slipRatioZ = longCalc.CaclulateSlipRatio(dt, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, wheelMass, radius, WheelFrictionCoefficient);                
+                Fz = Mathf.Max(wheelData.normalforce, 0f) * slipRatioZ ;                
             }
 
-            class WheelLongitudinalSlipCalculator
-            {
-                public float slipRatio { get; private set; }
-                private float driveAngularVelocity = default;      // rad/s
-                
-                private float wheelMomentOfInteria => 0.5f * wheelMassKG * wheelRadiusM * wheelRadiusM; // kg·m²
-                float driveFrictionTorque => FzNM * wheelRadiusM;      // nm
-                float driveAccelerationToruqe => driveTorqueNM - driveFrictionTorque;  // nm
-                float driveAngularAcceleration => MathHelper.SafeDivide(driveAccelerationToruqe, wheelMomentOfInteria); // rad/s²
-                float wheelRadiusM = default;              // m
-                float wheelMassKG   = default;            // KG
-                float FzNM          = default;            // nm
-                float dt = default;                       // second
-                float driveTorqueNM = default;            // nm
-                private float CalculateWheelAngularAcceleration(float dt, float Fz, float driveTorque,float wheelMassKG,float wheelRadiusM)
-                {
-                    this.wheelRadiusM   = wheelRadiusM;
-                    this.wheelMassKG    = wheelMassKG;
-                    this.FzNM           = Fz;
-                    this.dt             = dt;
-                    this.driveTorqueNM = driveTorque;
-                    driveAngularVelocity = Mathf.Clamp(driveAngularVelocity + driveAngularAcceleration * dt, -120f, 120f);
-                    return driveAngularVelocity;
-                }
-                public float CaclulateSlipRatio(float dt, float Fz, float normalForce, Vector3 veloLS, float driveTorque, float  wheelMass, float radius,float wheelFrictionCoefficient)
-                {
-                    var driveAngularVelo = CalculateWheelAngularAcceleration(dt, Fz, driveTorque, wheelMass, radius);
-                    var targetAngularVelocity = MathHelper.SafeDivide(veloLS.z, radius); // rad/s
-                    var targetAngularAcceleration = MathHelper.SafeDivide((driveAngularVelo - targetAngularVelocity), dt); // rad/s²
-                    var targetTorque = targetAngularAcceleration * wheelMomentOfInteria;
-                    var maxFrictionToruqe = normalForce * radius * wheelFrictionCoefficient;
-                    if (Mathf.Abs(normalForce) < float.Epsilon)
-                    {
-                        slipRatio = 0f;
-                    }
-                    else
-                    {
-                        slipRatio = Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maxFrictionToruqe), -1f, 1f);
-                    }
-
-                    return slipRatio;
-                }
-            }
-            
             float LongitudinalFrictionClamp(float dt,float wheelSlipSpeedMS, float wheelTorque, float slideSign)
             {
                 var maxForwardForce = (usefullMass * wheelSlipSpeedMS / dt) + (wheelTorque * slideSign / radius);
                 return maxForwardForce;
             }
             
-                      
             #endregion Longitudinal Forces
 
             Vector3 FzForceVec, FxForceVec;
@@ -233,9 +178,9 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.slipRatioZ).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.longCalc.driveAngularVelocity).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrTorq: {(this.brakeTorque).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(-9999f).ToString("f3")}");
                 
 
                 // lateral 
@@ -248,11 +193,7 @@ namespace vc
 
                 return yOffset;
             }
-
             #endregion IDebugInformation
-
-
-            
 
             public class WheelLateralSlipCalculator
             {
@@ -314,7 +255,51 @@ namespace vc
                     return slipRatio;
                 }
             }
-                        
+
+            class WheelLongitudinalSlipCalculator
+            {
+                public float slipRatio { get; private set; }
+                public float driveAngularVelocity { get; private set; }      // rad/s
+                private float wheelMomentOfInteria => 0.5f * wheelMassKG * wheelRadiusM * wheelRadiusM; // kg·m²
+                float driveFrictionTorque => (FzNM * 100f) * wheelRadiusM;      // nm
+                float driveAccelerationToruqe => driveTorqueNM - driveFrictionTorque;  // nm
+                float driveAngularAcceleration => MathHelper.SafeDivide(driveAccelerationToruqe, wheelMomentOfInteria); // rad/s²
+                float wheelRadiusM = default;           // m
+                float wheelMassKG = default;            // KG
+                float FzNM = default;                   // nm
+                float dt = default;                     // second
+                float driveTorqueNM = default;          // nm
+                Vector3 veloLS = default;               // MS
+                float normalForce = default;              // nm
+                float wheelFrictionCoefficient = default;
+                private float UpdateDriveAngularVelocity()
+                {
+                    driveAngularVelocity = Mathf.Clamp(driveAngularVelocity + (driveAngularAcceleration * dt), -120f, 120f);
+                    return driveAngularVelocity;
+                }
+
+                private float targetAngularVelocity => MathHelper.SafeDivide(veloLS.z, wheelRadiusM); // rad/s
+                private float targetAngularAcceleration => MathHelper.SafeDivide((driveAngularVelocity - targetAngularVelocity), dt); // rad/s²
+                private float targetTorque => targetAngularAcceleration * wheelMomentOfInteria;
+                private float maxFrictionTorque => normalForce * wheelRadiusM * wheelFrictionCoefficient;
+                private float newSlipRatio => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maxFrictionTorque), -1f, 1f);
+                private bool canAccelerate => Mathf.Abs(normalForce) > float.Epsilon;
+                public float CaclulateSlipRatio(float dt, float Fz, float normalForce, Vector3 veloLS, float driveTorqueNM, float wheelMassKG, float wheelRadiusM, float wheelFrictionCoefficient)
+                {
+                    this.dt = dt;
+                    this.FzNM = Fz;
+                    this.wheelMassKG = wheelMassKG;
+                    this.wheelRadiusM = wheelRadiusM;
+                    this.driveTorqueNM = driveTorqueNM;
+                    this.veloLS = veloLS;
+                    this.normalForce = normalForce;
+                    this.wheelFrictionCoefficient = wheelFrictionCoefficient;
+
+                    UpdateDriveAngularVelocity();
+                    slipRatio = canAccelerate ? newSlipRatio : 0f;
+                    return slipRatio;
+                }
+            }
         }
     }
 }
