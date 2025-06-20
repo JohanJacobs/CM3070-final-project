@@ -12,7 +12,7 @@ namespace vc
                 this.config = config;
             }
 
-            #region IVerhicleComponent
+            #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Differential;
             public void Shutdown()
             {
@@ -28,7 +28,7 @@ namespace vc
             {
 
             }
-            #endregion IVerhicleComponent
+            #endregion IVehicleComponent
         }
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
+using static vc.VehicleController;
 
 namespace vc
 {
@@ -73,16 +74,16 @@ namespace vc
             vehicle.wheels[WheelID.LeftFront].Update(dt, 0f, 0f);
             vehicle.wheels[WheelID.RightFront].Update(dt, 0f, 0f);
 
-            float maxTorque = 120f;
-            float diffRatio = 3.9f;
+            float maxTorque = 120f;            
             float firstGear = 3.727f;
             float reverseGear = -3.507f;
-            var driveTorque = maxTorque * firstGear * diffRatio * throttle;
-            var brakeTorque = maxTorque * reverseGear * diffRatio * brake;
+            
+            var brakeTorque = maxTorque * reverseGear * brake;
 
-            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque, brakeTorque);
-            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque, brakeTorque);
+            var driveTorque = vehicle.differential.CalculateoOutputTorque(maxTorque * firstGear * throttle);
 
+            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque[0], brakeTorque);
+            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1], brakeTorque);
         }
 
         #region Vehicle
@@ -121,14 +122,33 @@ namespace vc
             }
             
             // car body
-            vehicle.body = new BodyComponent(bodyConfig, carRigidbody, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);                       
+            vehicle.body = new BodyComponent(bodyConfig, carRigidbody, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);
+            vehicle.body.Start();
+
             foreach (var whd in wheelHitData)
             {
                 whd.Value.body = vehicle.body;
             }
 
+            //start suspension            
+            foreach (var item in vehicle.suspension)
+            {
+                item.Value.Start();
+            }
+            // start wheels 
+            foreach (var item in vehicle.wheels)
+            {
+                item.Value.Start();
+            }
+
             vehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
+            vehicle.rollbarFront.Start();
             vehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
+            vehicle.rollbarRear.Start();
+
+            vehicle.differential = new(differentialConfig, 2);
+            vehicle.differential.Start();
+
             SetupTweaks();
         }
         
