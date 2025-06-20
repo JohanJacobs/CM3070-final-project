@@ -8,6 +8,7 @@ namespace vc
     {
         public class BodyComponent : IVehicleComponent , IDebugInformation
         {
+            Rigidbody rb;
             BodySO config;
             FloatVariable steerInput;
 
@@ -29,9 +30,10 @@ namespace vc
 
 
 
-            public BodyComponent( BodySO config, Transform leftWheel, Transform rightWheel)
+            public BodyComponent( BodySO config, Rigidbody rb, Transform leftWheel, Transform rightWheel)
             {
                 this.config = config;
+                this.rb = rb;
                 this.leftWheel = leftWheel;
                 this.rightWheel = rightWheel;
                 this.steerInput = config.steerVariable;
@@ -92,7 +94,8 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"- BODY:");
-                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Velo :{rb.transform.InverseTransformDirection(rb.velocity)}");
+
                 return yOffset;
             }
             #endregion bodycomponent

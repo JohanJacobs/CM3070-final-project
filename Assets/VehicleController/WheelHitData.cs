@@ -25,19 +25,19 @@ namespace vc
             // ID 
             public WheelID id;
 
-            public Vector3 velocityLS; // meters / second
+            public Vector3 velocityLS; // Meter per Second
 
-
-            public float lateralSlipRatio => wheel?.lateralSlipRatio??0f;
+            public float normalforce => suspension.normalForce;        
             public float longitudinalSlipRatio => wheel?.LongitudinalSlipRatio ?? 0f;
             public bool isLocked => longitudinalSlipRatio >= 1f;
-            public float SuspensionCompressionRatio => suspension?.SuspensionCompressionRatio ?? 0f;
+            public float springCompression => suspension?.springCompression ?? 0f;
             public float SpeedMS => velocityLS.z;
             public float SpeedKMH=> SpeedMS / 3.6f;
             public bool isGrounded => suspension.isGrounded;
             public Vector3 axlePosition => suspension.axlePosition;
             public Vector3 forward => suspension.mountPoint.forward;
             public Vector3 right => suspension.mountPoint.right;
+            public Transform suspensionMountPoint => suspension.mountPoint;
             public static Dictionary<WheelID, WheelHitData> SetupDefault(Rigidbody carRigidbody)
             {
                 Dictionary<WheelID, WheelHitData> wheelHitData = new();

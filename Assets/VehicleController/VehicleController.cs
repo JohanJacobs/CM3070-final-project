@@ -30,9 +30,15 @@ namespace vc
         [SerializeField]
         BodySO bodyConfig;
 
-
         Rigidbody carRigidbody;
-        
+
+        [Header("Tweaks")]
+        public float springStrength;
+        public float damperStrength;
+        public float restLength;
+        public float rollbarStrength;
+
+
         public void Awake()
         {
             carRigidbody = GetComponent<Rigidbody>();
@@ -64,11 +70,18 @@ namespace vc
             vehicle.rollbarFront.Update(dt);
             vehicle.rollbarRear.Update(dt);
 
-            vehicle.wheels[WheelID.LeftFront].Update(dt, throttle, brake);
-            vehicle.wheels[WheelID.RightFront].Update(dt, throttle, brake);
+            vehicle.wheels[WheelID.LeftFront].Update(dt, 0f, 0f);
+            vehicle.wheels[WheelID.RightFront].Update(dt, 0f, 0f);
 
-            vehicle.wheels[WheelID.LeftRear].Update(dt, throttle, brake);
-            vehicle.wheels[WheelID.RightRear].Update(dt, throttle, brake);
+            float maxTorque = 120f;
+            float diffRatio = 3.9f;
+            float firstGear = 3.727f;
+            float reverseGear = -3.507f;
+            var driveTorque = maxTorque * firstGear * diffRatio * throttle;
+            var brakeTorque = maxTorque * reverseGear * diffRatio * brake;
+
+            vehicle.wheels[WheelID.LeftRear].Update(dt, driveTorque, brakeTorque);
+            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque, brakeTorque);
 
         }
 
@@ -106,9 +119,9 @@ namespace vc
             {
                 vehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
             }
-
+            
             // car body
-            vehicle.body = new BodyComponent(bodyConfig, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);                       
+            vehicle.body = new BodyComponent(bodyConfig, carRigidbody, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);                       
             foreach (var whd in wheelHitData)
             {
                 whd.Value.body = vehicle.body;
@@ -116,8 +129,43 @@ namespace vc
 
             vehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
             vehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
-
+            SetupTweaks();
         }
+        
+        #region Tweaking Car
+        public void SetupTweaks()
+        {
+            springStrength = vehicle.suspension[WheelID.LeftFront].springStrength;
+            damperStrength = vehicle.suspension[WheelID.LeftFront].springStrength;
+            restLength = vehicle.suspension[WheelID.LeftFront].restLength;
+            rollbarStrength = vehicle.rollbarFront.rollbarStrength;
+        }
+        public void OnValidate()
+        {
+            if (vehicle != null)
+            {
+                vehicle.suspension[WheelID.LeftFront ].springStrength = springStrength;
+                vehicle.suspension[WheelID.RightFront].springStrength = springStrength;
+                vehicle.suspension[WheelID.LeftRear  ].springStrength = springStrength;
+                vehicle.suspension[WheelID.RightRear ].springStrength = springStrength;
+
+                vehicle.suspension[WheelID.LeftFront ].damperStrength = damperStrength;
+                vehicle.suspension[WheelID.RightFront].damperStrength = damperStrength;
+                vehicle.suspension[WheelID.LeftRear  ].damperStrength = damperStrength;
+                vehicle.suspension[WheelID.RightRear ].damperStrength = damperStrength;
+
+                vehicle.suspension[WheelID.LeftFront ].restLength = restLength;
+                vehicle.suspension[WheelID.RightFront].restLength = restLength;
+                vehicle.suspension[WheelID.LeftRear  ].restLength = restLength;
+                vehicle.suspension[WheelID.RightRear ].restLength = restLength;
+
+                vehicle.rollbarFront.rollbarStrength = rollbarStrength;
+                vehicle.rollbarRear.rollbarStrength = rollbarStrength;
+
+            }
+        }
+        #endregion Tweaking Car
+
         #endregion Vehicle
 
 
@@ -127,6 +175,8 @@ namespace vc
         {
             if (!Application.isPlaying)
                 return;
+
+            vehicle.rollbarFront.DrawGizmos();
 
             vehicle.wheels[WheelID.RightFront].DrawGizmos();
             vehicle.wheels[WheelID.LeftFront].DrawGizmos();
@@ -148,10 +198,11 @@ namespace vc
             float xPos = 10f;
 
             yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
+
 
             //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);

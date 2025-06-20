@@ -1,7 +1,11 @@
+using Microsoft.Win32.SafeHandles;
+using Sirenix.OdinInspector.Editor;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.VFX;
 using vc.VehicleComponentsSO;
 
 namespace vc
@@ -20,10 +24,12 @@ namespace vc
 
             // Parameters 
             float gravity => 9.81f;
-            float normalForce => wheelData.rb.mass/4f;
+            //float normalForce => wheelData.normalforce;//wheelData.rb.mass/4f;
             float RollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
-            float RollingResistanceforce => normalForce * RollingResistanceCoefficient;
+            float RollingResistanceforce => wheelData.normalforce * RollingResistanceCoefficient;
 
+            float brakeTorque;
+            float driveTorque;
 
 
             #region wheelComponent
@@ -35,16 +41,12 @@ namespace vc
                 this.wheelData = wheelHitData;
                 this.wheelData.wheel = this;
             }
-            public void UpdatePhysics(float dt, float throttle, float brake)
+            public void UpdatePhysics(float dt, float driveTorque, float brakeTorque)
             {
                 if (!wheelData.isGrounded)
                     return;
-                float maxTorque = 120f;
-                float diffRatio = 3.9f;
-                float firstGear = 3.727f;
-                float reverseGear = -3.507f;
-                var driveTorque = maxTorque * firstGear * diffRatio * throttle;
-                var brakeTorque = maxTorque * reverseGear * diffRatio * brake;
+                this.driveTorque = driveTorque;
+                this.brakeTorque = brakeTorque;
                 CalculateLongitudinalForce(dt, driveTorque, brakeTorque);
                 CalculateLateralForce(dt);
 
@@ -54,25 +56,24 @@ namespace vc
 
             #region Lateral Forces
             float Fx;
-            float pacjekaLat;
-            float currentSlipAngleDeg;
-            public float lateralSlipRatio => currentSlipAngleDeg/90f;
+            float pacjekaLat = default;
+            float currentSlipAngleDeg =default;
+            float lateralSlipRatio => currentSlipAngleDeg / 90f;
+            private WheelLateralSlipCalculator lsc = new();
+
+                       
             void CalculateLateralForce(float dt)
             {
                 Fx = 0f;
+                currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.y))) * Mathf.Rad2Deg;
 
-                var vX = wheelData.velocityLS.x;
-                var vZ = wheelData.velocityLS.z;    
+                var lateralSlipRatio = lsc.CalculateSlip(wheelData.velocityLS, dt);
+                var lateralSlipForce = lateralSlipRatio * (Mathf.Max(wheelData.normalforce, 0f) * 100f);
 
-                currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(vX, Mathf.Abs(vZ))) * Mathf.Rad2Deg;
-                pacjekaLat = Pacjeka.quickPacjekaLat(currentSlipAngleDeg);
-                var lateralClamp = usefullMass * Mathf.Abs(vX) / dt;
-
-                Fx += pacjekaLat * lateralClamp;
+                Fx =  lateralSlipForce;
             }
 
-
-            float wheelLoadFactor => normalForce / (normalForce * 4f);
+            float wheelLoadFactor => wheelData.normalforce / (wheelData.normalforce * 4f);
             float usefullMass => wheelLoadFactor * wheelData.rb.mass;
             
             #endregion Lateral Forces
@@ -81,9 +82,7 @@ namespace vc
 
             public float LongitudinalSlipRatio => currentSlipRatio;
             float currentSlipRatio;
-            float Fz;
-            
-            
+            float Fz;                       
 
             float longitudinalAngularVelocity = default;
             
@@ -93,69 +92,70 @@ namespace vc
             
             void CalculateLongitudinalForce(float dt, float driveTorque, float brakeTorque)
             {
-                if (wheelData.id == WheelID.RightRear)
-                {
-                    int tt = 1;
-                }
-                if (wheelData.id == WheelID.RightRear && brakeTorque < 0f)
-                {
-                    int t = 1;
-                }
 
+                Fz = driveTorque/radius;
+
+                Fz += brakeTorque/radius;
+                //if (wheelData.id == WheelID.RightRear)
+                //{
+                //    int tt = 1;
+                //}
+                //if (wheelData.id == WheelID.RightRear && brakeTorque < 0f)
+                //{
+                //    int t = 1;
+                //}
                 
+                //UnityEngine.Debug.Log($"Drive torque: {driveTorque + brakeTorque}\n VeloZ {wheelData.velocityLS.z}");
+                //Fz = 0f;
+                //// current wheel velocity 
+                //var longitudinalWheelSpeedMS = wheelData.velocityLS.z;
+                //var angularVelocity = MathHelper.SafeDivide(longitudinalWheelSpeedMS, radius) ; // rad / s
 
-                UnityEngine.Debug.Log($"Drive torque: {driveTorque + brakeTorque}\n VeloZ {wheelData.velocityLS.z}");
-                Fz = 0f;
-                // current wheel velocity 
-                var longitudinalWheelSpeedMS = wheelData.velocityLS.z;
-                var angularVelocity = MathHelper.SafeDivide(longitudinalWheelSpeedMS, radius) ; // rad / s
-
-                if (wheelData.id == WheelID.RightRear && brakeTorque < 0f && wheelData.velocityLS.z < 8f)
-                {
-                    int t = 1;
-                }
-
+                //if (wheelData.id == WheelID.RightRear && brakeTorque < 0f && wheelData.velocityLS.z < 8f)
+                //{
+                //    int t = 1;
+                //}
 
 
-                // new wheel velocity after applying drive forces 
-                var totalNetTorque = driveTorque + brakeTorque; // Newton torque
-                var fwdForce = totalNetTorque * radius; // Newton
-                var longitudinalAngularAcceleration = totalNetTorque / wheelInvInertia; // rad/s²
-                var newAngularVelocity = angularVelocity + longitudinalAngularAcceleration * dt;// rad/s
+                //// new wheel velocity after applying drive forces 
+                //var totalNetTorque = driveTorque + brakeTorque; // Newton torque
+                //var fwdForce = totalNetTorque * radius; // Newton
+                //var longitudinalAngularAcceleration = totalNetTorque / wheelInvInertia; // rad/s²
+                //var newAngularVelocity = angularVelocity + longitudinalAngularAcceleration * dt;// rad/s
 
-                // work whether wheel angular velocity is reliable for its sign direction
-                bool isWheelStopped = Mathf.Abs(angularVelocity) < float.Epsilon;
+                //// work whether wheel angular velocity is reliable for its sign direction
+                //bool isWheelStopped = Mathf.Abs(angularVelocity) < float.Epsilon;
                                 
-                float slideSign = isWheelStopped ? MathHelper.Sign(longitudinalWheelSpeedMS) : MathHelper.Sign(newAngularVelocity);
+                //float slideSign = isWheelStopped ? MathHelper.Sign(longitudinalWheelSpeedMS) : MathHelper.Sign(newAngularVelocity);
                 
 
-                // slip speed = (new speed - current speed) * slipDirection
-                float wheelSlipSpeedMS = ((newAngularVelocity * radius) - longitudinalWheelSpeedMS) * slideSign;
+                //// slip speed = (new speed - current speed) * slipDirection
+                //float wheelSlipSpeedMS = ((newAngularVelocity * radius) - longitudinalWheelSpeedMS) * slideSign;
 
-                // slip ratio
-                var wheelSlipRatioSAE = wheelSlipSpeedMS / Mathf.Abs(longitudinalWheelSpeedMS);
-                currentSlipRatio = wheelSlipRatioSAE;
+                //// slip ratio
+                //var wheelSlipRatioSAE = wheelSlipSpeedMS / Mathf.Abs(longitudinalWheelSpeedMS);
+                //currentSlipRatio = wheelSlipRatioSAE;
 
-                // longitudinal friction clamp, maximum force that will stop this slide 
-                var wheelTorque = totalNetTorque;
-                var maxFwdForce = (usefullMass * wheelSlipSpeedMS / dt) + (wheelTorque * slideSign / radius);
+                //// longitudinal friction clamp, maximum force that will stop this slide 
+                //var wheelTorque = totalNetTorque;
+                //var maxFwdForce = (usefullMass * wheelSlipSpeedMS / dt) + (wheelTorque * slideSign / radius);
 
-                // angular clamp 
-                var estimatedLongitudinalWheelSpeedMS = longitudinalWheelSpeedMS + (fwdForce * slideSign * dt / wheelData.body.mass);
+                //// angular clamp 
+                //var estimatedLongitudinalWheelSpeedMS = longitudinalWheelSpeedMS + (fwdForce * slideSign * dt / wheelData.body.mass);
                 
-                var estimatedNewRoadSpinVelocity = estimatedLongitudinalWheelSpeedMS / radius;  //RADS/s
-                var spinVelDiff = angularVelocity - estimatedNewRoadSpinVelocity; // Rads/s
-                var spinFriction = (spinVelDiff / wheelInvInertia * dt); // 
-                float spinMaxGroundFwdforce = spinFriction * slideSign / radius;
+                //var estimatedNewRoadSpinVelocity = estimatedLongitudinalWheelSpeedMS / radius;  //RADS/s
+                //var spinVelDiff = angularVelocity - estimatedNewRoadSpinVelocity; // Rads/s
+                //var spinFriction = (spinVelDiff / wheelInvInertia * dt); // 
+                //float spinMaxGroundFwdforce = spinFriction * slideSign / radius;
 
-                var longitudinalFrictionClamp = LongitudinalFrictionClamp(dt, wheelSlipSpeedMS, wheelTorque, slideSign);
+                //var longitudinalFrictionClamp = LongitudinalFrictionClamp(dt, wheelSlipSpeedMS, wheelTorque, slideSign);
 
 
-                var dtFz = MathHelper.Sign(currentSlipRatio) * Mathf.Abs(totalNetTorque)  / radius;
-                if (Mathf.Abs(dtFz) > Mathf.Abs(longitudinalFrictionClamp))
-                    dtFz = longitudinalFrictionClamp;
+                //var dtFz = MathHelper.Sign(currentSlipRatio) * Mathf.Abs(totalNetTorque)  / radius;
+                //if (Mathf.Abs(dtFz) > Mathf.Abs(longitudinalFrictionClamp))
+                //    dtFz = longitudinalFrictionClamp;
 
-                Fz += dtFz;
+                //Fz += dtFz;
 
                 // rolling resistance 
                 //if (Mathf.Abs(wheelData.velocityLS.z) > float.Epsilon)
@@ -178,15 +178,13 @@ namespace vc
             void AddTireForce()
             {
                 // forward - longitudinal force                 
-                FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal) * Fz;
+                FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
                 // sideways - lateral force 
-                FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal) * Fx;
-
+                FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
+                
                 // add force;
-                wheelData.rb.AddForceAtPosition(FzForceVec + FxForceVec, wheelData.axlePosition);
-                UnityEngine.Debug.DrawRay(wheelData.axlePosition, FzForceVec,Color.blue);
-                UnityEngine.Debug.DrawRay(wheelData.axlePosition, FxForceVec, Color.red);
+                wheelData.rb.AddForceAtPosition(FzForceVec + FxForceVec, wheelData.axlePosition);                                
             }
           
 
@@ -224,51 +222,74 @@ namespace vc
             #region IDebugInformation
             public void DrawGizmos()
             {
-                Gizmos.color = Color.red;
+                if (!wheelData.isGrounded)
+                    return;
 
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(wheelData.axlePosition, wheelData.axlePosition + FxForceVec);
                 Gizmos.color = Color.blue;
+                Gizmos.DrawLine(wheelData.axlePosition, wheelData.axlePosition + FzForceVec);
+
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawRay(wheelData.axlePosition, wheelData.forward);
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawRay(wheelData.axlePosition, wheelData.suspensionMountPoint.TransformDirection(wheelData.velocityLS.normalized));
 
             }
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"WHEEL: {this.wheelData.id.ToString()}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" km/h : {(this.wheelData.SpeedKMH).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  m/s : {(this.wheelData.SpeedMS).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  m/s : {(this.wheelData.SpeedMS).ToString("f3")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vz : {(this.wheelData.velocityLS.z).ToString("f5")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vx : {(this.wheelData.velocityLS.x).ToString("f5")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
+
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.longitudinalAngularVelocity).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.currentSlipRatio).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" intertia: {(this.wheelMomentOfInteria).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTorq: {(this.driveTorque).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrTorq: {(this.brakeTorque).ToString("f3")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" intertia: {(this.wheelMomentOfInteria).ToString("f3")}");
 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx : {(this.Fx).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" PLat: {(this.pacjekaLat).ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Plat: {(this.pacjekaLat).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Angle: {(this.currentSlipAngleDeg).ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SARatio: {(this.lsc.slipRatio).ToString("f1")}");
+                
+
                 return yOffset;
             }
 
             #endregion IDebugInformation
 
 
-            public class WheelLateralForcesData
+
+
+            public class WheelLateralSlipCalculator
             {
-                public float Vx = default; // sideways motion - meters 
-                public float Vz = default; // forward motion - meters 
-
-
-                // relaxation length
-                // the speed at which the tire
-                public float relaxationLength = 0.01f;
-
 
                 // Slip Ratio 
                 // -1 slipping to the left 
                 //  1 slipping to the right 
                 //  0 no slip
-                public float SlipX; 
+                public float slipRatio;
+                // Relaxation Length
+                // the distance a tire travels before its lateral (sideways) force reaches a steady-state value
+                // after a sudden change in slip angle (the angle between the direction the tire is pointing and
+                // the direction it is actually traveling). It describes the delay between when a slip angle is
+                // introduced and when the cornering force reaches its steady-state value
+                //  Relaxations lengths have been found to be between 0.12 and 0.45 meters, with higher values corresponding to higher velocities and heavier loads - https://en.wikipedia.org/wiki/Relaxation_length
+                public float relaxationLength = 0.001f;
+                private float SteadyState(Vector3 veloLS) => MathHelper.Sign(veloLS.x / -1f);
 
+                private float RelaxationCoefficient(Vector3 veloLS, float dt) => (Mathf.Abs(veloLS.x) / relaxationLength) * dt;
+                private float NewSlip(Vector3 veloLS, float dt) => slipRatio + ((SteadyState(veloLS) - slipRatio) * RelaxationCoefficient(veloLS, dt));
+
+                public float CalculateSlip(Vector3 veloLS, float dt) => slipRatio = Mathf.Clamp(NewSlip(veloLS, dt), -1f, 1f);
             }
+                        
         }
     }
 }
