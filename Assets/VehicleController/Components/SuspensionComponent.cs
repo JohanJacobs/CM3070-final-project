@@ -62,8 +62,8 @@ namespace vc
                     var springForce = compressedLength * springStrength;                    
                     var damperForce = damperVelocity(dt) * damperStrength;
 
-                    normalForce = springForce + damperForce;
-                    forceVector = normalForce * 100f* wheelData.hitInfo.normal;
+                    normalForce = Mathf.Round((springForce + damperForce)*100f)/100f * 100f;
+                    forceVector = normalForce * wheelData.hitInfo.normal;
 
                     wheelData.rb.AddForceAtPosition(forceVector, mountPoint.position);
                     previousLength = currentLength;
@@ -72,6 +72,7 @@ namespace vc
                     // update wheel data 
                     var worldVelo = this.wheelData.rb.GetPointVelocity(mountPoint.position);
                     this.wheelData.velocityLS = mountPoint.InverseTransformDirection(worldVelo);
+                    this.wheelData.velocityLS.y = 0f;
 
                 }
                 else

@@ -24,10 +24,7 @@ namespace vc
                 this.config = config;
                 
                 // setup variables
-                this.throttle = config.throttleVariable;
-                this.torqueCurve = config.torqueCurve;
-                this.idleRPM = config.idleRPM;
-                this.redlineRPM = config.redlineRPM;
+
             }
 
             #region engine
@@ -39,19 +36,30 @@ namespace vc
             float startFriction = 50f;          // nm
             float frictionCoefficient = 0.02f;
             float engineInertia = 0.2f;
-            float engineAngularVelocity = default;
-            float engineRPM = default;
-            float internalFriction => startFriction + (engineRPM * frictionCoefficient); // nm
-            float rpmTorque => torqueCurve.Evaluate(engineRPM); // nm
-            float effectiveTorqueProduced => (rpmTorque + internalFriction) * throttle.Value; // nm
-            float engineEffectiveTorque => effectiveTorqueProduced - internalFriction; // nm            
+
+            float maxEffectiveTorque;
+            float engineRPM;
+            float engineInternalFriction;
+            float currentInitialTorque;
+            float currentEffectiveTorque;
+            float engineEffectiveTorque; // saved in UE5
+            float acceleration;
+            float angularVelocityDelta;
+            public float engineAngularVelocity;
             void UpdateEngineAcceleration(float dt,float loadTorque)
-            {                
-                var engineAcceleration = ((engineEffectiveTorque - loadTorque) / engineInertia) * dt; // Rad/s²
+            {
 
-                engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + engineAcceleration, idleRPM*RPMtoRadians, redlineRPM*RPMtoRadians); // rad/s
+                maxEffectiveTorque = torqueCurve.Evaluate(engineRPM);
+                engineInternalFriction = startFriction + (engineRPM * frictionCoefficient);
+                currentInitialTorque = (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
+                currentEffectiveTorque = currentInitialTorque - engineInternalFriction;
+                engineEffectiveTorque = currentInitialTorque - engineInternalFriction;
 
-                engineRPM = engineAngularVelocity * RadianstoRPM; // can read this from the wheels and the current gears ?
+                acceleration = (engineEffectiveTorque - loadTorque) / engineInertia;
+                angularVelocityDelta = acceleration * dt;
+                engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + angularVelocityDelta, idleRPM * RPMtoRadians, redlineRPM * RPMtoRadians);
+
+                engineRPM = engineAngularVelocity * RadianstoRPM;                
             }
             #endregion engine
 
@@ -64,17 +72,17 @@ namespace vc
 
             public void Start()
             {
-                engineRedlineRPM.Value = config.redlineRPM;
-                engineIdleRPM.Value = config.idleRPM;
-
-                engineRPM.Value = engineIdleRPM.Value;
-
-                engineAngularVelocity = engineRPM.Value * RPMtoRadians;
+                this.throttle = config.throttleVariable;
+                this.torqueCurve = config.torqueCurve;
+                //this.idleRPM = config.idleRPM;
+                this.idleRPM = 900f;
+                //this.redlineRPM = config.redlineRPM;
+                this.redlineRPM = 7500f;
             }
 
             public void Update(float dt)
             {
-                EngineAcceleration(dt);
+                Update(dt,0f);
             }
             #endregion IVehicleComponent
 
@@ -86,11 +94,12 @@ namespace vc
 
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"ENGINE");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  throttle : {throttle.Value.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  engineEffectiveTorque: {engineEffectiveTorque.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  engineAngularVelocity: {engineAngularVelocity.ToString("F3")}");
                 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"throttle : {throttle.Value.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"engineAngularVelocity: {engineAngularVelocity.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"engineEffectiveTorque: {engineEffectiveTorque.Value.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"RPM: {engineRPM.Value.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  RPM: {engineRPM.ToString("F3")}");
                 return yOffset;
             }
             #endregion IDebugInformation

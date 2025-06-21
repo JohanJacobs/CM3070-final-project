@@ -14,8 +14,7 @@ namespace vc
             public float CurrentGear => currentGear;
             TransmissionSO config;
 
-            float currentGear = default;
-            float outputTorque = default;
+            float currentGear = default;            
             FloatVariable gearUpInput;
             FloatVariable gearDownInput;
 
@@ -96,10 +95,18 @@ namespace vc
                 }
             }
 
-            public float CalculateOutputTorque(float inputTorque)
+            float difftorque = default;
+            public float CaclulateDifferentialTorque(float inputTorque)
             {
-                outputTorque = inputTorque * ratio;
-                return outputTorque;
+                difftorque = inputTorque * ratio;
+                return inputTorque * ratio;
+            }
+
+            float clutchVelo = default;
+            public float CalculateClutchVelocity(float inputVelocity)
+            {
+                clutchVelo = inputVelocity * ratio;
+                return inputVelocity * ratio;
             }
             #endregion Transmission
 
@@ -132,9 +139,10 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"TRANSMISSION");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentGear: {(int)currentGear}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentRaio: {GearRatio.ToString("F3")}");                
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" outputTorque: {outputTorque.ToString("F0")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear: {(int)currentGear}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Raio: {GearRatio.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  diff Torq: {difftorque.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  clutch Vel: {clutchVelo.ToString("F3")}");
                 return yOffset;
             }
             #endregion IDebugInformation

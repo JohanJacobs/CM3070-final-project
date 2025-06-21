@@ -60,11 +60,9 @@ namespace vc
             float dt = Time.fixedDeltaTime;
             float throttle = throttleInput.Value;
             float brake = brakeInput.Value;
-            float maxTorque = 120f;
-
+                        
             vehicle.body.Update(dt);
 
-            
             vehicle.suspension[WheelID.LeftFront].Update(dt);
             vehicle.suspension[WheelID.RightFront].Update(dt);
             vehicle.suspension[WheelID.LeftRear].Update(dt);
@@ -73,31 +71,30 @@ namespace vc
             vehicle.rollbarFront.Update(dt);
             vehicle.rollbarRear.Update(dt);
 
+            // DRIVE PHASE 
+            var diffTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
+            var driveTorque = vehicle.differential.CalculateWheelOutputTorque(diffTorque);
+
             // front wheel 
             vehicle.wheels[WheelID.LeftFront ].Update(dt, 0f);
             vehicle.wheels[WheelID.RightFront].Update(dt, 0f);
 
-
             // rear wheels
-            var diffTorque = vehicle.transmission.CalculateOutputTorque(maxTorque * throttle);
-            var driveTorque = vehicle.differential.CalculateOutputTorque(diffTorque);
-
             vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0]);
             vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1]);
+
+
+            // FEEDBACK PHASE
+            var transVelo = vehicle.differential.CalculateTransmissionVelocity(vehicle.wheels[WheelID.LeftRear].wheelAngularVelocity, vehicle.wheels[WheelID.RightRear].wheelAngularVelocity);
+            var clutchVelo = vehicle.transmission.CalculateClutchVelocity(transVelo);
+
+            vehicle.clutch.Update(clutchVelo, vehicle.transmission.GearRatio, vehicle.engine.engineAngularVelocity);
+            vehicle.engine.Update(dt, vehicle.clutch.clutchTorque);
+
         }
 
         #region Vehicle
-        public class Vehicle
-        {
-            public Dictionary<WheelID, SuspensionComponent> suspension;
-            public Dictionary<WheelID, WheelComponent> wheels;
-            public DifferentialComponent differential;
-            public TransmissionComponent transmission;
-            public EngineComponent engine;
-            public ClutchComponent clutch;
-            public BodyComponent body;
-            public RollbarComponet rollbarFront, rollbarRear;
-        }
+
         Vehicle vehicle;
 
         private void SetupVehicle()
@@ -151,6 +148,12 @@ namespace vc
 
             vehicle.transmission = new(transmissionConfig);
             vehicle.transmission.Start();
+
+            vehicle.clutch = new ClutchComponent(ClutchConfig);
+            vehicle.clutch.Start();
+
+            vehicle.engine = new EngineComponent(EngineConfig);
+            vehicle.engine.Start();
 
             SetupTweaks();
         }
@@ -226,6 +229,8 @@ namespace vc
             float xPos = 10f;
 
             yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
 
@@ -242,6 +247,25 @@ namespace vc
         }
         #endregion
     }
+
+    public class Vehicle
+    {
+        public Dictionary<WheelID, SuspensionComponent> suspension;
+        public Dictionary<WheelID, WheelComponent> wheels;
+        public DifferentialComponent differential;
+        public TransmissionComponent transmission;
+        public EngineComponent engine;
+        public ClutchComponent clutch;
+        public BodyComponent body;
+        public RollbarComponet rollbarFront, rollbarRear;
+
+        public static Vehicle Setup()
+        {
+            return new Vehicle();
+        }
+    }
+
+
 
     namespace VehicleConfiguration
     {

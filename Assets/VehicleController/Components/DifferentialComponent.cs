@@ -22,17 +22,23 @@ namespace vc
             }
 
             #region Differential Component            
-            public float[] CalculateOutputTorque(float transmissionTorque) 
+            public float[] CalculateWheelOutputTorque(float transmissionTorque) 
             {
                 var totalTorque = transmissionTorque * ratio;
-                float torque = MathHelper.SafeDivide(totalTorque, (float)connectedWheels);
+                float torque = totalTorque * 0.5f;
 
                 wheelOutput[0] = torque;
                 wheelOutput[1] = torque;                
                 return wheelOutput;
             }
 
-
+            float transmissionVelo = default;
+            public float CalculateTransmissionVelocity(float leftWheel, float rightWheel)
+            {
+                float avgVelo = (leftWheel + rightWheel )/ 2f;
+                transmissionVelo = avgVelo * ratio;
+                return transmissionVelo;
+            }
             #endregion Differential Component
 
 
@@ -63,6 +69,7 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"DIFFERENTIAL");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Ratio : {ratio}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  wheelOutput: {wheelOutput[0]}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  transBack: {transmissionVelo}");
 
                 return yOffset;
             }
