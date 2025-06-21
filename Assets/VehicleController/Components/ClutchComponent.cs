@@ -17,7 +17,7 @@ namespace vc
 
             float clutchCapacity = 1.3f;
             float clutchStiffness = 40f;
-            float clutchDamping = 0.7f;
+            float clutchDampingRate = 0.7f;
 
             float engineMaxTorque = 400f; // nm TODO: read from engine            
             float clutchMaxTorque => clutchCapacity * engineMaxTorque;
@@ -25,8 +25,9 @@ namespace vc
             float RadToRPM => 60f/(2 * Mathf.PI);
             float engineRPMRate=> MathHelper.MapAndClamp(engineAngularVelocity * RadToRPM,1000f,1300f,0f,1f); // Region in which the clutch slips
             float NeutralGearCheck => transmissionRatio < float.Epsilon ? 1 : 0f;
-            float clutchLock => Mathf.Min(engineRPMRate + NeutralGearCheck, 1f);
-            float clutchSlip => (engineAngularVelocity - transmissionAngularVelocity) * MathHelper.Sign(Mathf.Abs(transmissionRatio));
+            float transferredClutchTorque => Mathf.Clamp(clutchSlip * clutchLock * clutchStiffness, -clutchMaxTorque, clutchMaxTorque);
+            float clutchLock = default;
+            float clutchSlip = default;
                         
             float transmissionRatio = default;
             float engineAngularVelocity = default;
@@ -37,10 +38,12 @@ namespace vc
                 this.transmissionAngularVelocity = transmissionVelocity;
                 this.transmissionRatio = transmissionRatio;
                 this.engineAngularVelocity = engineAngularVelocity;
-                
-                var transferredClutchTorque = Mathf.Clamp(clutchSlip * clutchLock * clutchStiffness, -clutchMaxTorque, clutchMaxTorque);
-                var damping = (clutchTorque - transferredClutchTorque) * clutchDamping;
-                clutchTorque = transferredClutchTorque + damping;
+
+                clutchSlip = (engineAngularVelocity - transmissionAngularVelocity) * MathHelper.Sign(Mathf.Abs(transmissionRatio));
+                clutchLock = Mathf.Min(engineRPMRate + NeutralGearCheck, 1f);
+                                
+                var clutchDamping = (clutchTorque - transferredClutchTorque) * clutchDampingRate;
+                clutchTorque = transferredClutchTorque + clutchDamping;
             }
                         
             #endregion Clutch Component

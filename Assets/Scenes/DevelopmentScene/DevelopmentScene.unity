@@ -5009,6 +5009,7 @@ MonoBehaviour:
   engineConfig: {fileID: 11400000, guid: 61ce403ec78bb2a4e8e5f77262cfe10a, type: 2}
   clutchConfig: {fileID: 11400000, guid: 32954204d18020c46bbf02c4353a3f70, type: 2}
   bodyConfig: {fileID: 11400000, guid: f5fa8eba4ce615c4f9e3139164666d9d, type: 2}
+  brakeConfig: {fileID: 11400000, guid: 14151ac891c5a024580b5cca6456e0af, type: 2}
 --- !u!1 &1048150672
 GameObject:
   m_ObjectHideFlags: 0

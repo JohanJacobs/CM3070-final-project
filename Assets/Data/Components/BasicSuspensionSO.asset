@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0267285fdab3b448b377d2f999d2520, type: 3}
   m_Name: BasicSuspensionSO
   m_EditorClassIdentifier: 
-  suspensionForce: 500
+  suspensionForce: 450
   DamperStrength: 50
   RestLength: 50

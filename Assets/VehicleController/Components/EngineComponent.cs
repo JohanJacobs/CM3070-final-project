@@ -42,14 +42,15 @@ namespace vc
             float engineInternalFriction => startFriction + (engineRPM * frictionCoefficient);
             float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
             float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
-            float engineEffectiveTorque => currentInitialTorque - engineInternalFriction;
             float idleAngularRotation => idleRPM * RPMtoRadians;
             float redlineAngularRotation => redlineRPM * RPMtoRadians;
 
             public float engineAngularVelocity=100f;
+            float engineEffectiveTorque =default;
             
             void UpdateEngineAcceleration(float dt,float loadTorque)
-            {               
+            {
+                engineEffectiveTorque = currentEffectiveTorque;
                 float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia;                
                 engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + acceleration * dt, idleAngularRotation , redlineAngularRotation);
             }

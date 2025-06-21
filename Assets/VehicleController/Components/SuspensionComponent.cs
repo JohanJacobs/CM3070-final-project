@@ -150,9 +150,11 @@ namespace vc
 
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {                
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep),$"SUSP : {this.wheelData.id.ToString()}");                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep),$"SUSP : {this.wheelData.id.ToString()}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" length / rest: {(this.currentLength).ToString("f2")}/{(this.restLength).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" compression: {(this.springCompression).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" normalForce: {(this.normalForce).ToString("f1")}");
+
                 return yOffset;
             }
 

@@ -95,15 +95,15 @@ namespace vc
                 float rollResistanceTorque = wheelData.normalforce * radius * rollingResistanceCoefficient; // nm
                 float totalBrakingTorque= -Mathf.Sign(wheelAngularVelocity) * (brakeTorque + rollResistanceTorque); // nm
                 float brakeAcceleration = (totalBrakingTorque / wheelInertia) * dt;
-                float newVelocity = wheelAngularVelocity + brakeAcceleration;
-                if (Mathf.Sign(newVelocity) != Mathf.Sign(wheelAngularVelocity))
+                float newAngularVelocity = wheelAngularVelocity + brakeAcceleration;
+                if (Mathf.Sign(newAngularVelocity) != Mathf.Sign(wheelAngularVelocity))
                 {
                     wheelAngularVelocity = 0f;
                     isLocked = true;
                 }
                 else
                 {
-                    wheelAngularVelocity = newVelocity;
+                    wheelAngularVelocity = newAngularVelocity;
                     isLocked = false;
                 }
 
@@ -200,8 +200,9 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"WHEEL {this.wheelData.id.ToString()}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" km/h : {(this.wheelData.SpeedKMH).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  m/s : {(this.wheelData.SpeedMS).ToString("f3")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" km/h : {(this.wheelData.SpeedKMH).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" m/s : {(this.wheelData.SpeedMS).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Locked : {(this.isLocked?"Yes":"No")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
 
                 // Longitudinal 

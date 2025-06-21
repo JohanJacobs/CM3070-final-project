@@ -6,7 +6,7 @@ using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using static vc.VehicleController;
 /*
-    handbrake
+    BUG : Car reverse when i am in reverse with no throttle
     audio
     visuals for skidding
     visuals for smoke // spinning
@@ -29,9 +29,10 @@ namespace vc
         [SerializeField] EngineSO engineConfig;
         [SerializeField] ClutchSO clutchConfig;
         [SerializeField] BodySO bodyConfig;
+        [SerializeField] BrakeSO brakeConfig;
 
         Rigidbody carRigidbody;
-
+                
         Vehicle vehicle;
         public void Awake()
         {
@@ -41,7 +42,7 @@ namespace vc
                 Debug.LogError("Missing rigid body!");
             }
 
-            vehicle = Vehicle.Setup(carRigidbody, wheelConfig, suspensionConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig);
+            vehicle = Vehicle.Setup(carRigidbody, wheelConfig, suspensionConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig,brakeConfig);
         }
 
         public void Update()
@@ -53,7 +54,7 @@ namespace vc
             float dt = Time.fixedDeltaTime;
             float throttle = throttleInput.Value;
             float brake = brakeInput.Value;
-                        
+
             vehicle.body.Update(dt);
 
             vehicle.suspension[WheelID.LeftFront].Update(dt);
@@ -68,19 +69,16 @@ namespace vc
             var diffTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
             var driveTorque = vehicle.differential.CalculateWheelOutputTorque(diffTorque);
 
-            var brakeBalance = 0.65f; // % to front
-            var maxBrakeTorque = 2000f; // passanger car 2000nm - 10000 nm  break force
-            var brakeTorqueFront = brakeInput.Value * maxBrakeTorque * brakeBalance;
-            var brakeTorqueRear = Mathf.Min(brakeInput.Value * maxBrakeTorque * (1f-brakeBalance) + handbrakeInput.Value * maxBrakeTorque, maxBrakeTorque);
-
+            var frontBrakeTorque = vehicle.brake.frontBrakeTorque;
+            var rearBrakeTorque = vehicle.brake.rearBrakeTorque;
 
             // front wheel 
-            vehicle.wheels[WheelID.LeftFront ].Update(dt,0f,brakeTorqueFront);
-            vehicle.wheels[WheelID.RightFront].Update(dt,0f,brakeTorqueFront);
+            vehicle.wheels[WheelID.LeftFront ].Update(dt,0f,frontBrakeTorque);
+            vehicle.wheels[WheelID.RightFront].Update(dt,0f,frontBrakeTorque);
 
             // rear wheels
-            vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0], brakeTorqueRear);
-            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1], brakeTorqueRear);
+            vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0], rearBrakeTorque);
+            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1], rearBrakeTorque);
 
 
             // FEEDBACK PHASE
@@ -102,6 +100,7 @@ namespace vc
             vehicle.differential.Shutdown();
             vehicle.rollbarFront.Shutdown();
             vehicle.rollbarRear.Shutdown();
+            vehicle.brake.Shutdown();
             vehicle.wheels.ForEach(w => w.Value.Shutdown());
             vehicle.suspension.ForEach(s => s.Value.Shutdown());
         }
@@ -135,15 +134,15 @@ namespace vc
             float yOffset = 10f;
             float yStep = 20f;
             float xPos = 10f;
-
+            
             yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
 
-            //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
@@ -166,6 +165,7 @@ namespace vc
         public ClutchComponent clutch;
         public BodyComponent body;
         public RollbarComponet rollbarFront, rollbarRear;
+        public BrakeComponent brake;
 
         public static Vehicle Setup(Rigidbody carRigidbody, 
             VehicleConfiguration.WheelConfigData[] wheelConfig, 
@@ -174,7 +174,8 @@ namespace vc
             DifferentialSO differentialConfig,
             TransmissionSO transmissionConfig,
             ClutchSO clutchConfig,
-            EngineSO engineConfig
+            EngineSO engineConfig,
+            BrakeSO brakeConfig
             )
         {
             Vehicle newVehicle = new();
@@ -185,7 +186,7 @@ namespace vc
             newVehicle.wheels = new();
             foreach (var wc in wheelConfig)
             {
-                newVehicle.wheels.Add(wc.ID, new WheelComponent(wc.ID, wc.Config, wheelHitData[wc.ID]));
+                newVehicle.wheels.Add(wc.ID, new (wc.ID, wc.Config, wheelHitData[wc.ID]));
             }
 
             // Setup Suspensions            
@@ -196,7 +197,7 @@ namespace vc
             }
 
             // car body
-            newVehicle.body = new BodyComponent(bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint);
+            newVehicle.body = new (bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint);
             newVehicle.body.Start();
 
             wheelHitData.ForEach(whd=>whd.Value.body = newVehicle.body);
@@ -217,11 +218,14 @@ namespace vc
             newVehicle.transmission = new(transmissionConfig);
             newVehicle.transmission.Start();
 
-            newVehicle.clutch = new ClutchComponent(clutchConfig);
+            newVehicle.clutch = new (clutchConfig);
             newVehicle.clutch.Start();
 
-            newVehicle.engine = new EngineComponent(engineConfig);
+            newVehicle.engine = new (engineConfig);
             newVehicle.engine.Start();
+
+            newVehicle.brake = new (brakeConfig);
+            newVehicle.brake.Start();
 
             return newVehicle;
         }
