@@ -13,12 +13,9 @@ namespace vc
         {
             EngineSO config;
             FloatVariable throttle;
-            FloatVariable engineIdleRPM;
-            FloatVariable engineRedlineRPM;
-            FloatVariable engineRPM;
-            public float effectiveTorque => engineEffectiveTorque.Value;
-            FloatVariable engineEffectiveTorque;
-
+            AnimationCurve torqueCurve;
+            float idleRPM;
+            float redlineRPM;
             float RPMtoRadians => Mathf.PI * 2f / 60f;
             float RadianstoRPM => 1f / RPMtoRadians;
 
@@ -28,11 +25,35 @@ namespace vc
                 
                 // setup variables
                 this.throttle = config.throttleVariable;
-                this.engineIdleRPM = config.engineIdleRPMVariable;
-                this.engineRedlineRPM = config.engineRedlineRPMVariable;
-                this.engineRPM = config.engineRPMVariable;                
-                this.engineEffectiveTorque = config.engineEffectiveTorque;
+                this.torqueCurve = config.torqueCurve;
+                this.idleRPM = config.idleRPM;
+                this.redlineRPM = config.redlineRPM;
             }
+
+            #region engine
+            public void Update(float dt, float loadTorque)
+            {
+                UpdateEngineAcceleration(dt, loadTorque);
+            }
+
+            float startFriction = 50f;          // nm
+            float frictionCoefficient = 0.02f;
+            float engineInertia = 0.2f;
+            float engineAngularVelocity = default;
+            float engineRPM = default;
+            float internalFriction => startFriction + (engineRPM * frictionCoefficient); // nm
+            float rpmTorque => torqueCurve.Evaluate(engineRPM); // nm
+            float effectiveTorqueProduced => (rpmTorque + internalFriction) * throttle.Value; // nm
+            float engineEffectiveTorque => effectiveTorqueProduced - internalFriction; // nm            
+            void UpdateEngineAcceleration(float dt,float loadTorque)
+            {                
+                var engineAcceleration = ((engineEffectiveTorque - loadTorque) / engineInertia) * dt; // Rad/s²
+
+                engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + engineAcceleration, idleRPM*RPMtoRadians, redlineRPM*RPMtoRadians); // rad/s
+
+                engineRPM = engineAngularVelocity * RadianstoRPM; // can read this from the wheels and the current gears ?
+            }
+            #endregion engine
 
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Engine;
@@ -56,27 +77,8 @@ namespace vc
                 EngineAcceleration(dt);
             }
             #endregion IVehicleComponent
-            #region engine
 
-            float startFriction = 50f;
-            float frictionCoefficient = 0.02f;
-            float engineInertia = 0.2f;
-                                  
-            float engineAngularVelocity = default;
-
-            void EngineAcceleration(float dt)
-            {
-                var internalFriction = startFriction + engineRPM.Value * frictionCoefficient;
-                var maximumEffectiveTorque = config.torqueCurve.Evaluate(engineRPM.Value);
-
-                var currentTorque = (maximumEffectiveTorque + maximumEffectiveTorque) * throttle.Value;
-                engineEffectiveTorque.Value = currentTorque - internalFriction;
-
-                var engineAcceleration = (engineEffectiveTorque.Value / engineInertia) * dt;
-                engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + engineAcceleration, engineIdleRPM.Value * RPMtoRadians, engineRedlineRPM.Value * RPMtoRadians);
-                engineRPM.Value = engineAngularVelocity * RadianstoRPM;        
-            }
-
+            #region IDebugInformation
             public void DrawGizmos()
             {
                 
@@ -91,7 +93,7 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"RPM: {engineRPM.Value.ToString("F3")}");
                 return yOffset;
             }
-            #endregion engine
+            #endregion IDebugInformation
 
 
         }
