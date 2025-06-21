@@ -24,12 +24,14 @@ namespace vc
             // Parameters 
             public float wheelMass { get; private set; }    //KG
             float wheelInertia = 1.5f;/* 0.5f * wheelMass * radius * radius;*/ //kg m²
-            float gravity => 9.81f;
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
             float wheelFrictionCoefficient = 1.0f;
-            
-            float driveTorque;
-            float dt;
+            float LongitudinalRelaxationLength = 0.005f;
+
+            float dt = default;
+            float driveTorque = default;
+            float brakeTorque = default;
+            bool isLocked = true;
             
             #region wheelComponent
             public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData)
@@ -41,10 +43,11 @@ namespace vc
                 this.wheelData = wheelHitData;
                 this.wheelData.wheel = this;
             }
-            public void UpdatePhysics(float dt, float driveTorque)
+            public void UpdatePhysics(float dt, float driveTorque = default, float brakeTorque = default)
             {
                 this.dt = dt;
                 this.driveTorque = driveTorque;
+                this.brakeTorque = brakeTorque;
 
                 if (!wheelData.isGrounded)
                     return;
@@ -72,6 +75,7 @@ namespace vc
             public float LongitudinalSlipRatio => slipZ;
             float slipZ = default;
             float Fz = default; // nm
+            float longSlipVelocity = default;
 
             // Longitudinal Slip calculations
             void CalculateLongitudinal()
@@ -84,10 +88,27 @@ namespace vc
             //wheel Acceleration Calculations
             float frictionTorque => Fz * radius; // nm
             float angularAcceleration => MathHelper.SafeDivide((driveTorque - frictionTorque), wheelInertia); // Rad/s²
-
             void UpdateWheelVelocity()
-            {   
+            {
                 wheelAngularVelocity += angularAcceleration * dt; // Rad/s
+ 
+                float rollResistanceTorque = wheelData.normalforce * radius * rollingResistanceCoefficient; // nm
+                float totalBrakingTorque= -Mathf.Sign(wheelAngularVelocity) * (brakeTorque + rollResistanceTorque); // nm
+                float brakeAcceleration = (totalBrakingTorque / wheelInertia) * dt;
+                float newVelocity = wheelAngularVelocity + brakeAcceleration;
+                if (Mathf.Sign(newVelocity) != Mathf.Sign(wheelAngularVelocity))
+                {
+                    wheelAngularVelocity = 0f;
+                    isLocked = true;
+                }
+                else
+                {
+                    wheelAngularVelocity = newVelocity;
+                    isLocked = false;
+                }
+
+                // speed at which we slide
+                longSlipVelocity = wheelAngularVelocity * radius - wheelData.velocityLS.z;
             }
             #endregion Longitudinal Wheel Acceleration 
            
@@ -97,15 +118,15 @@ namespace vc
             float targetAngularAccelleration => (wheelAngularVelocity - targetAngularVelocity) / dt; // Rad/s²
             float targetTorque => targetAngularAccelleration * wheelInertia; //Rad/s
             float maximumFrictionTorque => wheelData.normalforce * radius * wheelFrictionCoefficient; //nm
+
+            
+            float lockedWheelSlipZ => MathHelper.Sign(longSlipVelocity);
+            float rollingWheelSlipZ => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maximumFrictionTorque), -1f, 1f);
+            float slipBaseOnWheelState => isLocked ? lockedWheelSlipZ : rollingWheelSlipZ;
+            float longSlipVelocityRelaxationCoeff => Mathf.Clamp((Mathf.Abs(longSlipVelocity) / LongitudinalRelaxationLength) * dt, 0f, 1f);
             void CalculateSlipZ()
-            {
-                //if (Mathf.Abs(wheelData.normalforce) < float.Epsilon)
-                if (!wheelData.isGrounded)
-                {
-                    slipZ = 0f;
-                    return;
-                }
-                slipZ = Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maximumFrictionTorque), -1f, 1f);
+            {   
+                slipZ += (slipBaseOnWheelState - slipZ) * longSlipVelocityRelaxationCoeff;                
             }
             #endregion Slip Ratio Calculations
             
@@ -129,9 +150,9 @@ namespace vc
             }
           
 
-            public void Update(float dt, float driveTorque)
+            public void Update(float dt, float driveTorque, float brakeTorque)
             {
-                UpdatePhysics(dt, driveTorque);
+                UpdatePhysics(dt, driveTorque,brakeTorque);
             }
             #endregion wheelComponent
 

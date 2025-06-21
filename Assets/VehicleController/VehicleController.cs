@@ -5,7 +5,12 @@ using UnityEngine;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using static vc.VehicleController;
-
+/*
+    handbrake
+    audio
+    visuals for skidding
+    visuals for smoke // spinning
+ */
 namespace vc
 {
     public class VehicleController : MonoBehaviour
@@ -63,13 +68,19 @@ namespace vc
             var diffTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
             var driveTorque = vehicle.differential.CalculateWheelOutputTorque(diffTorque);
 
+            var brakeBalance = 0.65f; // % to front
+            var maxBrakeTorque = 2000f; // passanger car 2000nm - 10000 nm  break force
+            var brakeTorqueFront = brakeInput.Value * maxBrakeTorque * brakeBalance;
+            var brakeTorqueRear = Mathf.Min(brakeInput.Value * maxBrakeTorque * (1f-brakeBalance) + handbrakeInput.Value * maxBrakeTorque, maxBrakeTorque);
+
+
             // front wheel 
-            vehicle.wheels[WheelID.LeftFront ].Update(dt, 0f);
-            vehicle.wheels[WheelID.RightFront].Update(dt, 0f);
+            vehicle.wheels[WheelID.LeftFront ].Update(dt,0f,brakeTorqueFront);
+            vehicle.wheels[WheelID.RightFront].Update(dt,0f,brakeTorqueFront);
 
             // rear wheels
-            vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0]);
-            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1]);
+            vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0], brakeTorqueRear);
+            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1], brakeTorqueRear);
 
 
             // FEEDBACK PHASE
@@ -166,55 +177,53 @@ namespace vc
             EngineSO engineConfig
             )
         {
-            Vehicle vehicle = new();
+            Vehicle newVehicle = new();
 
             var wheelHitData = WheelHitData.SetupDefault(carRigidbody);
 
             // wheels 
-            vehicle.wheels = new();
+            newVehicle.wheels = new();
             foreach (var wc in wheelConfig)
             {
-                vehicle.wheels.Add(wc.ID, new WheelComponent(wc.ID, wc.Config, wheelHitData[wc.ID]));
+                newVehicle.wheels.Add(wc.ID, new WheelComponent(wc.ID, wc.Config, wheelHitData[wc.ID]));
             }
 
             // Setup Suspensions            
-            vehicle.suspension = new();
+            newVehicle.suspension = new();
             foreach (var susp in suspensionConfig)
             {
-                vehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
+                newVehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
             }
 
             // car body
-            vehicle.body = new BodyComponent(bodyConfig, carRigidbody, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);
-            vehicle.body.Start();
+            newVehicle.body = new BodyComponent(bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint);
+            newVehicle.body.Start();
 
-            foreach (var whd in wheelHitData)
-            {
-                whd.Value.body = vehicle.body;
-            }
+            wheelHitData.ForEach(whd=>whd.Value.body = newVehicle.body);
 
-            vehicle.suspension.ForEach(s=>s.Value.Start());             
-            vehicle.wheels.ForEach(w=>w.Value.Start());
 
-            vehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
-            vehicle.rollbarFront.Start();
+            newVehicle.suspension.ForEach(s=>s.Value.Start());             
+            newVehicle.wheels.ForEach(w=>w.Value.Start());
 
-            vehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
-            vehicle.rollbarRear.Start();
+            newVehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
+            newVehicle.rollbarFront.Start();
 
-            vehicle.differential = new(differentialConfig, 2);
-            vehicle.differential.Start();
+            newVehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
+            newVehicle.rollbarRear.Start();
 
-            vehicle.transmission = new(transmissionConfig);
-            vehicle.transmission.Start();
+            newVehicle.differential = new(differentialConfig, 2);
+            newVehicle.differential.Start();
 
-            vehicle.clutch = new ClutchComponent(clutchConfig);
-            vehicle.clutch.Start();
+            newVehicle.transmission = new(transmissionConfig);
+            newVehicle.transmission.Start();
 
-            vehicle.engine = new EngineComponent(engineConfig);
-            vehicle.engine.Start();
+            newVehicle.clutch = new ClutchComponent(clutchConfig);
+            newVehicle.clutch.Start();
 
-            return vehicle;
+            newVehicle.engine = new EngineComponent(engineConfig);
+            newVehicle.engine.Start();
+
+            return newVehicle;
         }
     }
 

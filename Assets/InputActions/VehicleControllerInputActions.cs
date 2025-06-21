@@ -268,7 +268,7 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard"",
                     ""action"": ""HandBrake"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false

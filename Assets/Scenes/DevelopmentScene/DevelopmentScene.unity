@@ -5006,13 +5006,9 @@ MonoBehaviour:
     mountPoint: {fileID: 889438523}
   differentialConfig: {fileID: 11400000, guid: 25b9d78efc0c2fc4a9cadcb8805b5009, type: 2}
   transmissionConfig: {fileID: 11400000, guid: a41a8fa0625844746b8b0d4697a2517d, type: 2}
-  EngineConfig: {fileID: 11400000, guid: 61ce403ec78bb2a4e8e5f77262cfe10a, type: 2}
-  ClutchConfig: {fileID: 11400000, guid: 32954204d18020c46bbf02c4353a3f70, type: 2}
+  engineConfig: {fileID: 11400000, guid: 61ce403ec78bb2a4e8e5f77262cfe10a, type: 2}
+  clutchConfig: {fileID: 11400000, guid: 32954204d18020c46bbf02c4353a3f70, type: 2}
   bodyConfig: {fileID: 11400000, guid: f5fa8eba4ce615c4f9e3139164666d9d, type: 2}
-  springStrength: 500
-  damperStrength: 60
-  restLength: 0.4
-  rollbarStrength: 5000
 --- !u!1 &1048150672
 GameObject:
   m_ObjectHideFlags: 0
