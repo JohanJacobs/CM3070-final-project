@@ -27,41 +27,32 @@ namespace vc
 
             }
 
-            #region engine
+            #region Engine Component
             public void Update(float dt, float loadTorque)
             {
                 UpdateEngineAcceleration(dt, loadTorque);
             }
 
             float startFriction = 50f;          // nm
-            float frictionCoefficient = 0.02f;
-            float engineInertia = 0.2f;
+            float frictionCoefficient = 0.02f;  // mu
+            float engineInertia = 0.2f;         // kg m²
 
-            float maxEffectiveTorque;
-            float engineRPM;
-            float engineInternalFriction;
-            float currentInitialTorque;
-            float currentEffectiveTorque;
-            float engineEffectiveTorque; // saved in UE5
-            float acceleration;
-            float angularVelocityDelta;
+            float maxEffectiveTorque => torqueCurve.Evaluate(engineRPM);
+            float engineRPM => engineAngularVelocity * RadianstoRPM;
+            float engineInternalFriction => startFriction + (engineRPM* frictionCoefficient);
+            float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
+            float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
+            float engineEffectiveTorque => currentInitialTorque - engineInternalFriction;
+            float idleAngularRotation => idleRPM * RPMtoRadians;
+            float redlineAngularRotation => redlineRPM * RPMtoRadians;
+
             public float engineAngularVelocity;
             void UpdateEngineAcceleration(float dt,float loadTorque)
-            {
-
-                maxEffectiveTorque = torqueCurve.Evaluate(engineRPM);
-                engineInternalFriction = startFriction + (engineRPM * frictionCoefficient);
-                currentInitialTorque = (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
-                currentEffectiveTorque = currentInitialTorque - engineInternalFriction;
-                engineEffectiveTorque = currentInitialTorque - engineInternalFriction;
-
-                acceleration = (engineEffectiveTorque - loadTorque) / engineInertia;
-                angularVelocityDelta = acceleration * dt;
-                engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + angularVelocityDelta, idleRPM * RPMtoRadians, redlineRPM * RPMtoRadians);
-
-                engineRPM = engineAngularVelocity * RadianstoRPM;                
+            {               
+                float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia;                
+                engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + acceleration * dt, idleAngularRotation , redlineAngularRotation);
             }
-            #endregion engine
+            #endregion Engine Component
 
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Engine;
@@ -95,10 +86,8 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"ENGINE");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  throttle : {throttle.Value.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  engineEffectiveTorque: {engineEffectiveTorque.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  engineAngularVelocity: {engineAngularVelocity.ToString("F3")}");
-                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Throttle : {throttle.Value.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Torque: {engineEffectiveTorque.ToString("F3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  RPM: {engineRPM.ToString("F3")}");
                 return yOffset;
             }

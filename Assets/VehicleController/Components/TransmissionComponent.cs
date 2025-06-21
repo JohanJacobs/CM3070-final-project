@@ -23,25 +23,24 @@ namespace vc
             float changeDuration = 0.2f;
             float gearShiftTime = 0.1f;
             List<float> gearRatios = new List<float> { 0, 3.675f, 2.375f, 1.761f, 1.346f, 1.062f, 0.842f };
+            
             float reverseGearRatio = -3.545f;
 
-            GameObject TransmissionGO; // for co-routines
+            
+            #region Transmission Component
             public TransmissionComponent(TransmissionSO config)
             {
                 this.config = config;
                 this.gearUpInput = config.gearUpInputVariable;
                 this.gearDownInput = config.gearDownInputVariable;
-                TransmissionGO = new GameObject("Transmission Game Object");
             }
 
-            #region Transmission
             private void ShiftUp(float v)
             {
                 if (v < 1f)
                     return;
-                Debug.Log("Shift up");
-
-                // not in gear and at highest gear
+                
+                // Not in gear and at highest gear
                 if ((currentGear < numberOfGears) && isInGear)
                 {
                     isInGear = false;
@@ -49,9 +48,8 @@ namespace vc
                     ExecuteAfterDelay(gearShiftTime, () =>
                     {
                         currentGear += 1f; // TODO: MAke INT variable
-                        GetRatio();
+                        UpdateRatio();
                         isInGear = true;
-                        Debug.Log($"Current gear : {currentGear}");
                     });
                 }
             }
@@ -60,8 +58,7 @@ namespace vc
             {
                 if (v < 1f)
                     return;
-
-                Debug.Log("Shift down");
+                                
                 // check if we can down shift
                 if ((currentGear > -1) && isInGear)
                 {
@@ -70,9 +67,8 @@ namespace vc
                     ExecuteAfterDelay(gearShiftTime, () =>
                     {
                         currentGear -= 1f; // TODO: MAke INT variable
-                        GetRatio();
-                        isInGear = true;
-                        Debug.Log($"Current gear : {currentGear}");
+                        UpdateRatio();
+                        isInGear = true;                        
                     });
                 }
             }
@@ -82,32 +78,38 @@ namespace vc
                 CoroutineHelper.ExecuteAfterDelay(seconds, action);
             }
 
-
-            void GetRatio()
+            bool inReverseGear => (currentGear == -1f);
+            void UpdateRatio()
             {
-                if (currentGear == -1f)// TODO : Should use int variable
-                {
-                    ratio = reverseGearRatio;
-                }
-                else
-                {
-                    ratio = gearRatios[(int)currentGear]; // TODO : Should use int variable
-                }
+                ratio = (inReverseGear) ? reverseGearRatio : gearRatios[(int)currentGear];                
             }
 
-            float difftorque = default;
+            float diffiretialTorque = default;
             public float CaclulateDifferentialTorque(float inputTorque)
             {
-                difftorque = inputTorque * ratio;
+                diffiretialTorque = inputTorque * ratio;
                 return inputTorque * ratio;
             }
 
-            float clutchVelo = default;
+            float clutchVelocity = default;
             public float CalculateClutchVelocity(float inputVelocity)
             {
-                clutchVelo = inputVelocity * ratio;
+                clutchVelocity = inputVelocity * ratio;
                 return inputVelocity * ratio;
             }
+
+            string GetGearLabel()
+            {
+                switch (currentGear)
+                {
+                    case -1:
+                        return "R";
+                    case 0:
+                        return "N";
+                }
+                return currentGear.ToString();
+            }
+
             #endregion Transmission
 
             #region IVehicleComponent
@@ -126,7 +128,7 @@ namespace vc
 
             public void Update(float dt)
             {
-
+                
             }
             #endregion IVehicleComponent
 
@@ -139,10 +141,10 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"TRANSMISSION");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear: {(int)currentGear}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear: ({GetGearLabel()})");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Raio: {GearRatio.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  diff Torq: {difftorque.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  clutch Vel: {clutchVelo.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Diff.Trq: {diffiretialTorque.ToString("F2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Clutch.Vel: {clutchVelocity.ToString("F2")}");
                 return yOffset;
             }
             #endregion IDebugInformation

@@ -19,8 +19,8 @@ namespace vc
             float currentLength;
             float previousLength;
             public float springCompression => (compressedLength / restLength);
-            float compressedLength => restLength - currentLength;
-            float wheelRadius => wheelData.wheel.radius;
+            float compressedLength => restLength - currentLength; // m
+            float wheelRadius => wheelData.wheel.radius; // m
             float damperVelocity (float dt) => (previousLength - currentLength) / dt;
 
 
@@ -57,14 +57,17 @@ namespace vc
 
                 if (Physics.Raycast(ray, out wheelData.hitInfo, raycastLength))
                 {                    
-                    currentLength = wheelData.hitInfo.distance - wheelRadius; // in meters                   
+                    currentLength = wheelData.hitInfo.distance - wheelRadius; // in meters
 
+                    // calculate suspension properties 
                     var springForce = compressedLength * springStrength;                    
                     var damperForce = damperVelocity(dt) * damperStrength;
 
-                    normalForce = Mathf.Round((springForce + damperForce)*100f)/100f * 100f;
+                    // calculate forces
+                    normalForce = (springForce + damperForce) * 100f;
                     forceVector = normalForce * wheelData.hitInfo.normal;
 
+                    // add force
                     wheelData.rb.AddForceAtPosition(forceVector, mountPoint.position);
                     previousLength = currentLength;
                     isGrounded = true;
@@ -87,8 +90,6 @@ namespace vc
 
 
             }
-
-
             #endregion SuspensionComponent
            
             #region IVehicleComponent
@@ -124,7 +125,7 @@ namespace vc
                     Gizmos.color = Color.gray;
                     Gizmos.DrawSphere(wheelData.axlePosition, 0.01f); // axle position
                     Gizmos.color = Color.black;
-                    Gizmos.DrawSphere(mountPoint.position, 0.01f); // axle position
+                    Gizmos.DrawSphere(mountPoint.position, 0.01f); // suspension mount point
                 }
 
                 var drawSupsensionLines = true;
@@ -149,15 +150,9 @@ namespace vc
 
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {                
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep),$"SUSP : {this.wheelData.id.ToString()}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" hitDist: {(this.wheelData.hitInfo.distance).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentLength: {(this.currentLength).ToString("f1")}");                
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" restLength: {(this.restLength).ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep),$"SUSP : {this.wheelData.id.ToString()}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" compression: {(this.springCompression).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" normalForce: {(this.normalForce).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" ForceVec: {(this.forceVector).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" axleLS: {(this.wheelData.rb.transform.InverseTransformDirection(this.wheelData.axlePosition)).ToString("f1")}");
-
                 return yOffset;
             }
 

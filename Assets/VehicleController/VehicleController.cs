@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 using vc.VehicleComponent;
@@ -16,30 +17,17 @@ namespace vc
         [SerializeField] FloatVariable handbrakeInput;
 
         [Title("Configuration")]
-        [SerializeField]
-        VehicleConfiguration.WheelConfigData[] wheelConfig;
-        [SerializeField,Space]
-        VehicleConfiguration.SuspensionConfigData[] suspensionConfig;
-        [SerializeField]
-        DifferentialSO differentialConfig;
-        [SerializeField]
-        TransmissionSO transmissionConfig;
-        [SerializeField]
-        EngineSO EngineConfig;
-        [SerializeField]
-        ClutchSO ClutchConfig;
-        [SerializeField]
-        BodySO bodyConfig;
+        [SerializeField] VehicleConfiguration.WheelConfigData[] wheelConfig;
+        [SerializeField,Space] VehicleConfiguration.SuspensionConfigData[] suspensionConfig;
+        [SerializeField] DifferentialSO differentialConfig;
+        [SerializeField] TransmissionSO transmissionConfig;
+        [SerializeField] EngineSO engineConfig;
+        [SerializeField] ClutchSO clutchConfig;
+        [SerializeField] BodySO bodyConfig;
 
         Rigidbody carRigidbody;
 
-        [Header("Tweaks")]
-        public float springStrength;
-        public float damperStrength;
-        public float restLength;
-        public float rollbarStrength;
-
-
+        Vehicle vehicle;
         public void Awake()
         {
             carRigidbody = GetComponent<Rigidbody>();
@@ -48,7 +36,7 @@ namespace vc
                 Debug.LogError("Missing rigid body!");
             }
 
-            SetupVehicle();         
+            vehicle = Vehicle.Setup(carRigidbody, wheelConfig, suspensionConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig);
         }
 
         public void Update()
@@ -90,115 +78,24 @@ namespace vc
 
             vehicle.clutch.Update(clutchVelo, vehicle.transmission.GearRatio, vehicle.engine.engineAngularVelocity);
             vehicle.engine.Update(dt, vehicle.clutch.clutchTorque);
-
         }
 
         #region Vehicle
-
-        Vehicle vehicle;
-
-        private void SetupVehicle()
-        {
-            vehicle = new();
-
-
-            var wheelHitData = WheelHitData.SetupDefault(carRigidbody);
-            
-            // wheels 
-            vehicle.wheels = new();
-            foreach (var wc in wheelConfig)
-            {
-                vehicle.wheels.Add(wc.ID, new WheelComponent(wc.ID, wc.Config, wheelHitData[wc.ID]));
-            }
-
-            // Setup Suspensions            
-            vehicle.suspension = new();
-            foreach (var susp in suspensionConfig)
-            {
-                vehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
-            }
-            
-            // car body
-            vehicle.body = new BodyComponent(bodyConfig, carRigidbody, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);
-            vehicle.body.Start();
-
-            foreach (var whd in wheelHitData)
-            {
-                whd.Value.body = vehicle.body;
-            }
-
-            //start suspension            
-            foreach (var item in vehicle.suspension)
-            {
-                item.Value.Start();
-            }
-            // start wheels 
-            foreach (var item in vehicle.wheels)
-            {
-                item.Value.Start();
-            }
-
-            vehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
-            vehicle.rollbarFront.Start();
-            vehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
-            vehicle.rollbarRear.Start();
-
-            vehicle.differential = new(differentialConfig, 2);
-            vehicle.differential.Start();
-
-            vehicle.transmission = new(transmissionConfig);
-            vehicle.transmission.Start();
-
-            vehicle.clutch = new ClutchComponent(ClutchConfig);
-            vehicle.clutch.Start();
-
-            vehicle.engine = new EngineComponent(EngineConfig);
-            vehicle.engine.Start();
-
-            SetupTweaks();
-        }
-
-
+                
         private void OnDestroy()
         {
+            vehicle.body.Shutdown();
+            vehicle.engine.Shutdown();
+            vehicle.clutch.Shutdown();
             vehicle.transmission.Shutdown();
+            vehicle.differential.Shutdown();
+            vehicle.rollbarFront.Shutdown();
+            vehicle.rollbarRear.Shutdown();
+            vehicle.wheels.ForEach(w => w.Value.Shutdown());
+            vehicle.suspension.ForEach(s => s.Value.Shutdown());
         }
-        #region Tweaking Car
-        public void SetupTweaks()
-        {
-            springStrength = vehicle.suspension[WheelID.LeftFront].springStrength;
-            damperStrength = vehicle.suspension[WheelID.LeftFront].springStrength;
-            restLength = vehicle.suspension[WheelID.LeftFront].restLength;
-            rollbarStrength = vehicle.rollbarFront.rollbarStrength;
-        }
-        public void OnValidate()
-        {
-            if (vehicle != null)
-            {
-                vehicle.suspension[WheelID.LeftFront ].springStrength = springStrength;
-                vehicle.suspension[WheelID.RightFront].springStrength = springStrength;
-                vehicle.suspension[WheelID.LeftRear  ].springStrength = springStrength;
-                vehicle.suspension[WheelID.RightRear ].springStrength = springStrength;
-
-                vehicle.suspension[WheelID.LeftFront ].damperStrength = damperStrength;
-                vehicle.suspension[WheelID.RightFront].damperStrength = damperStrength;
-                vehicle.suspension[WheelID.LeftRear  ].damperStrength = damperStrength;
-                vehicle.suspension[WheelID.RightRear ].damperStrength = damperStrength;
-
-                vehicle.suspension[WheelID.LeftFront ].restLength = restLength;
-                vehicle.suspension[WheelID.RightFront].restLength = restLength;
-                vehicle.suspension[WheelID.LeftRear  ].restLength = restLength;
-                vehicle.suspension[WheelID.RightRear ].restLength = restLength;
-
-                vehicle.rollbarFront.rollbarStrength = rollbarStrength;
-                vehicle.rollbarRear.rollbarStrength = rollbarStrength;
-
-            }
-        }
-        #endregion Tweaking Car
 
         #endregion Vehicle
-
 
         #region DebugInformation
 
@@ -259,9 +156,65 @@ namespace vc
         public BodyComponent body;
         public RollbarComponet rollbarFront, rollbarRear;
 
-        public static Vehicle Setup()
+        public static Vehicle Setup(Rigidbody carRigidbody, 
+            VehicleConfiguration.WheelConfigData[] wheelConfig, 
+            VehicleConfiguration.SuspensionConfigData[] suspensionConfig,
+            BodySO bodyConfig,
+            DifferentialSO differentialConfig,
+            TransmissionSO transmissionConfig,
+            ClutchSO clutchConfig,
+            EngineSO engineConfig
+            )
         {
-            return new Vehicle();
+            Vehicle vehicle = new();
+
+            var wheelHitData = WheelHitData.SetupDefault(carRigidbody);
+
+            // wheels 
+            vehicle.wheels = new();
+            foreach (var wc in wheelConfig)
+            {
+                vehicle.wheels.Add(wc.ID, new WheelComponent(wc.ID, wc.Config, wheelHitData[wc.ID]));
+            }
+
+            // Setup Suspensions            
+            vehicle.suspension = new();
+            foreach (var susp in suspensionConfig)
+            {
+                vehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
+            }
+
+            // car body
+            vehicle.body = new BodyComponent(bodyConfig, carRigidbody, vehicle.suspension[WheelID.LeftFront].mountPoint, vehicle.suspension[WheelID.RightFront].mountPoint);
+            vehicle.body.Start();
+
+            foreach (var whd in wheelHitData)
+            {
+                whd.Value.body = vehicle.body;
+            }
+
+            vehicle.suspension.ForEach(s=>s.Value.Start());             
+            vehicle.wheels.ForEach(w=>w.Value.Start());
+
+            vehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
+            vehicle.rollbarFront.Start();
+
+            vehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
+            vehicle.rollbarRear.Start();
+
+            vehicle.differential = new(differentialConfig, 2);
+            vehicle.differential.Start();
+
+            vehicle.transmission = new(transmissionConfig);
+            vehicle.transmission.Start();
+
+            vehicle.clutch = new ClutchComponent(clutchConfig);
+            vehicle.clutch.Start();
+
+            vehicle.engine = new EngineComponent(engineConfig);
+            vehicle.engine.Start();
+
+            return vehicle;
         }
     }
 

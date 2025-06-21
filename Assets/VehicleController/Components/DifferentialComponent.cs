@@ -22,20 +22,19 @@ namespace vc
             }
 
             #region Differential Component            
+            
             public float[] CalculateWheelOutputTorque(float transmissionTorque) 
             {
-                var totalTorque = transmissionTorque * ratio;
-                float torque = totalTorque * 0.5f;
-
-                wheelOutput[0] = torque;
-                wheelOutput[1] = torque;                
+                float wheelTorque = (transmissionTorque * ratio)/ connectedWheels;
+                wheelOutput[0] = wheelTorque;
+                wheelOutput[1] = wheelTorque;                
                 return wheelOutput;
             }
 
             float transmissionVelo = default;
             public float CalculateTransmissionVelocity(float leftWheel, float rightWheel)
             {
-                float avgVelo = (leftWheel + rightWheel )/ 2f;
+                float avgVelo = (leftWheel + rightWheel ) / 2f;
                 transmissionVelo = avgVelo * ratio;
                 return transmissionVelo;
             }
@@ -58,7 +57,9 @@ namespace vc
             {
                 
             }
+            #endregion IVerhicleComponent
 
+            #region IDebugInformation
             public void DrawGizmos()
             {
                 
@@ -68,12 +69,12 @@ namespace vc
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"DIFFERENTIAL");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Ratio : {ratio}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  wheelOutput: {wheelOutput[0]}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  transBack: {transmissionVelo}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Wheel Torque: {wheelOutput[0]}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Tansmission Velocity: {transmissionVelo}");
 
                 return yOffset;
             }
-            #endregion IVerhicleComponent
+            #endregion IDebugInformation
         }
 
     }

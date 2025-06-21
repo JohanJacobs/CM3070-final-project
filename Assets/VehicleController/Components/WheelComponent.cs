@@ -20,18 +20,17 @@ namespace vc
             public WheelID id { get; private set; }
             
             public float radius{ get; private set; }        // meter
-            public float wheelMass { get; private set; }    //KG
             public float wheelAngularVelocity { get; private set; }
             // Parameters 
+            public float wheelMass { get; private set; }    //KG
+            float wheelInertia = 1.5f;/* 0.5f * wheelMass * radius * radius;*/ //kg m²
             float gravity => 9.81f;
-            //float normalForce => wheelData.normalforce;//wheelData.rb.mass/4f;
-            float RollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
-            float WheelFrictionCoefficient = 1.0f;
-            float RollingResistanceforce => wheelData.normalforce * RollingResistanceCoefficient;
-
-            float driveTorque;
+            float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
+            float wheelFrictionCoefficient = 1.0f;
             
-
+            float driveTorque;
+            float dt;
+            
             #region wheelComponent
             public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData)
             {
@@ -44,123 +43,88 @@ namespace vc
             }
             public void UpdatePhysics(float dt, float driveTorque)
             {
+                this.dt = dt;
+                this.driveTorque = driveTorque;
+
                 if (!wheelData.isGrounded)
                     return;
                 
-                if (id == WheelID.RightRear)
-                {
-                    int tttt = 1;
-                }    
-                this.driveTorque = driveTorque;                
-                CalculateLongitudinalForce(dt, driveTorque);
-                CalculateLateralForce(dt);
-
-                AddTireForce();
+                CalculateLongitudinal();
+                CalculateLateral();
+                ApplyWheelForces();
             }
 
             #region Lateral Forces
             float slipX;
-            float pacjekaLat = default;
-            float currentSlipAngleDeg =default;
-            float lateralSlipRatio => currentSlipAngleDeg / 90f;
             private WheelLateralSlipCalculator latCalc = new();
-
-                       
-            void CalculateLateralForce(float dt)
+            float Fx;
+            void CalculateLateral()
             {
-                
-                currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
+                //currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
 
-                var lateralSlipRatio = latCalc.CalculateSlip(wheelData.velocityLS, dt);
-                slipX =  lateralSlipRatio;
+                slipX  = latCalc.CalculateSlip(wheelData.velocityLS, dt);
             }
-
-            float wheelLoadFactor => wheelData.normalforce / (wheelData.normalforce * 4f);
-            float usefullMass => wheelLoadFactor * wheelData.rb.mass;
-            
+                        
             #endregion Lateral Forces
 
             #region Longitudinal Forces
 
             public float LongitudinalSlipRatio => slipZ;
-            //float slipRatioZ = default;
             float slipZ = default;
-            float Fz = default;
+            float Fz = default; // nm
 
-            //private WheelLongitudinalSlipCalculator longCalc =new();
-            
-
-            void CalculateLongitudinalForce(float dt, float driveTorque)
+            // Longitudinal Slip calculations
+            void CalculateLongitudinal()
             {
-                //slipRatioZ = longCalc.CaclulateSlipRatio(id, t, Fz, wheelData.normalforce, wheelData.velocityLS, driveTorque, wheelMass, radius, WheelFrictionCoefficient);                
-                //Sz = Mathf.Max(wheelData.normalforce, 0f) * slipRatioZ ;                
-                if (id == WheelID.RightRear)
-                {
-                    int tttt = 1;
-                }
-
-                WheelAcceleration(dt, driveTorque);
-                CalculateSlipZ(dt,driveTorque);
-
-                //velocity 
+                UpdateWheelVelocity();
+                CalculateSlipZ();
             }
-            float _targetAngularVelo;
-            float _angularAccel;
-            float _targetTorque;
-            float _friction;
-            void CalculateSlipZ(float dt, float driveTorque)
+
+            #region Longitudinal Wheel Acceleration 
+            //wheel Acceleration Calculations
+            float frictionTorque => Fz * radius; // nm
+            float angularAcceleration => MathHelper.SafeDivide((driveTorque - frictionTorque), wheelInertia); // Rad/s²
+
+            void UpdateWheelVelocity()
+            {   
+                wheelAngularVelocity += angularAcceleration * dt; // Rad/s
+            }
+            #endregion Longitudinal Wheel Acceleration 
+           
+            #region Slip Ratio Calculations
+            
+            float targetAngularVelocity => (wheelData.velocityLS.z / radius); // Rad/s
+            float targetAngularAccelleration => (wheelAngularVelocity - targetAngularVelocity) / dt; // Rad/s²
+            float targetTorque => targetAngularAccelleration * wheelInertia; //Rad/s
+            float maximumFrictionTorque => wheelData.normalforce * radius * wheelFrictionCoefficient; //nm
+            void CalculateSlipZ()
             {
-                if (Mathf.Abs(wheelData.normalforce) < float.Epsilon)
+                //if (Mathf.Abs(wheelData.normalforce) < float.Epsilon)
+                if (!wheelData.isGrounded)
                 {
                     slipZ = 0f;
                     return;
                 }
-                if (id == WheelID.RightRear && driveTorque > 0f)
-                {
-                    UnityEngine.Debug.Log($"drive torque {driveTorque}");
-                }
-                _targetAngularVelo = (wheelData.velocityLS.z / radius);
-                _angularAccel  = (wheelAngularVelocity - _targetAngularVelo) / dt;
-                var _wheelInertia = 1.5f;/* 0.5f * wheelMass * radius * radius;*/
-                _targetTorque = _angularAccel * _wheelInertia;
-                _friction = (wheelData.normalforce) * radius * WheelFrictionCoefficient;
-                slipZ = Mathf.Clamp(MathHelper.SafeDivide(_targetTorque,_friction), -1f, 1f);
+                slipZ = Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maximumFrictionTorque), -1f, 1f);
             }
-
-            void WheelAcceleration(float dt, float drivetorque)
-            {
-                var frictionTorque = (Fz) * radius;
-                var wheelIntertia = 1.5f;
-                var angularAcceleration = MathHelper.SafeDivide((drivetorque - frictionTorque), wheelIntertia);
-                wheelAngularVelocity = wheelAngularVelocity + angularAcceleration * dt;
-            }
-
-
-            float LongitudinalFrictionClamp(float dt,float wheelSlipSpeedMS, float wheelTorque, float slideSign)
-            {
-                var maxForwardForce = (usefullMass * wheelSlipSpeedMS / dt) + (wheelTorque * slideSign / radius);
-                return maxForwardForce;
-            }
+            #endregion Slip Ratio Calculations
             
             #endregion Longitudinal Forces
 
             Vector3 FzForceVec, FxForceVec;
-            void AddTireForce()
+            void ApplyWheelForces()
             {
-                if (id == WheelID.RightRear)
-                {
-                    int tttt = 1;
-                }
                 // forward - longitudinal force                 
+                var normalForce = Mathf.Max(wheelData.normalforce, 0f);
 
-                var force = Mathf.Max(wheelData.normalforce, 0f);
-                FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * slipZ * force;
-                Fz = slipZ * force ;
+                Fz = slipZ * normalForce;
+                FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
                 // sideways - lateral force 
-                FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * slipX * force;
-                
-                // add force;
+                Fx = slipX * normalForce;
+                FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
+
+                // add force to rigidbody
                 wheelData.rb.AddForceAtPosition((FzForceVec + FxForceVec), wheelData.axlePosition);                                
             }
           
@@ -195,7 +159,6 @@ namespace vc
             #endregion IVehicleComponent
 
 
-
             #region IDebugInformation
             public void DrawGizmos()
             {
@@ -217,40 +180,18 @@ namespace vc
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"WHEEL {this.wheelData.id.ToString()}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" km/h : {(this.wheelData.SpeedKMH).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  m/s : {(this.wheelData.SpeedMS).ToString("f3")}");                
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vz : {(this.wheelData.velocityLS.z).ToString("f5")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Vx : {(this.wheelData.velocityLS.x).ToString("f5")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  m/s : {(this.wheelData.SpeedMS).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"--------------");
 
                 // Longitudinal 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" r : {(this.radius).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" inertia: {(1.5f).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip : {(this.slipZ).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SLIPCALC: ");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" _targetAngularVelo: {(this._targetAngularVelo).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" _angularAccel: {(this._angularAccel).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" _targetTorque: {(this._targetTorque).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" _friction: {(this._friction).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slip: {(MathHelper.SafeDivide(this._targetTorque,this._friction)).ToString("f3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slip: {(Mathf.Clamp(MathHelper.SafeDivide(this._targetTorque, this._friction),-1f,1f)).ToString("f3")}");
-
-
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" FzVec : {(this.FzForceVec).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipZ : {(this.slipZ).ToString("f1")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" slipRatio: {(this.slipRatioZ).ToString("f3")}");
-
-                // lateral 
-                
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Plat: {(this.pacjekaLat).ToString("f1")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SA: {(this.lsc.slipAngle).ToString("f4")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SADyn: {(this.lsc.slipAngleDynamic).ToString("f4")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" SR: {(this.lsc.slipRatio).ToString("f4")}");
-
-
+                // lateral                 
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LatSlip: {(this.slipX).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
                 return yOffset;
             }
             #endregion IDebugInformation

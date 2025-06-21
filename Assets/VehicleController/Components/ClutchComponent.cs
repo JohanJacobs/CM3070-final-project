@@ -8,26 +8,22 @@ namespace vc
 
         public class ClutchComponent : IVehicleComponent, IDebugInformation
         {
-            ClutchSO config;               
-            FloatVariable engineTorque;
-
+            ClutchSO config;                           
+            #region Clutch Component
             public ClutchComponent(ClutchSO config)
             {
-                this.config = config;
-                this.engineTorque = config.engineTorque;
+                this.config = config;                
             }
 
-            #region Clutch Component
             float clutchCapacity = 1.3f;
             float clutchStiffness = 40f;
             float clutchDamping = 0.7f;
 
-            float engineMaxTorque = 400f; // nm TODO: read from engine
-            float engineMaxRPM = 7000f;   // rmp TODO: read from engine 
+            float engineMaxTorque = 400f; // nm TODO: read from engine            
             float clutchMaxTorque => clutchCapacity * engineMaxTorque;
 
             float RadToRPM => 60f/(2 * Mathf.PI);
-            float engineRPMRate=> MathHelper.MapAndClamp(engineAngularVelocity * RadToRPM,1000f,1300f,0f,1f);
+            float engineRPMRate=> MathHelper.MapAndClamp(engineAngularVelocity * RadToRPM,1000f,1300f,0f,1f); // Region in which the clutch slips
             float NeutralGearCheck => transmissionRatio < float.Epsilon ? 1 : 0f;
             float clutchLock => Mathf.Min(engineRPMRate + NeutralGearCheck, 1f);
             float clutchSlip => (engineAngularVelocity - transmissionAngularVelocity) * MathHelper.Sign(Mathf.Abs(transmissionRatio));
@@ -41,8 +37,7 @@ namespace vc
                 this.transmissionAngularVelocity = transmissionVelocity;
                 this.transmissionRatio = transmissionRatio;
                 this.engineAngularVelocity = engineAngularVelocity;
-                // clutch Damping
-
+                
                 var transferredClutchTorque = Mathf.Clamp(clutchSlip * clutchLock * clutchStiffness, -clutchMaxTorque, clutchMaxTorque);
                 var damping = (clutchTorque - transferredClutchTorque) * clutchDamping;
                 clutchTorque = transferredClutchTorque + damping;
@@ -76,12 +71,12 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"CLUTCH");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  slip: {clutchSlip.ToString("F1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  lock: {clutchLock.ToString("F1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  stiffness: {clutchStiffness.ToString("F1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  torque: {clutchTorque.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  VeloTrans: {transmissionAngularVelocity.ToString("F3")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  VeloEngine: {engineAngularVelocity.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Slip: {clutchSlip.ToString("F1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Lock: {clutchLock.ToString("F1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Stiffness: {clutchStiffness.ToString("F1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Torque: {clutchTorque.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Trans.Velo: {transmissionAngularVelocity.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Engine.Velo: {engineAngularVelocity.ToString("F3")}");
 
                 return yOffset;
             }
