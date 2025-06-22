@@ -23,12 +23,12 @@ namespace vc
 
             #region Differential Component            
             
-            public float[] CalculateWheelOutputTorque(float transmissionTorque) 
+
+
+            // torque sensing differential sending more torque to the wheel that is slower as it has more grip.
+            public float[] CalculateWheelOutputTorque(float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt) 
             {
-                float wheelTorque = (transmissionTorque * ratio)/ connectedWheels;
-                wheelOutput[0] = wheelTorque;
-                wheelOutput[1] = wheelTorque;                
-                return wheelOutput;
+                return DiffernetialTypes.TorqueSensingDiffernetial(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
             }
 
             float transmissionVelo = default;
@@ -76,6 +76,34 @@ namespace vc
             }
             #endregion IDebugInformation
         }
+        
 
+        class DiffernetialTypes
+        {
+
+            #region TorqueSensingStandardDifferential
+            static float CalcualteAngularVelocityDelta(WheelComponent left, WheelComponent right) => (left.wheelAngularVelocity - right.wheelAngularVelocity) * 0.5f;
+            static float AverageWheelInertia(WheelComponent left, WheelComponent right) => (left.GetInertia + right.GetInertia) * 0.5f;
+            public static float[] TorqueSensingDiffernetial(float connectedWheels, float ratio, float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt)
+            {
+                float velocityDelta = CalcualteAngularVelocityDelta(leftWheel, rightWheel) / dt;
+                float lockTorque = velocityDelta * AverageWheelInertia(leftWheel, rightWheel); // torque needed to align the wheels in rotation and redistribute torque
+
+                float wheelTorque = (transmissionTorque * ratio) / connectedWheels;
+
+                return new float[2] { wheelTorque - lockTorque, wheelTorque + lockTorque };
+            }
+            #endregion TorqueSensingStandardDifferential
+
+            #region StandardDifferential
+            public static float[] StandardDifferential(float connectedWheels, float ratio, float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt)
+            {
+                float wheelTorque = (transmissionTorque * ratio) / connectedWheels;
+                var wheelOutput = new float[2] {wheelTorque,wheelTorque};
+                return wheelOutput;
+            }
+            #endregion StandardDifferential
+
+        }
     }
 }

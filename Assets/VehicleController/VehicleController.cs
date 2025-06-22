@@ -66,8 +66,8 @@ namespace vc
             vehicle.rollbarRear.Update(dt);
 
             // DRIVE PHASE 
-            var diffTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
-            var driveTorque = vehicle.differential.CalculateWheelOutputTorque(diffTorque);
+            var diffInpuTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
+            var driveTorque = vehicle.differential.CalculateWheelOutputTorque(diffInpuTorque, vehicle.wheels[WheelID.LeftRear], vehicle.wheels[WheelID.RightRear],dt);
 
             var frontBrakeTorque = vehicle.brake.frontBrakeTorque;
             var rearBrakeTorque = vehicle.brake.rearBrakeTorque;

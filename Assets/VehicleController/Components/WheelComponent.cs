@@ -13,7 +13,7 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class WheelComponent : IVehicleComponent, IDebugInformation
+        public class WheelComponent : IVehicleComponent, IDebugInformation, IHasInertia
         {
 
             WheelSO config;
@@ -24,6 +24,8 @@ namespace vc
             public float wheelAngularVelocity { get; private set; }
             // Parameters 
             public float wheelMass { get; private set; }    //KG
+            public float GetInertia => wheelInertia;
+
             float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
             float wheelFrictionCoefficient = 1.0f;
@@ -212,10 +214,7 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"WHEEL {this.wheelData.id.ToString()}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" km/h : {(this.wheelData.SpeedKMH).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" m/s : {(this.wheelData.SpeedMS).ToString("f3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Locked : {(this.isLocked?"Yes":"No")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
 
                 // Longitudinal 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip : {(this.combinedSlip.x).ToString("f2")}");
@@ -224,11 +223,13 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
                 // lateral                 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LatSlip: {(this.combinedSlip.y).ToString("f5")}");
-                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LatSlip: {(this.combinedSlip.y).ToString("f5")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
                 return yOffset;
             }
+
+            
+            
             #endregion IDebugInformation
 
             public class WheelLateralSlipCalculator
