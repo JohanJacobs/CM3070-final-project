@@ -13,7 +13,7 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class WheelComponent : IVehicleComponent, IDebugInformation, IHasInertia
+        public class WheelComponent : IVehicleComponent<WheelComponenetStepParameters>, IDebugInformation, IHasInertia
         {
 
             WheelSO config;
@@ -162,12 +162,7 @@ namespace vc
                 // add force to rigidbody
                 wheelData.rb.AddForceAtPosition((FzForceVec + FxForceVec), wheelData.axlePosition);                                
             }
-          
 
-            public void Update(float dt, float driveTorque, float brakeTorque)
-            {
-                UpdatePhysics(dt, driveTorque,brakeTorque);
-            }
             #endregion wheelComponent
 
             #region IVehicleComponent
@@ -185,10 +180,12 @@ namespace vc
             {
              
             }
-            
-            public void Update(float dt)
+
+
+
+            public void Step(WheelComponenetStepParameters parameters)
             {
-                UpdatePhysics(dt, 0f);
+                UpdatePhysics(parameters.dt, parameters.driveTorque, parameters.brakeTorque);
             }
 
             #endregion IVehicleComponent
@@ -227,8 +224,6 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
                 return yOffset;
             }
-
-            
             
             #endregion IDebugInformation
 
@@ -290,6 +285,21 @@ namespace vc
                 }
 
             }
+
         }
+        #region Wheel Componenet Step Parameters
+        public class WheelComponenetStepParameters 
+        {
+            public WheelComponenetStepParameters(float dt, float driveTorque, float brakeTorque)
+            {
+                this.dt = dt;
+                this.driveTorque = driveTorque;
+                this.brakeTorque = brakeTorque;
+            }
+            public float dt;
+            public float driveTorque;
+            public float brakeTorque;
+        }
+        #endregion Wheel Componenet Step Parameters
     }
 }

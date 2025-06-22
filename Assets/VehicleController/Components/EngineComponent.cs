@@ -9,7 +9,7 @@ namespace vc
     namespace VehicleComponent
     {
         
-        public class EngineComponent : IVehicleComponent,IDebugInformation
+        public class EngineComponent : IVehicleComponent<EngineComponentStepParams>,IDebugInformation
         {
             EngineSO config;
             FloatVariable throttle;
@@ -28,10 +28,8 @@ namespace vc
             }
 
             #region Engine Component
-            public void Update(float dt, float loadTorque)
-            {
-                UpdateEngineAcceleration(dt, loadTorque);
-            }
+
+
 
             float startFriction = 50f;          // nm
             float frictionCoefficient = 0.02f;  // mu
@@ -58,10 +56,7 @@ namespace vc
 
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Engine;
-            public void Shutdown()
-            {
 
-            }
 
             public void Start()
             {
@@ -72,10 +67,13 @@ namespace vc
                 //this.redlineRPM = config.redlineRPM;
                 this.redlineRPM = 7500f;
             }
-
-            public void Update(float dt)
+            public void Shutdown()
             {
-                Update(dt,0f);
+
+            }
+            public void Step(EngineComponentStepParams parameters)
+            {
+                UpdateEngineAcceleration(parameters.dt, parameters.loadTorque);
             }
             #endregion IVehicleComponent
 
@@ -95,8 +93,21 @@ namespace vc
             }
             #endregion IDebugInformation
 
+            #region VehicleComponentStepParams
+
 
         }
+        public class EngineComponentStepParams
+        {
+            public EngineComponentStepParams(float dt, float loadTorque)
+            {
+                this.dt = dt;
+                this.loadTorque = loadTorque;
+            }
+            public float dt;
+            public float loadTorque;
+        }
+        #endregion  VehicleComponentStepParams
 
     }
 }

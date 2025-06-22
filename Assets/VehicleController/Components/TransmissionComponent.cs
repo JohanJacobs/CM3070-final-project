@@ -7,7 +7,7 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class TransmissionComponent : IVehicleComponent, IDebugInformation
+        public class TransmissionComponent : IVehicleComponent<TransmissionStepParameters>, IDebugInformation
         {
             public float numberOfGears => gearRatios.Count - 1;
             public float GearRatio => ratio;
@@ -122,10 +122,9 @@ namespace vc
                 gearUpInput.OnValueChanged += ShiftUp;
                 gearDownInput.OnValueChanged += ShiftDown;
             }
-
-            public void Update(float dt)
+            public void Step(TransmissionStepParameters parameters)
             {
-                
+
             }
             #endregion IVehicleComponent
 
@@ -145,7 +144,15 @@ namespace vc
                 return yOffset;
             }
             #endregion IDebugInformation
+
+
         }
+        #region Parameters
+        public class TransmissionStepParameters
+        {
+
+        }
+        #endregion Parameters
 
     }
 }

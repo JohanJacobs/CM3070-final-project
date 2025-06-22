@@ -1,12 +1,14 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using static vc.VehicleComponent.BodyComponent;
 
 namespace vc
 {
     namespace VehicleComponent
     {
-        public class BodyComponent : IVehicleComponent , IDebugInformation
+        public class BodyComponent : IVehicleComponent<BodyComponentStepParams>, IDebugInformation
         {
             Rigidbody rb;
             BodySO config;
@@ -32,7 +34,8 @@ namespace vc
             public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
             Vector3 velocityWS => rb.velocity; // MS
             Vector3 velocityLS => rb.transform.InverseTransformDirection(velocityWS); //MS
-
+            
+            
 
             public BodyComponent( BodySO config, Rigidbody rb, Transform leftWheel, Transform rightWheel)
             {
@@ -57,13 +60,14 @@ namespace vc
 
             public void Shutdown()
             {
-                
+
             }
 
-            public void Update(float dt)
-            {
+            
+            public void Step(BodyComponentStepParams parameters)
+            {                
                 UpdateAckermanSteering();
-                AddBodyDragForce(dt);
+                AddBodyDragForce(parameters.dt);
             }
             #endregion IVehicleComponent
 
@@ -114,7 +118,19 @@ namespace vc
 
                 return yOffset;
             }
+
+
             #endregion IDebugInformation
+
+            // class to pass parameters to step function
+            public class BodyComponentStepParams 
+            {
+                public BodyComponentStepParams(float dt)
+                {
+                    this.dt = dt;
+                }
+                public float dt;
+            }
         }
     }
 }

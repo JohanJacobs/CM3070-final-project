@@ -2,8 +2,11 @@
 
 namespace vc
 {
-    public interface IHasInertia
+    namespace VehicleComponent
     {
-        float GetInertia => 0f; // by default inertia is 0
+        public interface IHasInertia
+        {
+            float GetInertia => 0f; // by default inertia is 0
+        }
     }
 }

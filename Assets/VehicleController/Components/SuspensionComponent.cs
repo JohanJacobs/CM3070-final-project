@@ -8,7 +8,7 @@ namespace vc
 {
 	namespace VehicleComponent
 	{
-		public class SuspensionComponent:IVehicleComponent, IDebugInformation
+		public class SuspensionComponent:IVehicleComponent<SuspensionComponentStepParams>, IDebugInformation
         {
             SuspensionSO config;
             public Transform mountPoint { get; private set; }
@@ -115,9 +115,9 @@ namespace vc
                 
             }
 
-            public void Update(float dt)
-            {
-                UpdatePhysics(dt);
+            public void Step (SuspensionComponentStepParams parameters)
+            {                
+                UpdatePhysics(parameters.dt);
             }
 
             #endregion IVehicleComponent
@@ -170,5 +170,15 @@ namespace vc
 
             #endregion IDebugInformation
         }
+        #region Suspension Component Step Params
+        public class SuspensionComponentStepParams
+        {
+            public SuspensionComponentStepParams(float dt)
+            {
+                this.dt = dt;
+            }
+            public float dt;
+        }
+        #endregion Suspension Component Step Params
     }
 }

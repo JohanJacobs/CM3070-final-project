@@ -6,7 +6,7 @@ namespace vc
     namespace VehicleComponent
     {
 
-        public class ClutchComponent : IVehicleComponent, IDebugInformation
+        public class ClutchComponent : IVehicleComponent<ClutchComponenetStepParamters>, IDebugInformation
         {
             ClutchSO config;                           
             #region Clutch Component
@@ -59,10 +59,10 @@ namespace vc
 
             }
 
-            public void Update(float dt)
+            public void Step(ClutchComponenetStepParamters parameters)
             {
-            }
 
+            }
             #endregion IVerhicleComponent
 
             #region IDebugInformation
@@ -83,7 +83,15 @@ namespace vc
                 return yOffset;
             }
             #endregion IDebugInformation
+
+
         }
+        #region Clutch Componenet Paramters
+        public class ClutchComponenetStepParamters
+        {
+
+        }
+        #endregion Clutch Componenet Paramters
 
     }
 }

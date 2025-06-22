@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using static vc.VehicleComponent.DiffernetialTypes;
 
 namespace vc
 {
     namespace VehicleComponent
     {
-        public class DifferentialComponent:IVehicleComponent,IDebugInformation
+        public class DifferentialComponent:IVehicleComponent<DifferentialComponenetStepParameters>,IDebugInformation
         {
             DifferentialSO config;
             int connectedWheels;
@@ -53,7 +54,7 @@ namespace vc
                 
             }
 
-            public void Update(float dt)
+            public void Step(DifferentialComponenetStepParameters parameters)
             {
                 
             }
@@ -104,6 +105,12 @@ namespace vc
             }
             #endregion StandardDifferential
 
+
         }
+        
+        #region Differential Componenet Step Parameters
+        public class DifferentialComponenetStepParameters
+        { }
+        #endregion Differential Componenet Step Parameters
     }
 }

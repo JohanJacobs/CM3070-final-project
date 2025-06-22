@@ -9,7 +9,7 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class BrakeComponent : IVehicleComponent, IDebugInformation
+        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>, IDebugInformation
         {
             BrakeSO config;
             FloatVariable brakeInput;
@@ -42,7 +42,7 @@ namespace vc
 
             }
 
-            public void Update(float dt)
+            public void Step(BrakeComponenetStepParameters parameters)
             {
 
             }
@@ -58,6 +58,13 @@ namespace vc
                 return yOffset;
             }
             #endregion IDebugInfomration
+
+
         }
+        #region Brake Componenet Step Parameters
+        public class BrakeComponenetStepParameters
+        { }
+
+        #endregion Brake Componenet Step Parameters
     }
 }

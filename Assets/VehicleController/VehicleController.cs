@@ -55,15 +55,16 @@ namespace vc
             float throttle = throttleInput.Value;
             float brake = brakeInput.Value;
 
-            vehicle.body.Update(dt);
+            
+            vehicle.body.Step(new (dt));
 
-            vehicle.suspension[WheelID.LeftFront].Update(dt);
-            vehicle.suspension[WheelID.RightFront].Update(dt);
-            vehicle.suspension[WheelID.LeftRear].Update(dt);
-            vehicle.suspension[WheelID.RightRear].Update(dt);
+            vehicle.suspension[WheelID.LeftFront].Step(new (dt));
+            vehicle.suspension[WheelID.RightFront].Step(new (dt));
+            vehicle.suspension[WheelID.LeftRear].Step(new (dt));
+            vehicle.suspension[WheelID.RightRear].Step(new (dt));
 
-            vehicle.rollbarFront.Update(dt);
-            vehicle.rollbarRear.Update(dt);
+            vehicle.rollbarFront.Step(new (dt));
+            vehicle.rollbarRear.Step(new (dt));
 
             // DRIVE PHASE 
             var diffInpuTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
@@ -73,12 +74,12 @@ namespace vc
             var rearBrakeTorque = vehicle.brake.rearBrakeTorque;
 
             // front wheel 
-            vehicle.wheels[WheelID.LeftFront ].Update(dt,0f,frontBrakeTorque);
-            vehicle.wheels[WheelID.RightFront].Update(dt,0f,frontBrakeTorque);
+            vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontBrakeTorque));
+            vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f,frontBrakeTorque));
 
             // rear wheels
-            vehicle.wheels[WheelID.LeftRear ].Update(dt, driveTorque[0], rearBrakeTorque);
-            vehicle.wheels[WheelID.RightRear].Update(dt, driveTorque[1], rearBrakeTorque);
+            vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearBrakeTorque));
+            vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearBrakeTorque));
 
 
             // FEEDBACK PHASE
@@ -86,7 +87,7 @@ namespace vc
             var clutchVelo = vehicle.transmission.CalculateClutchVelocity(transVelo);
 
             vehicle.clutch.Update(clutchVelo, vehicle.transmission.GearRatio, vehicle.engine.engineAngularVelocity);
-            vehicle.engine.Update(dt, vehicle.clutch.clutchTorque);
+            vehicle.engine.Step(new (dt, vehicle.clutch.clutchTorque));
         }
 
         #region Vehicle

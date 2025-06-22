@@ -6,7 +6,7 @@ namespace vc
     namespace VehicleComponent
     {
 
-        public class RollbarComponet : IVehicleComponent,IDebugInformation
+        public class RollbarComponet : IVehicleComponent<RollbarComponentStepParams>,IDebugInformation
         {
             Rigidbody rb;
 
@@ -68,9 +68,10 @@ namespace vc
 
             }
 
-            public void Update(float dt)
-            {
-                UpdatePhysics(dt);
+
+            public void Step(RollbarComponentStepParams parameters)
+            {                
+                UpdatePhysics(parameters.dt);
             }
             #endregion IVerhicleComponent
 
@@ -99,7 +100,19 @@ namespace vc
             }
 
             #endregion IDebugInformation
+
+
         }
 
+        #region Rollbar Component Step Params
+        public class RollbarComponentStepParams
+        {
+            public RollbarComponentStepParams(float dt)
+            {
+                this.dt = dt;
+            }
+            public float dt;
+        }
+        #endregion Rollbar Component Step Params
     }
 }
