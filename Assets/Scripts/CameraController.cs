@@ -115,8 +115,8 @@ public class CameraController : MonoBehaviour
 
         // only update when the action is performed
         if (!ctx.performed) return;
-
-        zoom = Mathf.Clamp(zoom + ctx.ReadValue<Vector2>().y, 1f, 10f);
+        Debug.Log(ctx.ReadValue<float>());
+        zoom = Mathf.Clamp(zoom + Mathf.Sign(ctx.ReadValue<float>()), 1f, 10f);
 
         UpdateCameraLocalPositionAndRotation();
     }
