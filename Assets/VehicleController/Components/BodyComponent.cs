@@ -68,6 +68,7 @@ namespace vc
             #endregion IVehicleComponent
 
             #region bodycomponent
+            float RadtoDeg(float radians) => PhysicsHelper.Conversions.RadtoDeg(radians);
             void UpdateAckermanSteering()
             {
                 float steerValue = steerInput.Value;
@@ -77,13 +78,13 @@ namespace vc
                 // calculate angle in degrees 
                 if (steerValue < 0f)
                 {
-                    ackermanAngleLeft = Mathf.Rad2Deg * Mathf.Atan(wheelBaseLength / (turnRadius - (wheelBaseRearTrackLength / 2))) * steerValue;
-                    ackermanAngleRight = Mathf.Rad2Deg * Mathf.Atan(wheelBaseLength / (turnRadius + (wheelBaseRearTrackLength / 2))) * steerValue;
+                    ackermanAngleLeft = RadtoDeg(Mathf.Atan(wheelBaseLength / (turnRadius - (wheelBaseRearTrackLength / 2)))) * steerValue;
+                    ackermanAngleRight = RadtoDeg(Mathf.Atan(wheelBaseLength / (turnRadius + (wheelBaseRearTrackLength / 2)))) * steerValue;
                 }
                 else if (steerValue > 0f)
                 {
-                    ackermanAngleLeft = Mathf.Rad2Deg * Mathf.Atan(wheelBaseLength / (turnRadius + (wheelBaseRearTrackLength / 2))) * steerValue;
-                    ackermanAngleRight = Mathf.Rad2Deg * Mathf.Atan(wheelBaseLength / (turnRadius - (wheelBaseRearTrackLength / 2))) * steerValue;
+                    ackermanAngleLeft = RadtoDeg(Mathf.Atan(wheelBaseLength / (turnRadius + (wheelBaseRearTrackLength / 2)))) * steerValue;
+                    ackermanAngleRight = RadtoDeg(Mathf.Atan(wheelBaseLength / (turnRadius - (wheelBaseRearTrackLength / 2)))) * steerValue;
                 }
 
                 // Rotate the steering geometry

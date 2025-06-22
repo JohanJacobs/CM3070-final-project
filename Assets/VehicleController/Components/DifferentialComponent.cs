@@ -69,7 +69,7 @@ namespace vc
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"DIFFERENTIAL");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Ratio : {ratio}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Wheel Torque: {wheelOutput[0]}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Wheel Torque: {wheelOutput[0].ToString("F2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Tansmission Velocity: {transmissionVelo.ToString("F2")}");
 
                 return yOffset;

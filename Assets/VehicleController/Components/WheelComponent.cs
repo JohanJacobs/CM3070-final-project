@@ -1,5 +1,6 @@
 using Microsoft.Win32.SafeHandles;
 using Sirenix.OdinInspector.Editor;
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
@@ -23,7 +24,7 @@ namespace vc
             public float wheelAngularVelocity { get; private set; }
             // Parameters 
             public float wheelMass { get; private set; }    //KG
-            float wheelInertia = 1.5f;/* 0.5f * wheelMass * radius * radius;*/ //kg m²
+            float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
             float wheelFrictionCoefficient = 1.0f;
             float LongitudinalRelaxationLength = 0.005f;
@@ -59,8 +60,8 @@ namespace vc
 
             #region Lateral Forces
             float slipX;
-            private WheelLateralSlipCalculator latCalc = new();
             float Fx;
+            private WheelLateralSlipCalculator latCalc = new();
             void CalculateLateral()
             {
                 //currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
@@ -212,7 +213,7 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
                 // lateral                 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LatSlip: {(this.slipX).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"   LatSlip: {(this.slipX).ToString("f5")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
                 return yOffset;
             }
@@ -251,9 +252,6 @@ namespace vc
 
                 private float RelaxationCoefficient(Vector3 veloLS, float dt) => Mathf.Clamp((Mathf.Abs(veloLS.x) / relaxationLength) * dt, 0f, 1f);
 
-                //private float SteadyState(Vector3 veloLS) => MathHelper.Sign(veloLS.x / -1f);
-                //private float NewSlip(Vector3 veloLS, float dt) => slipRatio + ((SteadyState(veloLS) - slipRatio) * RelaxationCoefficient(veloLS, dt));
-
                 private float HighSpeedSteadyState(Vector3 veloLS) 
                 {
                     // slip angle
@@ -269,16 +267,16 @@ namespace vc
                     slipAngleDynamic = Mathf.Clamp(newSlipAngleDynamic, -90f, 90f);
                     return slipAngleDynamic;
                 }
-
                 public float CalculateSlip(Vector3 veloLS, float dt)
                 {
                     slipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
                     slipRatio = Mathf.Clamp(MathHelper.SafeDivide(slipAngleDynamic,slipAnglePeak), -1f, 1f);
-                    //slipRatio = slipRatio < float.Epsilon ? 0f : slipRatio;
+                    slipRatio = Mathf.Abs(slipRatio) < float.Epsilon ? 0f : slipRatio;
+                    // TODO: add a logic to always nudge slip ratio to 0 if its very close to zero
                     return slipRatio;
                 }
+
             }
-                        
         }
     }
 }

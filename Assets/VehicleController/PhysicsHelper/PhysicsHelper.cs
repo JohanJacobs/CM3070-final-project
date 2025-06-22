@@ -13,8 +13,10 @@ namespace vc
             public static float RadToRPM(float radians) => radians * radians_to_revolutions_per_minute;
             public static float RPMToRad(float rpm) => rpm / radians_to_revolutions_per_minute;
 
+            public static float RadtoDeg(float radians) => radians * Mathf.Rad2Deg;
+            public static float DegtoRad(float degrees) => degrees * Mathf.Deg2Rad;
         }
-
+        
         /* CalculateDragForce 
             air density : kg/m³
             area : m²
@@ -27,6 +29,15 @@ namespace vc
         {
             return 0.5f * airDensity * (velocityMS * velocityMS) * areaM * dragCoefficient;
         }
+
+        /* INERTIA (kgm²) aka Moment of inertia
+         * The property of a physics body to resist change in state of motion (velocity).
+         * I = m * r², for a hollow cylinder multiply by 0.5
+         * https://en.wikipedia.org/wiki/Inertia#:~:text=Inertia%20is%20the%20natural%20tendency,forward%20in%20a%20right%20line.
+         */
+        public static float InertiaWheel(float massKG, float radiusM) => 0.5f * (radiusM * radiusM) * massKG;
+
+
 
 
     }

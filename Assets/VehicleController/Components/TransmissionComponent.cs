@@ -19,8 +19,7 @@ namespace vc
             FloatVariable gearDownInput;
 
             bool isInGear = true;
-            float ratio = default;
-            float changeDuration = 0.2f;
+            float ratio = default;            
             float gearShiftTime = 0.1f;
             List<float> gearRatios = new List<float> { 0, 3.675f, 2.375f, 1.761f, 1.346f, 1.062f, 0.842f };
             float reverseGearRatio = -3.545f;
