@@ -25,11 +25,11 @@ namespace vc
             float wheelBaseRearTrackLength; // m
 
             float aeroDrag => 0f; // TODO:
-            float bodyDrag => MathHelper.CalculateDrag(velocityLS.z,bodyArea,bodyDragCoefficient); // nm TODO:
+            float bodyDrag => PhysicsHelper.CalculateDrag(velocityLS.z, bodyArea, bodyDragCoefficient); // nm TODO:
             public float DragForce => aeroDrag + bodyDrag;
             public float mass => 1500; // kg
-            public float MStoKMH = 3.6f; //constant
-            public float SpeedKMH =>velocityLS.z * MStoKMH; // Km/H
+           
+            public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
             Vector3 velocityWS => rb.velocity; // MS
             Vector3 velocityLS => rb.transform.InverseTransformDirection(velocityWS); //MS
 

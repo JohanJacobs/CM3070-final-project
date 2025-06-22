@@ -23,10 +23,8 @@ namespace vc
             float changeDuration = 0.2f;
             float gearShiftTime = 0.1f;
             List<float> gearRatios = new List<float> { 0, 3.675f, 2.375f, 1.761f, 1.346f, 1.062f, 0.842f };
-            
             float reverseGearRatio = -3.545f;
 
-            
             #region Transmission Component
             public TransmissionComponent(TransmissionSO config)
             {

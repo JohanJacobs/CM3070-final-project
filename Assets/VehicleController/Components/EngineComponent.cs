@@ -16,8 +16,8 @@ namespace vc
             AnimationCurve torqueCurve;
             float idleRPM;
             float redlineRPM;
-            float RPMtoRadians => Mathf.PI * 2f / 60f;
-            float RadianstoRPM => 1f / RPMtoRadians;
+            float RPMtoRad (float rpm)=> PhysicsHelper.Conversions.RPMToRad(rpm);
+            float RadtoRPM(float radians) => PhysicsHelper.Conversions.RadToRPM(radians);
 
             public EngineComponent(EngineSO config)
             {
@@ -38,12 +38,12 @@ namespace vc
             float engineInertia = 0.2f;         // kg m²
 
             float maxEffectiveTorque => torqueCurve.Evaluate(engineRPM);
-            float engineRPM => engineAngularVelocity * RadianstoRPM;
+            float engineRPM => RadtoRPM(engineAngularVelocity);
             float engineInternalFriction => startFriction + (engineRPM * frictionCoefficient);
             float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
             float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
-            float idleAngularRotation => idleRPM * RPMtoRadians;
-            float redlineAngularRotation => redlineRPM * RPMtoRadians;
+            float idleAngularRotation => RPMtoRad(idleRPM);
+            float redlineAngularRotation => RPMtoRad(redlineRPM);
 
             public float engineAngularVelocity=100f;
             float engineEffectiveTorque =default;

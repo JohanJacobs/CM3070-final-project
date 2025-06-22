@@ -21,10 +21,9 @@ namespace vc
 
             float engineMaxTorque = 400f; // nm TODO: read from engine            
             float clutchMaxTorque => clutchCapacity * engineMaxTorque;
-
-            float RadToRPM => 60f/(2 * Mathf.PI);
-            float engineRPMRate=> MathHelper.MapAndClamp(engineAngularVelocity * RadToRPM,1000f,1300f,0f,1f); // Region in which the clutch slips
-            float NeutralGearCheck => transmissionRatio < float.Epsilon ? 1 : 0f;
+                        
+            float engineRPMRate=> MathHelper.MapAndClamp(PhysicsHelper.Conversions.RadToRPM(engineAngularVelocity), 1000f, 1300f, 0f, 1f); // Region in which the clutch slips
+            float transmissionInNeutralGear => Mathf.Abs(transmissionRatio) < float.Epsilon ? 1 : 0f;
             float transferredClutchTorque => Mathf.Clamp(clutchSlip * clutchLock * clutchStiffness, -clutchMaxTorque, clutchMaxTorque);
             float clutchLock = default;
             float clutchSlip = default;
@@ -40,7 +39,7 @@ namespace vc
                 this.engineAngularVelocity = engineAngularVelocity;
 
                 clutchSlip = (engineAngularVelocity - transmissionAngularVelocity) * MathHelper.Sign(Mathf.Abs(transmissionRatio));
-                clutchLock = Mathf.Min(engineRPMRate + NeutralGearCheck, 1f);
+                clutchLock = Mathf.Min((engineRPMRate + transmissionInNeutralGear), 1f);
                                 
                 var clutchDamping = (clutchTorque - transferredClutchTorque) * clutchDampingRate;
                 clutchTorque = transferredClutchTorque + clutchDamping;
