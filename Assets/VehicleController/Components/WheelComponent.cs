@@ -33,6 +33,7 @@ namespace vc
             float driveTorque = default;
             float brakeTorque = default;
             bool isLocked = true;
+            Vector2 combinedSlip = default; // combined Slip X=Force, Y=sideways
             
             #region wheelComponent
             public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData)
@@ -55,9 +56,18 @@ namespace vc
                 
                 CalculateLongitudinal();
                 CalculateLateral();
+                CombinedSlip();
+
                 ApplyWheelForces();
             }
 
+                        
+            void CombinedSlip()
+            {
+                var combined = new Vector2(slipZ, slipX);
+                combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined;
+
+            }
             #region Lateral Forces
             float slipX;
             float Fx;
@@ -82,7 +92,7 @@ namespace vc
             void CalculateLongitudinal()
             {
                 UpdateWheelVelocity();
-                CalculateSlipZ();
+                CalculateSlipZ();                
             }
 
             #region Longitudinal Wheel Acceleration 
@@ -122,7 +132,8 @@ namespace vc
 
             
             float lockedWheelSlipZ => MathHelper.Sign(longSlipVelocity);
-            float rollingWheelSlipZ => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maximumFrictionTorque), -1f, 1f);
+            
+            float rollingWheelSlipZ => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maximumFrictionTorque), -100f, 100f);  //clamp to maximum slip value
             float slipBaseOnWheelState => isLocked ? lockedWheelSlipZ : rollingWheelSlipZ;
             float longSlipVelocityRelaxationCoeff => Mathf.Clamp((Mathf.Abs(longSlipVelocity) / LongitudinalRelaxationLength) * dt, 0f, 1f);
             void CalculateSlipZ()
@@ -139,11 +150,11 @@ namespace vc
                 // forward - longitudinal force                 
                 var normalForce = Mathf.Max(wheelData.normalforce, 0f);
 
-                Fz = slipZ * normalForce;
+                Fz = combinedSlip.x * normalForce; // slipZ * normalForce;
                 FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
                 // sideways - lateral force 
-                Fx = slipX * normalForce;
+                Fx = combinedSlip.y * normalForce; //slipX * normalForce;
                 FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
 
                 // add force to rigidbody
@@ -207,13 +218,14 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fy : {(this.wheelData.normalforce).ToString("f5")}");
 
                 // Longitudinal 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip : {(this.slipZ).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip : {(this.combinedSlip.x).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
                 // lateral                 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"   LatSlip: {(this.slipX).ToString("f5")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LatSlip: {(this.combinedSlip.y).ToString("f5")}");
+                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
                 return yOffset;
             }

@@ -148,7 +148,7 @@ namespace vc
 
             //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
         }
