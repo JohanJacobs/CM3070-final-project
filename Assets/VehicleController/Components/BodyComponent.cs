@@ -17,7 +17,9 @@ namespace vc
             Transform leftWheel;
             Transform rightWheel;
 
-            float bodyDragCoefficient = 0.34f; // constant 
+            GForce gForce = new();
+
+            float bodyDragCoefficient = 0.34f; // constant https://www.netcarshow.com/ford/2009-fiesta_econetic/#:~:text=This%20is%20because%20Fiesta%20boasts,performance%2C%20especially%20in%20highway%20cruising.
 
             //http://www.mayfco.com/dragcd~1.htm
             float bodyArea = 1.74f; // m² 
@@ -27,13 +29,14 @@ namespace vc
             float wheelBaseRearTrackLength; // m
 
             float aeroDrag => 0f; // TODO:
-            float bodyDrag => PhysicsHelper.CalculateDrag(velocityLS.z, bodyArea, bodyDragCoefficient); // nm TODO:
+            
+            float bodyDrag => PhysicsHelper.CalculateDrag(Mathf.Abs(velocityLS.z), bodyArea, bodyDragCoefficient); // nm TODO: check if drag is always calculated correctly forward and reverse
             public float DragForce => aeroDrag + bodyDrag;
             public float mass => 1500; // kg
            
             public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
-            Vector3 velocityWS => rb.velocity; // MS
-            Vector3 velocityLS => rb.transform.InverseTransformDirection(velocityWS); //MS
+            
+            Vector3 velocityLS =default; //MS
             
             
 
@@ -65,9 +68,11 @@ namespace vc
 
             
             public void Step(BodyComponentStepParams parameters)
-            {                
+            {
+                this.velocityLS = parameters.velocityLS;
+                gForce.updateG(this.velocityLS,parameters.dt);
                 UpdateAckermanSteering();
-                AddBodyDragForce(parameters.dt);
+                AddBodyDragForce();
             }
             #endregion IVehicleComponent
 
@@ -96,9 +101,11 @@ namespace vc
                 rightWheel.localRotation = Quaternion.Euler(new Vector3(rightWheel.localRotation.x, ackermanAngleLeft, rightWheel.localRotation.z));
             }
 
-            void AddBodyDragForce(float dt)
+
+            Vector3 dragDirection => -rb.transform.forward;
+            void AddBodyDragForce()
             {
-                rb.AddForce(-rb.transform.forward * bodyDrag);
+                rb.AddForce(dragDirection * bodyDrag);
             }
             #endregion bodycomponent
 
@@ -112,9 +119,10 @@ namespace vc
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"- BODY:");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Km/h :{SpeedKMH.ToString("F0")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  long Gs :{gForce.longGForce.ToString("F2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  lat  Gs :{gForce.latGForce.ToString("F2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Velo :{velocityLS.ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  B.Drag :{bodyDrag.ToString("f2")}");
-
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  B.Drag :{bodyDrag.ToString("f3")}");
 
                 return yOffset;
             }
@@ -125,11 +133,13 @@ namespace vc
             // class to pass parameters to step function
             public class BodyComponentStepParams 
             {
-                public BodyComponentStepParams(float dt)
+                public BodyComponentStepParams(float dt, Vector3 velocityLS)
                 {
                     this.dt = dt;
+                    this.velocityLS = velocityLS;
                 }
                 public float dt;
+                public Vector3 velocityLS;
             }
         }
     }

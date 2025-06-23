@@ -15,8 +15,12 @@ namespace vc
 
             public static float RadtoDeg(float radians) => radians * Mathf.Rad2Deg;
             public static float DegtoRad(float degrees) => degrees * Mathf.Deg2Rad;
+
+            public static float NewtonToKG(float newtons) => newtons / gravity; // kg            
+
+            static float gravity = 9.81f;//ms
         }
-        
+
         /* CalculateDragForce 
             air density : kg/m³
             area : m²
@@ -29,6 +33,12 @@ namespace vc
         {
             return 0.5f * airDensity * (velocityMS * velocityMS) * areaM * dragCoefficient;
         }
+        public static float CalculateLift(float velocityMS, float areaM, float liftCoefficient, float airDensity = 1.225f)
+        {
+            //return 0.5f * airDensity * (velocityMS * velocityMS) * areaM * dragCoefficient;
+            return CalculateDrag(velocityMS,areaM, liftCoefficient, airDensity);
+        }
+
 
         /* INERTIA (kgm²) aka Moment of inertia
          * The property of a physics body to resist change in state of motion (velocity).
