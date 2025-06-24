@@ -57,12 +57,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   throttleVariable: {fileID: 11400000, guid: e19849970ec0b34419cebfea16613ef8, type: 2}
-  engineRPMVariable: {fileID: 11400000, guid: ea6e3b1c545c26c418953308e63736a2, type: 2}
-  engineRedlineRPMVariable: {fileID: 11400000, guid: 0af93a5a9b9e12c4e894dde91d84a28c,
-    type: 2}
-  engineIdleRPMVariable: {fileID: 11400000, guid: 54c57da9ca8168940a98854940583ac7,
-    type: 2}
-  engineEffectiveTorque: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d,
-    type: 2}
-  EngineTorqueVariable: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d,
-    type: 2}
+  idleRPMVariable: {fileID: 11400000, guid: 5984b2ed124a9d2479fe3ef0e431c1a2, type: 2}
+  redlineRPMVariable: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}
+  currentRPMVariable: {fileID: 11400000, guid: 6811291d21d8e4b42a5ed93c3b5bf991, type: 2}

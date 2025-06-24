@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BasicBodySO
   m_EditorClassIdentifier: 
   steerVariable: {fileID: 11400000, guid: ec4920f668635d240bddf69f27af9741, type: 2}
+  speedKMHVariable: {fileID: 11400000, guid: f20052f918825e241b038bb8eabe4507, type: 2}
   turnRadius: 9.3
   wheelBaseLength: 2.86
   wheelBaseRearTrackLength: 1.69

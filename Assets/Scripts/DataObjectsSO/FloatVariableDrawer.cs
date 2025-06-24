@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 // Unity inspector
 [CustomPropertyDrawer(typeof(FloatVariable))]
-public class FloatvariableInspector : PropertyDrawer
+public class FloatVariableInspector : PropertyDrawer
 {
     public override VisualElement CreatePropertyGUI(SerializedProperty property)
     {
@@ -23,19 +23,19 @@ public class FloatvariableInspector : PropertyDrawer
         container.Add(valueLabel);
 
         objectField.RegisterValueChangedCallback(
-            e =>
+            (EventCallback<ChangeEvent<UnityEngine.Object>>)(e =>
             {
                 var variable = e.newValue as FloatVariable;
                 if (variable != null)
                 {
                     valueLabel.text = $"Current Value: {variable.Value}";
-                    variable.OnValueChanged += newValue => valueLabel.text = $"Current Value: {newValue}";
+                    variable.OnValueChanged += (float newValue) => valueLabel.text = $"Current Value: {newValue}";
                 }
                 else
                 {
                     valueLabel.text = string.Empty;
                 }
-            }
+            })
         );
 
         var currentVariable = property.objectReferenceValue as FloatVariable;

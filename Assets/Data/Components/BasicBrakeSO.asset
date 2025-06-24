@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxBrakeforce: 5000
   brakeBalance: 0.65
-  brakeInputVariable: {fileID: 11400000, guid: c6de196d4a9ba724f824a44683e8d84d, type: 2}
+  brakeInputVariable: {fileID: 11400000, guid: 0d47960c992689b45be4754409a8a1ba, type: 2}
   handbrakeInputVariable: {fileID: 11400000, guid: 572457dd301430e46af27ad10d78392c,
     type: 2}

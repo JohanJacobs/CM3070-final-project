@@ -13,7 +13,7 @@ namespace vc
             Rigidbody rb;
             BodySO config;
             FloatVariable steerInput;
-
+            FloatVariable speed;
             Transform leftWheel;
             Transform rightWheel;
 
@@ -37,8 +37,7 @@ namespace vc
             public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
             
             Vector3 velocityLS =default; //MS
-            
-            
+                        
 
             public BodyComponent( BodySO config, Rigidbody rb, Transform leftWheel, Transform rightWheel)
             {
@@ -47,6 +46,7 @@ namespace vc
                 this.leftWheel = leftWheel;
                 this.rightWheel = rightWheel;
                 this.steerInput = config.steerVariable;
+                this.speed = config.speedKMHVariable;
 
                 wheelBaseLength = config.wheelBaseLength;
                 turnRadius = config.turnRadius;
@@ -58,7 +58,7 @@ namespace vc
 
             public void Start()
             {
-                
+                speed.Value = 0f;
             }
 
             public void Shutdown()
@@ -73,6 +73,7 @@ namespace vc
                 gForce.updateG(this.velocityLS,parameters.dt);
                 UpdateAckermanSteering();
                 AddBodyDragForce();
+                speed.Value = SpeedKMH;
             }
             #endregion IVehicleComponent
 

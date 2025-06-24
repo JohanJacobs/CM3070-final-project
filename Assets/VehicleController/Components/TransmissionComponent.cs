@@ -18,6 +18,8 @@ namespace vc
             FloatVariable gearUpInput;
             FloatVariable gearDownInput;
 
+            StringVariable currentGearText;
+
             bool isInGear = true;
             float ratio = default;            
             float gearShiftTime = 0.1f;
@@ -30,6 +32,7 @@ namespace vc
                 this.config = config;
                 this.gearUpInput = config.gearUpInputVariable;
                 this.gearDownInput = config.gearDownInputVariable;
+                this.currentGearText = config.currentGearTextVariable;
             }
 
             private void ShiftUp(float v)
@@ -47,6 +50,7 @@ namespace vc
                         currentGear += 1f; // TODO: MAke INT variable
                         UpdateRatio();
                         isInGear = true;
+                        SetCurrentGearText(currentGear);
                     });
                 }
             }
@@ -65,9 +69,27 @@ namespace vc
                     {
                         currentGear -= 1f; // TODO: MAke INT variable
                         UpdateRatio();
-                        isInGear = true;                        
+                        isInGear = true; 
+                        SetCurrentGearText(currentGear);
                     });
                 }
+            }
+
+            void SetCurrentGearText(float gear)
+            {
+                if (gear == -1f)
+                {
+                    currentGearText.Value = "R";
+                    return;
+                }
+
+                if (gear == 0f)
+                {
+                    currentGearText.Value = "N";
+                    return;
+                }
+
+                currentGearText.Value = currentGear.ToString("F0");
             }
 
             void ExecuteAfterDelay(float seconds, Action action)
@@ -119,6 +141,8 @@ namespace vc
 
             public void Start()
             {
+                currentGear = 0f;
+                SetCurrentGearText(currentGear);
                 gearUpInput.OnValueChanged += ShiftUp;
                 gearDownInput.OnValueChanged += ShiftDown;
             }

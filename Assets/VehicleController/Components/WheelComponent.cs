@@ -28,7 +28,7 @@ namespace vc
 
             float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
-            float wheelFrictionCoefficient = 1.0f;
+            float wheelFrictionCoefficient = 2.0f;
             float LongitudinalRelaxationLength = 0.005f;
 
             float dt = default;

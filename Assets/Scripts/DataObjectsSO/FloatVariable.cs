@@ -1,23 +1,24 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-[CreateAssetMenu(fileName = "Float Variable", menuName = "Variables/Float variable")]
+[CreateAssetMenu(fileName = "Float Variable", menuName = "Variables/Float currentRPM")]
 public class FloatVariable : ScriptableObject
 {
     [SerializeField] string label;
-    [SerializeField] float initialValue;
-    [SerializeField] float value;
+    [SerializeField] float _value;
 
     public float Value
     {
-        get => value;
+        get => this._value;
         set
         {
-            if (this.value == value) return;
-            this.value = value;
-            OnValueChanged?.Invoke(value);
+            if (this._value == value) return;
+            this._value = value;
+
+            OnValueChanged?.Invoke(this._value);
         }
     }
+    public string VariableLabel=> label;
 
     public event UnityAction<float> OnValueChanged;
 }

@@ -13,18 +13,22 @@ namespace vc
         {
             EngineSO config;
             FloatVariable throttle;
+            
             AnimationCurve torqueCurve;
-            float idleRPM;
-            float redlineRPM;
+            FloatVariable idleRPM;
+            FloatVariable redlineRPM;
+            FloatVariable currentRPM;
             float RPMtoRad (float rpm)=> PhysicsHelper.Conversions.RPMToRad(rpm);
             float RadtoRPM(float radians) => PhysicsHelper.Conversions.RadToRPM(radians);
 
             public EngineComponent(EngineSO config)
             {
                 this.config = config;
-                
-                // setup variables
 
+                // setup variables
+                this.idleRPM = config.idleRPMVariable;
+                this.redlineRPM = config.redlineRPMVariable;                
+                this.currentRPM = config.currentRPMVariable;
             }
 
             #region Engine Component
@@ -36,12 +40,12 @@ namespace vc
             float engineInertia = 0.2f;         // kg m²
 
             float maxEffectiveTorque => torqueCurve.Evaluate(engineRPM);
-            float engineRPM => RadtoRPM(engineAngularVelocity);
+            float engineRPM => currentRPM.Value;
             float engineInternalFriction => startFriction + (engineRPM * frictionCoefficient);
             float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
             float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
-            float idleAngularRotation => RPMtoRad(idleRPM);
-            float redlineAngularRotation => RPMtoRad(redlineRPM);
+            float idleAngularRotation => RPMtoRad(idleRPM.Value);
+            float redlineAngularRotation => RPMtoRad(redlineRPM.Value);
 
             public float engineAngularVelocity=100f;
             float engineEffectiveTorque =default;
@@ -51,6 +55,8 @@ namespace vc
                 engineEffectiveTorque = currentEffectiveTorque;
                 float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia;                
                 engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + acceleration * dt, idleAngularRotation , redlineAngularRotation);
+                currentRPM.Value = RadtoRPM(engineAngularVelocity);
+
             }
             #endregion Engine Component
 
@@ -62,10 +68,8 @@ namespace vc
             {
                 this.throttle = config.throttleVariable;
                 this.torqueCurve = config.torqueCurve;
-                //this.idleRPM = config.idleRPM;
-                this.idleRPM = 900f;
-                //this.redlineRPM = config.redlineRPM;
-                this.redlineRPM = 7500f;
+                this.idleRPM.Value = this.config.idleRPM;                
+                this.redlineRPM.Value = this.config.redlineRPM;
             }
             public void Shutdown()
             {

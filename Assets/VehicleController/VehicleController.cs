@@ -7,7 +7,7 @@ using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using static vc.VehicleController;
 /*
-    BUG : Car reverse when i am in reverse with no throttle
+    RPM and Transmission
     audio
     visuals for skidding
     visuals for smoke // spinning
@@ -16,11 +16,6 @@ namespace vc
 {
     public class VehicleController : MonoBehaviour
     {
-        [Title("Variables")]
-        [SerializeField] FloatVariable steerInput;
-        [SerializeField] FloatVariable throttleInput;
-        [SerializeField] FloatVariable brakeInput;
-        [SerializeField] FloatVariable handbrakeInput;
 
         [Title("Configuration")]
         [SerializeField] VehicleConfiguration.WheelConfigData[] wheelConfig;
@@ -54,8 +49,6 @@ namespace vc
         private void FixedUpdate()
         {
             float dt = Time.fixedDeltaTime;
-            float throttle = throttleInput.Value;
-            float brake = brakeInput.Value;
 
             Vector3 veloLS = carRigidbody.transform.InverseTransformDirection(carRigidbody.velocity);   
             

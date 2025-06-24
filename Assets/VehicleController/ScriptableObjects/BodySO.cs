@@ -8,6 +8,7 @@ namespace vc
         public class BodySO : ScriptableObjectBase
         {
             public FloatVariable steerVariable;
+            public FloatVariable speedKMHVariable;
 
             public float turnRadius;
             public float wheelBaseLength;

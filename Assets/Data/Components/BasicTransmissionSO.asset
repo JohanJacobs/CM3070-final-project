@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: BasicTransmissionSO
   m_EditorClassIdentifier: 
   GearRatio: 1
-  gearUpInputVariable: {fileID: 11400000, guid: d98e1e766ce816f4ebc00a0babee2fa0,
+  gearUpInputVariable: {fileID: 11400000, guid: d0474294165e45c4da7eb551fa2e098e,
     type: 2}
   gearDownInputVariable: {fileID: 11400000, guid: cb59c3e875672d34e8c15f9203a7c0f9,
+    type: 2}
+  currentGearTextVariable: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990,
     type: 2}

@@ -15,13 +15,10 @@ namespace vc
 
             [Header("Input")]
             public FloatVariable throttleVariable;
-
-            [ Header("Variables")]
-            public FloatVariable engineRPMVariable;
-            public FloatVariable engineRedlineRPMVariable;
-            public FloatVariable engineIdleRPMVariable;
-            public FloatVariable engineEffectiveTorque;                       
-
+            [Header("Variables")]
+            public FloatVariable idleRPMVariable;
+            public FloatVariable redlineRPMVariable;
+            public FloatVariable currentRPMVariable;
             public static ComponentTypes GetVehicleComponentType()
             {
                 return ComponentTypes.Engine;

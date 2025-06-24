@@ -8,7 +8,7 @@ public class InputFeedback : MonoBehaviour
 {
     [SerializeField] FloatVariable SteerInput;
     [SerializeField] FloatVariable ThrottleInput;
-    [SerializeField] FloatVariable BrakeInput;
+    [SerializeField] FloatVariable  BrakeInput;
     [SerializeField] FloatVariable HandBrakeInput;
 
     [Header("UI Elements")]
