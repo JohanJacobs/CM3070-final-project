@@ -61,15 +61,15 @@ namespace vc
                     currentLength = wheelData.hitInfo.distance - wheelRadius; // in meters
 
                     // calculate suspension properties 
-                    var springForce = compressedLength * springStrength;                    
+                    var springForce = (compressedLength * springStrength);
                     var damperForce = damperVelocity(dt) * damperStrength;
 
                     // calculate forces
-                    normalForce = (springForce + damperForce) * 100f;
+                    normalForce = (springForce + damperForce) * 100f; // scale to the correct factor
                     forceVector = normalForce * wheelData.hitInfo.normal;
 
                     // add force
-                    wheelData.rb.AddForceAtPosition(forceVector, mountPoint.position);
+                    wheelData.rb.AddForceAtPosition(forceVector, axlePosition);
                     previousLength = currentLength;
                     isGrounded = true;
 

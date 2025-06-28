@@ -31,7 +31,7 @@ namespace vc
             public float Fn => Mathf.Max(wheelData.normalforce, 0f); // downforce on top of the wheel
             public float Fz = default; // nm force applied in the forward direction
             public float Fx = default; // nm force applied in sideways direction
-
+            
             float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
             float wheelFrictionCoefficient = 2.0f;
