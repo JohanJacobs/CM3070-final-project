@@ -27,6 +27,7 @@ namespace vc
             public float normalForce; 
             public bool isGrounded { get; private set; }
             public Vector3 axlePosition => mountPoint.position - mountPoint.up * currentLength;
+            
                         
             public float springStrength;            
             public float damperStrength;
@@ -164,6 +165,14 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" length / rest: {(this.currentLength).ToString("f2")}/{(this.restLength).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" compression: {(this.springCompression).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" normalForce: {(this.normalForce).ToString("f1")}");
+
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" wheelRadius: {(this.wheelData.wheel.radius).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rayDist: {(this.wheelData.hitInfo.distance).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentL: {(currentLength).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" prevL: {(previousLength).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" sStrength: {(springStrength).ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" dStrength: {(damperStrength).ToString("f1")}");
+
 
                 return yOffset;
             }

@@ -10,7 +10,7 @@ namespace vc
         {
             Rigidbody rb;
 
-            public float rollbarStrength = 5000f;
+            public float rollbarStrength = 0f;
 
             WheelHitData leftWheel;
             WheelHitData rightWheel;

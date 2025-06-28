@@ -1,8 +1,10 @@
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.Events;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using static vc.VehicleController;
@@ -11,6 +13,7 @@ using static vc.VehicleController;
     audio
     visuals for skidding
     visuals for smoke // spinning
+    FIX car freewheeling backwords having no revs
  */
 namespace vc
 {
@@ -18,9 +21,12 @@ namespace vc
     {
 
         [Title("Configuration")]
-        [SerializeField] VehicleConfiguration.WheelConfigData[] wheelConfig;
-        [SerializeField,Space] VehicleConfiguration.SuspensionConfigData[] suspensionConfig;
-        [SerializeField] DifferentialSO differentialConfig;
+        [SerializeField] VehicleConfiguration.WheelConfiguration[] WheelConfig;
+
+        //[SerializeField] VehicleConfiguration.WheelConfigData[] wheelConfig;
+        //[SerializeField,Space] VehicleConfiguration.SuspensionConfigData[] suspensionConfig;
+
+        [Space,SerializeField] DifferentialSO differentialConfig;
         [SerializeField] TransmissionSO transmissionConfig;
         [SerializeField] EngineSO engineConfig;
         [SerializeField] ClutchSO clutchConfig;
@@ -31,6 +37,8 @@ namespace vc
         Rigidbody carRigidbody;
                 
         Vehicle vehicle;
+        public Vehicle GetVehicle => vehicle;
+
         public void Awake()
         {
             carRigidbody = GetComponent<Rigidbody>();
@@ -39,13 +47,16 @@ namespace vc
                 Debug.LogError("Missing rigid body!");
             }
 
-            vehicle = Vehicle.Setup(carRigidbody, wheelConfig, suspensionConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig, brakeConfig, aeroConfig);
+            vehicle = Vehicle.Setup(carRigidbody, WheelConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig, brakeConfig, aeroConfig);
         }
 
         public void Update()
-        {            
+        {
+            vehicle.wheels.ForEach(w => {
+                w.Value.UpdateVisuals(Time.deltaTime); 
+            });
         }
-        
+
         private void FixedUpdate()
         {
             float dt = Time.fixedDeltaTime;
@@ -77,7 +88,6 @@ namespace vc
             // rear wheels
             vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearBrakeTorque));
             vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearBrakeTorque));
-
 
             // FEEDBACK PHASE
             var transVelo = vehicle.differential.CalculateTransmissionVelocity(vehicle.wheels[WheelID.LeftRear].wheelAngularVelocity, vehicle.wheels[WheelID.RightRear].wheelAngularVelocity);
@@ -135,23 +145,23 @@ namespace vc
             float yStep = 20f;
             float xPos = 10f;
             
-            yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.aero.OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.aero.OnGUI(xPos, yOffset, yStep);
 
 
-            yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
 
             yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
             //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
         }
@@ -172,8 +182,7 @@ namespace vc
         public AeroComponent aero;
 
         public static Vehicle Setup(Rigidbody carRigidbody, 
-            VehicleConfiguration.WheelConfigData[] wheelConfig, 
-            VehicleConfiguration.SuspensionConfigData[] suspensionConfig,
+            VehicleConfiguration.WheelConfiguration[] wheelConfig,             
             BodySO bodyConfig,
             DifferentialSO differentialConfig,
             TransmissionSO transmissionConfig,
@@ -189,17 +198,13 @@ namespace vc
 
             // wheels 
             newVehicle.wheels = new();
-            foreach (var wc in wheelConfig)
-            {
-                newVehicle.wheels.Add(wc.ID, new (wc.ID, wc.Config, wheelHitData[wc.ID]));
-            }
-
-            // Setup Suspensions            
             newVehicle.suspension = new();
-            foreach (var susp in suspensionConfig)
-            {
-                newVehicle.suspension.Add(susp.ID, new SuspensionComponent(susp.Config, wheelHitData[susp.ID], susp.mountPoint));
-            }
+
+            wheelConfig.ForEach(wc => {
+                
+                newVehicle.wheels.Add(wc.id, new (wc.id, wc.WheelConfig, wheelHitData[wc.id], wc.wheelMesh));
+                newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount));
+            });
 
             // car body
             newVehicle.body = new (bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint);
@@ -259,6 +264,21 @@ namespace vc
 
     namespace VehicleConfiguration
     {
+        [System.Serializable]
+        public class WheelConfiguration 
+        {            
+            public WheelID id;
+            [HorizontalGroup("ScriptableObjects")]
+            public WheelSO WheelConfig;
+            [HorizontalGroup("ScriptableObjects")]
+            public SuspensionSO SuspensionConfig;
+            [HorizontalGroup("Setup")]
+            public Transform wheelMesh;
+            [HorizontalGroup("Setup")]
+            public Transform suspMount;
+        }
+
+
         [System.Serializable]
         public class WheelConfigData
         {            

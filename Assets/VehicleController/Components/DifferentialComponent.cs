@@ -23,13 +23,12 @@ namespace vc
             }
 
             #region Differential Component            
-            
-
 
             // torque sensing differential sending more torque to the wheel that is slower as it has more grip.
             public float[] CalculateWheelOutputTorque(float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt) 
             {
-                return DiffernetialTypes.TorqueSensingDiffernetial(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
+                //return DiffernetialTypes.TorqueSensingDiffernetial(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
+                return DiffernetialTypes.StandardDifferential(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
             }
 
             float transmissionVelo = default;
@@ -100,7 +99,7 @@ namespace vc
             public static float[] StandardDifferential(float connectedWheels, float ratio, float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt)
             {
                 float wheelTorque = (transmissionTorque * ratio) / connectedWheels;
-                var wheelOutput = new float[2] {wheelTorque,wheelTorque};
+                var wheelOutput = new float[2] {wheelTorque, wheelTorque};
                 return wheelOutput;
             }
             #endregion StandardDifferential

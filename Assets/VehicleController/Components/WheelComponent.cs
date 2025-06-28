@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using UnityEngine.VFX;
 using vc.VehicleComponentsSO;
@@ -18,13 +19,18 @@ namespace vc
 
             WheelSO config;
             WheelHitData wheelData;
-            public WheelID id { get; private set; }
-            
+            Transform wheelMesh;
+            public WheelID id { get; private set; }            
             public float radius{ get; private set; }        // meter
-            public float wheelAngularVelocity { get; private set; }
+            public float wheelAngularVelocity { get; private set; } //rads
+            public float WheelMeshDegRotation => PhysicsHelper.Conversions.RadtoDeg(wheelAngularVelocity);
+
             // Parameters 
             public float wheelMass { get; private set; }    //KG
             public float GetInertia => wheelInertia;
+            public float Fn => Mathf.Max(wheelData.normalforce, 0f); // downforce on top of the wheel
+            public float Fz = default; // nm force applied in the forward direction
+            public float Fx = default; // nm force applied in sideways direction
 
             float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
@@ -36,9 +42,10 @@ namespace vc
             float brakeTorque = default;
             bool isLocked = true;
             Vector2 combinedSlip = default; // combined Slip X=Force, Y=sideways
-            
+
             #region wheelComponent
-            public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData)
+
+            public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData, Transform wheelMesh)
             {
                 this.config = config;
                 this.id = id;
@@ -46,6 +53,8 @@ namespace vc
                 this.wheelMass = config.Mass;
                 this.wheelData = wheelHitData;
                 this.wheelData.wheel = this;
+                this.wheelMesh = wheelMesh;
+                this.wheelMesh.gameObject.SetActive(true);                
             }
             public void UpdatePhysics(float dt, float driveTorque = default, float brakeTorque = default)
             {
@@ -62,23 +71,38 @@ namespace vc
 
                 ApplyWheelForces();
             }
+            public void UpdateVisuals(float dt)
+            {
+                // update position
+                wheelMesh.transform.position = wheelData.axlePosition;
 
-                        
+                float xRot = (WheelMeshDegRotation) % 45f;
+                
+                float yRot = wheelData.suspensionMountPoint.eulerAngles.y;
+                                
+                wheelMesh.Rotate(new Vector3(WheelMeshDegRotation * dt, 0f, 0f), Space.Self);
+            }
             void CombinedSlip()
             {
-                var combined = new Vector2(slipZ, slipX);
+                var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
                 combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined;
 
             }
             #region Lateral Forces
-            float slipX;
-            float Fx;
+            
+            
             private WheelLateralSlipCalculator latCalc = new();
+            
+            public float SlipAngleDynamic => latCalc.lateralSlipAngleDynamic;
+            
+            public float SlipAngleRatio => latCalc.lateralSlipAngle;
+            public float LateralSlipAngle => latCalc.lateralSlipAngle;
+            
             void CalculateLateral()
             {
                 //currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
 
-                slipX  = latCalc.CalculateSlip(wheelData.velocityLS, dt);
+                latCalc.CalculateSlip(wheelData.velocityLS, dt);
             }
                         
             #endregion Lateral Forces
@@ -87,7 +111,7 @@ namespace vc
 
             public float LongitudinalSlipRatio => slipZ;
             float slipZ = default;
-            float Fz = default; // nm
+
             float longSlipVelocity = default;
 
             // Longitudinal Slip calculations
@@ -131,7 +155,6 @@ namespace vc
             float targetAngularAccelleration => (wheelAngularVelocity - targetAngularVelocity) / dt; // Rad/s²
             float targetTorque => targetAngularAccelleration * wheelInertia; //Rad/s
             float maximumFrictionTorque => wheelData.normalforce * radius * wheelFrictionCoefficient; //nm
-
             
             float lockedWheelSlipZ => MathHelper.Sign(longSlipVelocity);
             
@@ -149,14 +172,11 @@ namespace vc
             Vector3 FzForceVec, FxForceVec;
             void ApplyWheelForces()
             {
-                // forward - longitudinal force                 
-                var normalForce = Mathf.Max(wheelData.normalforce, 0f);
-
-                Fz = combinedSlip.x * normalForce; // slipZ * normalForce;
+                Fz = combinedSlip.x * Fn; // slipZ * normalForce;
                 FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
                 // sideways - lateral force 
-                Fx = combinedSlip.y * normalForce; //slipX * normalForce;
+                Fx = combinedSlip.y * Fn; //slipX * normalForce;
                 FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
 
                 // add force to rigidbody
@@ -173,15 +193,13 @@ namespace vc
 
             public void Start()
             {
-             
+                this.wheelMesh.parent = wheelData.suspensionMountPoint;
             }
 
             public void Shutdown()
             {
              
             }
-
-
 
             public void Step(WheelComponenetStepParameters parameters)
             {
@@ -214,13 +232,14 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Locked : {(this.isLocked?"Yes":"No")}");
 
                 // Longitudinal 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip : {(this.combinedSlip.x).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.combinedSlip.x).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
                 // lateral                 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LatSlip: {(this.combinedSlip.y).ToString("f5")}");                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.combinedSlip.y).ToString("f5")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
                 return yOffset;
             }
@@ -235,8 +254,8 @@ namespace vc
                 //  1 slipping to the right 
                 //  0 no slip
 
-                public float slipRatio { get; private set; }
-                public float slipAngleDynamic = default;
+                public float lateralSlipRatio { get; private set; }
+                public float lateralSlipAngleDynamic = default;
 
                 // Relaxation Length
                 // the distance a tire travels before its lateral (sideways) force reaches a steady-state value
@@ -254,34 +273,35 @@ namespace vc
                 // increases approximately linearly for the first few degrees of slip angle, then increases non-linearly to a
                 // maximum before beginning to decrease. (Pacejka, Hans B. (2006). Tire and Vehicle Dynamics (Second ed.). Society of Automotive Engineers. pp. 3, 612. ISBN 0-7680-1702-5.)
                 // https://en.wikipedia.org/wiki/Slip_angle
-                public float slipAngle { get; private set; }
+                public float lateralSlipAngle { get; private set; }
 
-                public float slipAnglePeak = 15f; /// peak slip angle for maximum grip (8 degrees) 
+                public float lateralSlipAnglePeak = 8f; /// peak slip angle for maximum grip (8 degrees) 
 
                 private float RelaxationCoefficient(Vector3 veloLS, float dt) => Mathf.Clamp((Mathf.Abs(veloLS.x) / relaxationLength) * dt, 0f, 1f);
 
                 private float HighSpeedSteadyState(Vector3 veloLS) 
                 {
                     // slip angle
-                    slipAngle = Mathf.Atan(MathHelper.SafeDivide(-veloLS.x, Mathf.Abs(veloLS.z)))*Mathf.Rad2Deg;
-                    return slipAngle;
+                    lateralSlipAngle = Mathf.Atan(MathHelper.SafeDivide(-veloLS.x, Mathf.Abs(veloLS.z)))*Mathf.Rad2Deg;
+                    return lateralSlipAngle;
                 }
                 private float SteadyStateTransition(Vector3 veloLS) => MathHelper.MapAndClamp(veloLS.magnitude, 3f, 6f, 0f, 1f);
-                private float LowSpeedSteadyState(Vector3 veloLS) => slipAnglePeak * MathHelper.Sign(-1f*veloLS.x);
+                private float LowSpeedSteadyState(Vector3 veloLS) => lateralSlipAnglePeak * MathHelper.Sign(-1f*veloLS.x);
                 private float CaclulateDynamicSlipAngle(Vector3 veloLS, float dt)
                 {
                     var steadyState = Mathf.Lerp(LowSpeedSteadyState(veloLS), HighSpeedSteadyState(veloLS), SteadyStateTransition(veloLS));
-                    var newSlipAngleDynamic = slipAngleDynamic + (steadyState - slipAngleDynamic) * RelaxationCoefficient(veloLS, dt);
-                    slipAngleDynamic = Mathf.Clamp(newSlipAngleDynamic, -90f, 90f);
-                    return slipAngleDynamic;
+                    var newSlipAngleDynamic = lateralSlipAngleDynamic + (steadyState - lateralSlipAngleDynamic) * RelaxationCoefficient(veloLS, dt);
+                    lateralSlipAngleDynamic = Mathf.Clamp(newSlipAngleDynamic, -90f, 90f);
+
+                    return lateralSlipAngleDynamic;
                 }
                 public float CalculateSlip(Vector3 veloLS, float dt)
                 {
-                    slipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
-                    slipRatio = Mathf.Clamp(MathHelper.SafeDivide(slipAngleDynamic,slipAnglePeak), -1f, 1f);
-                    slipRatio = Mathf.Abs(slipRatio) < float.Epsilon ? 0f : slipRatio;
+                    lateralSlipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
+                    lateralSlipRatio = Mathf.Clamp(MathHelper.SafeDivide(lateralSlipAngleDynamic,lateralSlipAnglePeak), -1f, 1f);
+                    //slipRatio = Mathf.Abs(slipRatio) < float.Epsilon ? 0f : slipRatio;
                     // TODO: add a logic to always nudge slip ratio to 0 if its very close to zero
-                    return slipRatio;
+                    return lateralSlipRatio;
                 }
 
             }

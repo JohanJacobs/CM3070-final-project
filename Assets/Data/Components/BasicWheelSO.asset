@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: BasicWheelSO
   m_EditorClassIdentifier: 
   Radius: 34
-  Mass: 6
+  Mass: 25

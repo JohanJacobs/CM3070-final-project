@@ -73,7 +73,7 @@ namespace vc
                 gForce.updateG(this.velocityLS,parameters.dt);
                 UpdateAckermanSteering();
                 AddBodyDragForce();
-                speed.Value = SpeedKMH;
+                speed.Value = Mathf.Max(SpeedKMH,0f);
             }
             #endregion IVehicleComponent
 
