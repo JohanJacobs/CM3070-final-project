@@ -21,9 +21,8 @@ namespace vc
         [SerializeField] FloatVariable GearUpVariable;
         [SerializeField] FloatVariable GearDownVariable;
 
-
         [Header("Input Configuration")]
-
+        [SerializeField, Range(0f,1f)] float SteerSensitivity;
         VehicleControllerInputActions inputActions;
         [SerializeField] float steerStrength;
         [SerializeField] float throttleStrength;
@@ -133,7 +132,8 @@ namespace vc
 
         public void Input_Steer(InputAction.CallbackContext ctx)
         {
-            steerTrarget = ctx.ReadValue<float>();
+
+            steerTrarget = ctx.ReadValue<float>() * SteerSensitivity;
         }
         public void Input_Handbrake(InputAction.CallbackContext ctx)
         {

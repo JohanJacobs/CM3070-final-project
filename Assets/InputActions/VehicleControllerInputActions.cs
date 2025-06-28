@@ -95,7 +95,7 @@ public partial class @VehicleControllerInputActions: IInputActionCollection2, ID
                     ""name"": ""Steer"",
                     ""type"": ""Value"",
                     ""id"": ""0264c361-e2b8-4a11-abad-ad0cd4daf7f7"",
-                    ""expectedControlType"": ""Axis"",
+                    ""expectedControlType"": ""Analog"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
