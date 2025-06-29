@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ca99a9a166d18a428bbb7d73121a928, type: 3}
   m_Name: BasicAeroSO
   m_EditorClassIdentifier: 
-  surfaceArea: 0.6
-  LiftCoefficient: 1.8
+  surfaceArea: 1.5
+  LiftCoefficient: 2.8
   dragCoefficient: 0.0148
