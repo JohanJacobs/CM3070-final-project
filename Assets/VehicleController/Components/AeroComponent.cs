@@ -34,16 +34,14 @@ namespace vc
         }
 
         private void CalculateDrag()
-        {
-            // drag is applied in the opposite direction of movement                    
+        {         
             totalDragForce += PhysicsHelper.CalculateDrag(aeroVelocity, config.surfaceArea, config.dragCoefficient);
         }
 
         private void CalculateDownforce()
-        {
+        {            
             totalDownforce += PhysicsHelper.CalculateLift(aeroVelocity, config.surfaceArea, config.LiftCoefficient);            
         }
-
 
         private void ApplyAeroForces()
         {

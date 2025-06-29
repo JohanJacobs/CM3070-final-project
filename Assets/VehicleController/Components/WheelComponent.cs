@@ -1,13 +1,4 @@
-using Microsoft.Win32.SafeHandles;
-using Sirenix.OdinInspector.Editor;
-using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UIElements;
-using UnityEngine.VFX;
 using vc.VehicleComponentsSO;
 
 namespace vc
@@ -28,9 +19,10 @@ namespace vc
             // Parameters 
             public float wheelMass { get; private set; }    //KG
             public float GetInertia => wheelInertia;
-            public float Fn => Mathf.Max(wheelData.normalforce, 0f); // downforce on top of the wheel
+            public float Fn => Mathf.Max(wheelData.normalforce, 0f); // down force on top of the wheel
             public float Fz = default; // nm force applied in the forward direction
             public float Fx = default; // nm force applied in sideways direction
+            public bool isGrounded => wheelData.isGrounded;
             
             float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
             float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
@@ -97,7 +89,9 @@ namespace vc
             
             public float SlipAngleRatio => latCalc.lateralSlipAngle;
             public float LateralSlipAngle => latCalc.lateralSlipAngle;
-            
+            public float lateralSlipVelocity => wheelData.velocityLS.x; // m/s
+
+
             void CalculateLateral()
             {
                 //currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
@@ -112,7 +106,7 @@ namespace vc
             public float LongitudinalSlipRatio => slipZ;
             float slipZ = default;
 
-            float longSlipVelocity = default;
+            public float longSlipVelocity = default; // m/s
 
             // Longitudinal Slip calculations
             void CalculateLongitudinal()
@@ -159,11 +153,11 @@ namespace vc
             float lockedWheelSlipZ => MathHelper.Sign(longSlipVelocity);
             
             float rollingWheelSlipZ => Mathf.Clamp(MathHelper.SafeDivide(targetTorque, maximumFrictionTorque), -100f, 100f);  //clamp to maximum slip value
-            float slipBaseOnWheelState => isLocked ? lockedWheelSlipZ : rollingWheelSlipZ;
+            float slipBasedOnWheelState => isLocked ? lockedWheelSlipZ : rollingWheelSlipZ;
             float longSlipVelocityRelaxationCoeff => Mathf.Clamp((Mathf.Abs(longSlipVelocity) / LongitudinalRelaxationLength) * dt, 0f, 1f);
             void CalculateSlipZ()
             {   
-                slipZ += (slipBaseOnWheelState - slipZ) * longSlipVelocityRelaxationCoeff;                
+                slipZ += (slipBasedOnWheelState - slipZ) * longSlipVelocityRelaxationCoeff;                
             }
             #endregion Slip Ratio Calculations
             
@@ -172,11 +166,10 @@ namespace vc
             Vector3 FzForceVec, FxForceVec;
             void ApplyWheelForces()
             {
-                Fz = combinedSlip.x * Fn; // slipZ * normalForce;
+                Fz = combinedSlip.x * Fn; // Pacejka longitudinal * normalForce;
                 FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
-                // sideways - lateral force 
-                Fx = combinedSlip.y * Fn; //slipX * normalForce;
+                Fx = combinedSlip.y * Fn; //Pacejka Lateral * normalForce;
                 FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
 
                 // add force to rigidbody

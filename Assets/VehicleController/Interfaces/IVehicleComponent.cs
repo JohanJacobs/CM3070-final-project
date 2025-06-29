@@ -4,30 +4,25 @@ namespace vc
 {
     public interface IVehicleComponent<ParamsType>
     {
+        // The component type
         public ComponentTypes GetComponentType();
+
+        // Method that called when a component is created 
         public void Start();
+
+        // Method that called to stop a component 
         public void Shutdown();
+
+        // Standard method of a physics step of a component 
+        // during fixed update.
         public void Step(ParamsType parameters);
 
-        //public void Update(float dt);
+        // non-fixed update method to update the 
+        // visuals for the component each frame
+        public void UpdateVisuals(float dt)
+        {
+
+        }
     }
-
-        
-    //public interface ITest<T> {
-    //    public void step(T t);
-    //}
-
-    //public class TestIt: ITest<TestIt.TestParam>
-    //{
-    //    public void step(TestParam t)
-    //    {
-            
-    //    }
-
-    //    public class TestParam
-    //    {
-    //    }
-    //}
-
 
 }

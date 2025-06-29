@@ -61,8 +61,10 @@ namespace vc
         {
             float dt = Time.fixedDeltaTime;
 
+            // Calculate the velocity of the vehicle
             Vector3 veloLS = carRigidbody.transform.InverseTransformDirection(carRigidbody.velocity);   
             
+            // Start the physics step
             vehicle.body.Step(new (dt,veloLS));
             vehicle.aero.Step(new (veloLS));
 
@@ -76,21 +78,24 @@ namespace vc
 
             // DRIVE PHASE 
             var diffInpuTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
-            var driveTorque = vehicle.differential.CalculateWheelOutputTorque(diffInpuTorque, vehicle.wheels[WheelID.LeftRear], vehicle.wheels[WheelID.RightRear],dt);
+            var driveTorque = vehicle.differential.CalculateWheelOutputTorque(
+                    diffInpuTorque, 
+                    vehicle.wheels[WheelID.LeftRear], 
+                    vehicle.wheels[WheelID.RightRear],
+                    dt);
 
             var frontBrakeTorque = vehicle.brake.frontBrakeTorque;
             var rearBrakeTorque = vehicle.brake.rearBrakeTorque;
-
-            // front wheel 
+            
             vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontBrakeTorque));
             vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f,frontBrakeTorque));
-
-            // rear wheels
             vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearBrakeTorque));
             vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearBrakeTorque));
 
             // FEEDBACK PHASE
-            var transVelo = vehicle.differential.CalculateTransmissionVelocity(vehicle.wheels[WheelID.LeftRear].wheelAngularVelocity, vehicle.wheels[WheelID.RightRear].wheelAngularVelocity);
+            var transVelo = vehicle.differential.CalculateTransmissionVelocity(
+                    vehicle.wheels[WheelID.LeftRear].wheelAngularVelocity, 
+                    vehicle.wheels[WheelID.RightRear].wheelAngularVelocity);
             var clutchVelo = vehicle.transmission.CalculateClutchVelocity(transVelo);
 
             vehicle.clutch.Update(clutchVelo, vehicle.transmission.GearRatio, vehicle.engine.engineAngularVelocity);

@@ -16,14 +16,15 @@ namespace vc
 
         public static float quickPacjekaLong(float slipratio)
         {
-            return quickPacjeka(slipratio);
+            return quickPacejka(slipratio);
         }
         public static float quickPacjekaLat(float slipAngle)
         {
-            return quickPacjeka(slipAngle, false);
+            return quickPacejka(slipAngle, false);
         }
 
-        public static float quickPacjeka(float slipratio, bool useLongitudinal = true)
+        // Pacejka formula
+        public static float quickPacejka(float slipratio, bool useLongitudinal = true)
         {
             float b = B_Stiffness;
             float c = (useLongitudinal ? C_Shape_Long : C_Shape_Lat);

@@ -34,8 +34,7 @@ namespace vc
             return 0.5f * airDensity * (velocityMS * velocityMS) * areaM * dragCoefficient;
         }
         public static float CalculateLift(float velocityMS, float areaM, float liftCoefficient, float airDensity = 1.225f)
-        {
-            //return 0.5f * airDensity * (velocityMS * velocityMS) * areaM * dragCoefficient;
+        {            
             return CalculateDrag(velocityMS,areaM, liftCoefficient, airDensity);
         }
 

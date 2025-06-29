@@ -32,9 +32,6 @@ namespace vc
             }
 
             #region Engine Component
-
-
-
             float startFriction = 50f;          // nm
             float frictionCoefficient = 0.02f;  // mu
             float engineInertia = 0.2f;         // kg m²

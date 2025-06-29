@@ -104,9 +104,10 @@ namespace vc
             }
 
             float diffiretialTorque = default;
+            float efficiency = 0.86f;
             public float CaclulateDifferentialTorque(float inputTorque)
             {
-                diffiretialTorque = inputTorque * ratio;
+                diffiretialTorque = inputTorque * ratio * efficiency;
                 return inputTorque * ratio;
             }
 

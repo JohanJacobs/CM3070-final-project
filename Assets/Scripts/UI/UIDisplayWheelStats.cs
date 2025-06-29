@@ -15,6 +15,7 @@ public class UIDisplayWheelStats : MonoBehaviour
 
     [Header("UI Objects")]
     [SerializeField] TextMeshProUGUI slipAngleUI;
+    [SerializeField] TextMeshProUGUI slipAngleDynamicUI;
     [SerializeField] TextMeshProUGUI FnUI;
     [SerializeField] TextMeshProUGUI FzUI;
     [SerializeField] TextMeshProUGUI FxUI;
@@ -26,6 +27,7 @@ public class UIDisplayWheelStats : MonoBehaviour
     public void LateUpdate()
     {
         slipAngleUI.text = $"SA {wc.LateralSlipAngle.ToString("F0")}";
+        slipAngleDynamicUI.text = $"dSA {wc.SlipAngleDynamic.ToString("F0")}";
         FnUI.text = $"Fn {wc.Fn.ToString("F0")}";
         FzUI.text = $"Fz {wc.Fz.ToString("F0")}";
         FxUI.text = $"Fx {wc.Fx.ToString("F0")}";

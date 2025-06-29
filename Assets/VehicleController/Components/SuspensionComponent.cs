@@ -53,28 +53,27 @@ namespace vc
 
             private void UpdatePhysics(float dt)
             {
-
+                //  Calculate the direction of the ray
                 Ray ray = new Ray(mountPoint.position, -mountPoint.up);
 
+                // Raycast length is : rest length = (wheelRadius + Suspension Rest length)
                 if (Physics.Raycast(ray, out wheelData.hitInfo, raycastLength))
                 {                    
                     currentLength = wheelData.hitInfo.distance - wheelRadius; // in meters
 
-                    // calculate suspension properties 
+                    // calculate suspension forces using Hooks Law Fz = -kFw
                     var springForce = (compressedLength * springStrength);
                     var damperForce = damperVelocity(dt) * damperStrength;
-
-                    // calculate forces
+                                        
                     normalForce = (springForce + damperForce) * 100f; // scale to the correct factor
                     forceVector = normalForce * wheelData.hitInfo.normal;
 
-                    // add force
+                    // add force to the body                    
                     wheelData.rb.AddForceAtPosition(forceVector, axlePosition);
                     previousLength = currentLength;
                     isGrounded = true;
-
-
-
+                    
+                    // update the wheel velocity based on moving objects below it 
                     var myVelo = this.wheelData.rb.GetPointVelocity(mountPoint.position);
                     var objectBelowWheelVelo = Vector3.zero;
                     if (wheelData.hitInfo.rigidbody)
@@ -84,7 +83,7 @@ namespace vc
 
                     var worldVelo = myVelo - objectBelowWheelVelo;
 
-                    // update wheel data 
+                    // Update local Velocity
                     this.wheelData.velocityLS = mountPoint.InverseTransformDirection(worldVelo);
                     this.wheelData.velocityLS.y = 0f;
 
