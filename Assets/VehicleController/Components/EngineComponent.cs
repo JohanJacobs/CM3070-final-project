@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
@@ -21,14 +22,15 @@ namespace vc
             float RPMtoRad (float rpm)=> PhysicsHelper.Conversions.RPMToRad(rpm);
             float RadtoRPM(float radians) => PhysicsHelper.Conversions.RadToRPM(radians);
 
-            public EngineComponent(EngineSO config)
+            public EngineComponent(EngineSO config,VehicleVariablesSO variables)
             {
                 this.config = config;
 
                 // setup variables
-                this.idleRPM = config.idleRPMVariable;
-                this.redlineRPM = config.redlineRPMVariable;                
-                this.currentRPM = config.currentRPMVariable;
+                this.idleRPM = variables.idleRPM;
+                this.redlineRPM = variables.redlineRPM;
+                this.currentRPM = variables.currentRPM;
+                this.throttle = variables.throttle;
             }
 
             #region Engine Component
@@ -62,12 +64,15 @@ namespace vc
 
 
             public void Start()
-            {
-                this.throttle = config.throttleVariable;
+            {                
                 this.torqueCurve = config.torqueCurve;
                 this.idleRPM.Value = this.config.idleRPM;                
                 this.redlineRPM.Value = this.config.redlineRPM;
+                this.startFriction = this.config.startFriction;
+                this.engineInertia = this.config.engineEnirtia;
+                this.frictionCoefficient = this.config.frictionCoefficient;
             }
+
             public void Shutdown()
             {
 

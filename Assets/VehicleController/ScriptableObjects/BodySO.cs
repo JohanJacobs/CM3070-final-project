@@ -7,13 +7,11 @@ namespace vc
         [CreateAssetMenu(fileName = "Body", menuName = "Components/Body SO")]
         public class BodySO : ScriptableObjectBase
         {
-            public FloatVariable steerVariable;
-            public FloatVariable speedKMHVariable;
-
-            public float turnRadius;
-            public float wheelBaseLength;
-            public float wheelBaseRearTrackLength;
-
+            public float turnRadius; // meter
+            public float wheelBaseLength; // meter
+            public float wheelBaseRearTrackLength; // meter
+            public float coefficientOfDrag;
+            public float mass; // KG
 
             public static ComponentTypes GetVehicleComponentType()
             {

@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
@@ -17,9 +18,13 @@ namespace vc
             float maxBrakeTorque;
             float brakeBalance;
             #region Brake Component
-            public BrakeComponent(BrakeSO brakeConfig)
+            public BrakeComponent(BrakeSO brakeConfig, VehicleVariablesSO variables)
             {
                 this.config = brakeConfig;
+
+                // setup variables
+                this.brakeInput = variables.brake;
+                this.handbrakeInput = variables.handBrake;
             }
 
             public float rearBrakeTorque=> brakeInput.Value * maxBrakeTorque * brakeBalance; // nm
@@ -31,8 +36,6 @@ namespace vc
 
             public void Start()
             {
-                this.brakeInput = this.config.brakeInputVariable;
-                this.handbrakeInput = this.config.handbrakeInputVariable;
                 this.maxBrakeTorque = this.config.MaxBrakeforce;
                 this.brakeBalance = this.config.brakeBalance;
             }

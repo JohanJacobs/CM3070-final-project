@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 885de2b875b92c6419167cc619a00fdc, type: 3}
-  m_Name: BasicEngineSO
+  m_Name: EngineSO
   m_EditorClassIdentifier: 
-  redlineRPM: 7500
+  redlineRPM: 6000
   idleRPM: 900
   torqueCurve:
     serializedVersion: 2
@@ -20,39 +20,66 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0.20340702
-      outSlope: 0.20340702
+      inSlope: 0.07632832
+      outSlope: 0.07632832
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.08354684
+      outWeight: 0.120567374
     - serializedVersion: 3
-      time: 1528
-      value: 275
-      inSlope: 0.060871292
-      outSlope: 0.060871292
+      time: 1000
+      value: 65
+      inSlope: 0.051619403
+      outSlope: 0.051619403
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.101543486
+      outWeight: 0.1347517
     - serializedVersion: 3
-      time: 6495.773
-      value: 399.36816
-      inSlope: -0.0030252002
-      outSlope: -0.057355307
-      tangentMode: 1
-      weightedMode: 0
-      inWeight: 0.08122369
-      outWeight: 0.451269
-    - serializedVersion: 3
-      time: 7512.631
-      value: 298.8428
-      inSlope: -0.22008821
-      outSlope: -0.22008821
+      time: 2000
+      value: 110
+      inSlope: 0.024786493
+      outSlope: 0.024786493
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.117819
+      inWeight: 0.33333334
       outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 2500
+      value: 120
+      inSlope: 0.014342825
+      outSlope: 0.014342825
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 4500
+      value: 128
+      inSlope: -0.000059598464
+      outSlope: -0.000059598464
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.22931445
+    - serializedVersion: 3
+      time: 5000
+      value: 125
+      inSlope: -0.010510633
+      outSlope: -0.010510633
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 6000
+      value: 110
+      inSlope: -0.02355901
+      outSlope: -0.02355901
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.30958593
+      outWeight: 0.07801416
     - serializedVersion: 3
       time: 9000
       value: 0
@@ -67,7 +94,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   startFriction: 50
   engineEnirtia: 0.2
-  frictionCoefficient: 0.02
+  frictionCoefficient: 0.05
   throttleVariable: {fileID: 11400000, guid: e19849970ec0b34419cebfea16613ef8, type: 2}
   idleRPMVariable: {fileID: 11400000, guid: 5984b2ed124a9d2479fe3ef0e431c1a2, type: 2}
   redlineRPMVariable: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 998a6abf28c1d35458b359ae2a9bf4db, type: 3}
-  m_Name: BasicBodySO
+  m_Name: BodySO
   m_EditorClassIdentifier: 
   steerVariable: {fileID: 11400000, guid: ec4920f668635d240bddf69f27af9741, type: 2}
   speedKMHVariable: {fileID: 11400000, guid: f20052f918825e241b038bb8eabe4507, type: 2}
   turnRadius: 9.3
   wheelBaseLength: 2.86
   wheelBaseRearTrackLength: 1.69
-  coefficientOfDrag: 0.35
-  mass: 1500
+  coefficientOfDrag: 0.3265
+  mass: 1000

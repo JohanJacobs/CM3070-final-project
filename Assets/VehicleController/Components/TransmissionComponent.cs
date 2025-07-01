@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
@@ -23,18 +24,21 @@ namespace vc
             bool isInGear = true;
             float ratio = default;            
             float gearShiftTime = 0.1f;
-            List<float> gearRatios = new List<float> { 0, 3.675f, 2.375f, 1.761f, 1.346f, 1.062f, 0.842f };
+            //List<float> gearRatios = new List<float> { 0, 3.675f, 2.375f, 1.761f, 1.346f, 1.062f, 0.842f };
+            List<float> gearRatios = new List<float> { 0, 3.658f, 1.93f, 1.28f, 0.95f, 0.76f, 0.76f };// fiesta
             float reverseGearRatio = -3.545f;
 
             #region Transmission Component
-            public TransmissionComponent(TransmissionSO config)
+            public TransmissionComponent(TransmissionSO config, VehicleVariablesSO variables)
             {
                 this.config = config;
-                this.gearUpInput = config.gearUpInputVariable;
-                this.gearDownInput = config.gearDownInputVariable;
-                this.currentGearText = config.currentGearTextVariable;
-            }
 
+                // setup variables
+                this.currentGearText = variables.currentGearText;
+                this.gearUpInput = variables.gearUp;
+                this.gearDownInput = variables.gearDown;
+            }
+                                    
             private void ShiftUp(float v)
             {
                 if (v < 1f)
@@ -104,7 +108,7 @@ namespace vc
             }
 
             float diffiretialTorque = default;
-            float efficiency = 0.86f;
+            float efficiency = 0.90f;
             public float CaclulateDifferentialTorque(float inputTorque)
             {
                 diffiretialTorque = inputTorque * ratio * efficiency;

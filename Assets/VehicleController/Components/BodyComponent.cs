@@ -2,6 +2,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 using static vc.VehicleComponent.BodyComponent;
 
 namespace vc
@@ -12,6 +13,7 @@ namespace vc
         {
             Rigidbody rb;
             BodySO config;
+
             FloatVariable steerInput;
             FloatVariable speed;
             Transform leftWheel;
@@ -19,7 +21,7 @@ namespace vc
 
             GForce gForce = new();
 
-            float bodyDragCoefficient = 0.34f; // constant https://www.netcarshow.com/ford/2009-fiesta_econetic/#:~:text=This%20is%20because%20Fiesta%20boasts,performance%2C%20especially%20in%20highway%20cruising.
+            float bodyDragCoefficient; // constant https://www.netcarshow.com/ford/2009-fiesta_econetic/#:~:text=This%20is%20because%20Fiesta%20boasts,performance%2C%20especially%20in%20highway%20cruising.
 
             //http://www.mayfco.com/dragcd~1.htm
             float bodyArea = 1.74f; // m² 
@@ -27,31 +29,29 @@ namespace vc
             float wheelBaseLength; // m
             float turnRadius;      // m
             float wheelBaseRearTrackLength; // m
-
-            float aeroDrag => 0f; // TODO:
-            
+                                    
             float bodyDrag => PhysicsHelper.CalculateDrag(Mathf.Abs(velocityLS.z), bodyArea, bodyDragCoefficient); // nm TODO: check if drag is always calculated correctly forward and reverse
-            public float DragForce => aeroDrag + bodyDrag;
-            public float mass => 1500; // kg
-           
+            public float BodyMass { get; private set; } // kg
             public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
-            
             Vector3 velocityLS =default; //MS
-                        
 
-            public BodyComponent( BodySO config, Rigidbody rb, Transform leftWheel, Transform rightWheel)
+            public BodyComponent( BodySO config, Rigidbody rb, Transform leftWheel, Transform rightWheel, VehicleVariablesSO variables)
             {
                 this.config = config;
                 this.rb = rb;
+
+                // setup variables
+                this.steerInput = variables.steer;
+                this.speed = variables.speedKMH;
+
                 this.leftWheel = leftWheel;
                 this.rightWheel = rightWheel;
-                this.steerInput = config.steerVariable;
-                this.speed = config.speedKMHVariable;
 
                 wheelBaseLength = config.wheelBaseLength;
                 turnRadius = config.turnRadius;
                 wheelBaseRearTrackLength = config.wheelBaseRearTrackLength;
             }
+
 
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Body;
@@ -59,7 +59,10 @@ namespace vc
             public void Start()
             {
                 speed.Value = 0f;
-            }
+                this.BodyMass = this.config.mass;
+                this.bodyDragCoefficient = this.config.coefficientOfDrag;
+                this.rb.mass = this.config.mass;
+            }   
 
             public void Shutdown()
             {

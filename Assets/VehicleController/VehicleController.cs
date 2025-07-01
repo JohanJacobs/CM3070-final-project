@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 using static vc.VehicleController;
 /*
     RPM and Transmission
@@ -23,9 +24,6 @@ namespace vc
         [Title("Configuration")]
         [SerializeField] VehicleConfiguration.WheelConfiguration[] WheelConfig;
 
-        //[SerializeField] VehicleConfiguration.WheelConfigData[] wheelConfig;
-        //[SerializeField,Space] VehicleConfiguration.SuspensionConfigData[] suspensionConfig;
-
         [Space,SerializeField] DifferentialSO differentialConfig;
         [SerializeField] TransmissionSO transmissionConfig;
         [SerializeField] EngineSO engineConfig;
@@ -38,6 +36,7 @@ namespace vc
                 
         Vehicle vehicle;
         public Vehicle GetVehicle => vehicle;
+        [SerializeField] VehicleVariablesSO vehicleVariables;
 
         public void Awake()
         {
@@ -47,7 +46,7 @@ namespace vc
                 Debug.LogError("Missing rigid body!");
             }
 
-            vehicle = Vehicle.Setup(carRigidbody, WheelConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig, brakeConfig, aeroConfig);
+            vehicle = Vehicle.Setup(carRigidbody, WheelConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig, brakeConfig, aeroConfig, vehicleVariables);
         }
 
         public void Update()
@@ -186,15 +185,16 @@ namespace vc
         public BrakeComponent brake;
         public AeroComponent aero;
 
-        public static Vehicle Setup(Rigidbody carRigidbody, 
-            VehicleConfiguration.WheelConfiguration[] wheelConfig,             
+        public static Vehicle Setup(Rigidbody carRigidbody,
+            VehicleConfiguration.WheelConfiguration[] wheelConfig,
             BodySO bodyConfig,
             DifferentialSO differentialConfig,
             TransmissionSO transmissionConfig,
             ClutchSO clutchConfig,
             EngineSO engineConfig,
             BrakeSO brakeConfig,
-            AeroSO aeroConfig
+            AeroSO aeroConfig,
+            VehicleVariablesSO vehicleVariables
             )
         {
             Vehicle newVehicle = new();
@@ -212,7 +212,7 @@ namespace vc
             });
 
             // car body
-            newVehicle.body = new (bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint);
+            newVehicle.body = new (bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint, vehicleVariables);
             newVehicle.body.Start();
 
             wheelHitData.ForEach(whd=>whd.Value.body = newVehicle.body);
@@ -230,16 +230,16 @@ namespace vc
             newVehicle.differential = new(differentialConfig, 2);
             newVehicle.differential.Start();
 
-            newVehicle.transmission = new(transmissionConfig);
+            newVehicle.transmission = new(transmissionConfig, vehicleVariables);
             newVehicle.transmission.Start();
 
             newVehicle.clutch = new (clutchConfig);
             newVehicle.clutch.Start();
 
-            newVehicle.engine = new (engineConfig);
+            newVehicle.engine = new (engineConfig, vehicleVariables);
             newVehicle.engine.Start();
 
-            newVehicle.brake = new (brakeConfig);
+            newVehicle.brake = new (brakeConfig, vehicleVariables);
             newVehicle.brake.Start();
 
             newVehicle.aero = new(aeroConfig, carRigidbody);
@@ -307,5 +307,6 @@ namespace vc
             [HorizontalGroup("Physical")]
             public Transform mountPoint;
         }
+
     }
 }

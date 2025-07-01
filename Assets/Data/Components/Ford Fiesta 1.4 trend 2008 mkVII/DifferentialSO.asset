@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ca99a9a166d18a428bbb7d73121a928, type: 3}
-  m_Name: BasicAeroSO
+  m_Script: {fileID: 11500000, guid: b71f20e5e481c5849a7431265d07f220, type: 3}
+  m_Name: DifferentialSO
   m_EditorClassIdentifier: 
-  surfaceArea: 0.6
-  LiftCoefficient: 1.1
-  dragCoefficient: 0.0148
+  GearRatio: 4.06
