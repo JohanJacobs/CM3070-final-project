@@ -31,3 +31,5 @@ MonoBehaviour:
   clutchDampingRate: {fileID: 11400000, guid: 876fbcb3e28928944886126d2fc1b852, type: 2}
   clutchStiffness: {fileID: 11400000, guid: 73d8a34afc0076d4e8a10e641ecc2e20, type: 2}
   currentGearText: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990, type: 2}
+  brakeTorque: {fileID: 11400000, guid: c0c715703a00c5d409e7e70e564a65c5, type: 2}
+  brakeBalance: {fileID: 11400000, guid: 60a930c79614d6944aaf44562e4060d4, type: 2}

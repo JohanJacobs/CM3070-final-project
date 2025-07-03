@@ -15,8 +15,8 @@ namespace vc
             BrakeSO config;
             FloatVariable brakeInput;
             FloatVariable handbrakeInput;
-            float maxBrakeTorque;
-            float brakeBalance;
+            FloatVariable maxBrakeTorque;
+            FloatVariable brakeBalance;
             #region Brake Component
             public BrakeComponent(BrakeSO brakeConfig, VehicleVariablesSO variables)
             {
@@ -25,10 +25,13 @@ namespace vc
                 // setup variables
                 this.brakeInput = variables.brake;
                 this.handbrakeInput = variables.handBrake;
+
+                this.maxBrakeTorque = variables.brakeTorque;
+                this.brakeBalance = variables.brakeBalance;
             }
 
-            public float rearBrakeTorque=> brakeInput.Value * maxBrakeTorque * brakeBalance; // nm
-            public float frontBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque * (1f - brakeBalance) + handbrakeInput.Value * maxBrakeTorque, maxBrakeTorque); //nm
+            public float rearBrakeTorque=> brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
+            public float frontBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque.Value * (1f - brakeBalance.Value) + handbrakeInput.Value * maxBrakeTorque.Value, maxBrakeTorque.Value); //nm
             #endregion Brake Component
 
             #region IVehicleComponent
@@ -36,8 +39,8 @@ namespace vc
 
             public void Start()
             {
-                this.maxBrakeTorque = this.config.MaxBrakeforce;
-                this.brakeBalance = this.config.brakeBalance;
+                this.maxBrakeTorque.Value = this.config.MaxBrakeforce;
+                this.brakeBalance.Value = this.config.brakeBalance;
             }
 
             public void Shutdown()
