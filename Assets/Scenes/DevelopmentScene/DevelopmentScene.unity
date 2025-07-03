@@ -543,7 +543,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 0.8
   nameOfSurface: Garage
   type: 2
 --- !u!4 &146677759 stripped
@@ -3860,7 +3859,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 0.8
   nameOfSurface: Dirty Asphalt
   type: 2
 --- !u!1 &701977309 stripped
@@ -3881,7 +3879,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 0.35
   nameOfSurface: Grass
   type: 4
 --- !u!1 &709118020
@@ -7648,7 +7645,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 0.8
   nameOfSurface: Garage
   type: 2
 --- !u!1 &1245328939
@@ -8763,7 +8759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 1
   nameOfSurface: Inner Asphalt
   type: 1
 --- !u!1 &1372237375
@@ -8995,7 +8990,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 1
   nameOfSurface: Oval Asphalt
   type: 1
 --- !u!4 &1443900206 stripped
@@ -10401,7 +10395,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  friction: 0.65
   nameOfSurface: dirt
   type: 3
 --- !u!1 &1773216262
@@ -11576,7 +11569,7 @@ MonoBehaviour:
   handbrakeVariable: {fileID: 11400000, guid: 572457dd301430e46af27ad10d78392c, type: 2}
   GearUpVariable: {fileID: 11400000, guid: d0474294165e45c4da7eb551fa2e098e, type: 2}
   GearDownVariable: {fileID: 11400000, guid: cb59c3e875672d34e8c15f9203a7c0f9, type: 2}
-  SteerSensitivity: 0.362
+  SteerSensitivity: 0.5
   steerStrength: 2
   throttleStrength: 5
   brakeStrength: 5

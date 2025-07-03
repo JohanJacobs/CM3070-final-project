@@ -19,7 +19,12 @@ MonoBehaviour:
   gearUp: {fileID: 11400000, guid: d0474294165e45c4da7eb551fa2e098e, type: 2}
   gearDown: {fileID: 11400000, guid: cb59c3e875672d34e8c15f9203a7c0f9, type: 2}
   speedKMH: {fileID: 11400000, guid: f20052f918825e241b038bb8eabe4507, type: 2}
-  currentRPM: {fileID: 11400000, guid: 6811291d21d8e4b42a5ed93c3b5bf991, type: 2}
-  redlineRPM: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}
-  idleRPM: {fileID: 11400000, guid: 5984b2ed124a9d2479fe3ef0e431c1a2, type: 2}
+  engineCurrentRPM: {fileID: 11400000, guid: 6811291d21d8e4b42a5ed93c3b5bf991, type: 2}
+  engineRedlineRPM: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}
+  engineIdleRPM: {fileID: 11400000, guid: 5984b2ed124a9d2479fe3ef0e431c1a2, type: 2}
+  engineStartFriction: {fileID: 11400000, guid: ffe94775a9e270c43a77d8603dce30b0,
+    type: 2}
+  engineInternalFrictionCoefficient: {fileID: 11400000, guid: 4c4d48189254435499e55f6b9714de49,
+    type: 2}
+  engineInertia: {fileID: 11400000, guid: f5cdf007caf9e11428a340fcde13d83c, type: 2}
   currentGearText: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990, type: 2}

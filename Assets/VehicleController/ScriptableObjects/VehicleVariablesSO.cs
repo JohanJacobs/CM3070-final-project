@@ -19,14 +19,15 @@ namespace vc
             public FloatVariable speedKMH;
 
             [Header("Engine")]
-            public FloatVariable currentRPM;
-            public FloatVariable redlineRPM;
-            public FloatVariable idleRPM;
+            public FloatVariable engineCurrentRPM;
+            public FloatVariable engineRedlineRPM;
+            public FloatVariable engineIdleRPM;
+            public FloatVariable engineStartFriction;
+            public FloatVariable engineInternalFrictionCoefficient;
+            public FloatVariable engineInertia;
 
             [Header("Transmission")]
             public StringVariable currentGearText;
-
-
 
         }
     }
