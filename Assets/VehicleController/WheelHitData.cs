@@ -27,6 +27,12 @@ namespace vc
 
             public Vector3 velocityLS; // Meter per Second
 
+
+            // Friction Surface
+            public IFrictionSurface.SurfaceType FrictionSurfaceType => surface.surfaceType;
+            public string FrictionSurfaceName => surface.surfaceName;
+            public IFrictionSurface surface;
+
             public float normalforce => suspension.normalForce;        
             public float longitudinalSlipRatio => wheel?.LongitudinalSlipRatio ?? 0f;
             public bool isLocked => longitudinalSlipRatio >= 1f;

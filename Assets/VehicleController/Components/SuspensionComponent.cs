@@ -58,7 +58,9 @@ namespace vc
 
                 // Raycast length is : rest length = (wheelRadius + Suspension Rest length)
                 if (Physics.Raycast(ray, out wheelData.hitInfo, raycastLength))
-                {                    
+                {
+                    UpdateFrictionSurface(wheelData.hitInfo.transform);
+
                     currentLength = wheelData.hitInfo.distance - wheelRadius; // in meters
 
                     // calculate suspension forces using Hooks Law Fz = -kFw
@@ -99,6 +101,18 @@ namespace vc
                 }
 
 
+            }
+
+            private void UpdateFrictionSurface(Transform hitObject)
+            {
+                if(hitObject.TryGetComponent<IFrictionSurface>(out var surface))
+                {
+                    wheelData.surface = surface;
+                }
+                else
+                {
+                    wheelData.surface = IFrictionSurface.CreateDefault();
+                }
             }
             #endregion SuspensionComponent
            

@@ -8,8 +8,6 @@ namespace vc
         [CreateAssetMenu(fileName = "Clutch", menuName = "Components/Clutch SO")]
         public class ClutchSO: ScriptableObjectBase
         {
-            public FloatVariable engineTorque;
-
             public static ComponentTypes GetVehicleComponentType()
             {
                 return ComponentTypes.Clutch;

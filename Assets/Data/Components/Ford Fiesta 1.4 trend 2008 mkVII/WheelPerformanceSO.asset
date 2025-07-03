@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d5b6d84824a4be408e1015782f5c7c1, type: 3}
+  m_Name: WheelPerformanceSO
+  m_EditorClassIdentifier: 
+  Radius: 34
+  Mass: 11
+  frictionProperties:
+  - surfaceType: 0
+    Dry: 1
+    Wet: 0.35
+    RR: 0.01
+  - surfaceType: 1
+    Dry: 1
+    Wet: 0.7
+    RR: 0.014
+  - surfaceType: 2
+    Dry: 0.95
+    Wet: 0.7
+    RR: 0.017
+  - surfaceType: 3
+    Dry: 0.65
+    Wet: 0.3
+    RR: 0.05
+  - surfaceType: 4
+    Dry: 0.4
+    Wet: 0.2
+    RR: 0.2

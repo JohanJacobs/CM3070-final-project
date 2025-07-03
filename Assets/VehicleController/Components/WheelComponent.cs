@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using vc.VehicleComponentsSO;
 
@@ -11,22 +12,27 @@ namespace vc
             WheelSO config;
             WheelHitData wheelData;
             Transform wheelMesh;
-            public WheelID id { get; private set; }            
-            public float radius{ get; private set; }        // meter
+            public WheelID id { get; private set; }
+            public float radius { get; private set; }        // meter
             public float wheelAngularVelocity { get; private set; } //rads
             public float WheelMeshDegRotation => PhysicsHelper.Conversions.RadtoDeg(wheelAngularVelocity);
 
             // Parameters 
             public float wheelMass { get; private set; }    //KG
             public float GetInertia => wheelInertia;
-            public float Fn => Mathf.Max(wheelData.normalforce, 0f); // down force on top of the wheel
+            public float Fn => Mathf.Max(wheelData.normalforce, 0f) * wheelFrictionCoefficient; // down force on top of the wheel
             public float Fz = default; // nm force applied in the forward direction
             public float Fx = default; // nm force applied in sideways direction
             public bool isGrounded => wheelData.isGrounded;
-            
-            float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass,radius); //kg m²
-            float rollingResistanceCoefficient = 0.0164f; //https://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
-            float wheelFrictionCoefficient = 1.0f;
+
+            float wheelInertia => PhysicsHelper.InertiaWheel(wheelMass, radius); //kg m²
+
+            // Friction
+            float rollingResistanceCoefficient => wheelFrictionValues[wheelData.FrictionSurfaceType].RR;
+            float wheelFrictionCoefficient => wheelFrictionValues[wheelData.FrictionSurfaceType].Dry;
+            Dictionary<IFrictionSurface.SurfaceType, WheelSurfaceProperties> wheelFrictionValues;
+
+
             float LongitudinalRelaxationLength = 0.005f;
 
             float dt = default;
@@ -41,8 +47,8 @@ namespace vc
             {
                 this.config = config;
                 this.id = id;
-                this.radius = config.RadiusMeter;
-                this.wheelMass = config.Mass;
+                this.radius = config.RadiusMeter; 
+                this.wheelMass = config.Mass; //kg
                 this.wheelData = wheelHitData;
                 this.wheelData.wheel = this;
                 this.wheelMesh = wheelMesh;
@@ -187,6 +193,7 @@ namespace vc
             public void Start()
             {
                 this.wheelMesh.parent = wheelData.suspensionMountPoint;
+                this.wheelFrictionValues = WheelSurfaceProperties.CreateDictionary(this.config.frictionProperties);
             }
 
             public void Shutdown()
@@ -230,10 +237,15 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
-                // lateral                 
+                // Lateral                 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.combinedSlip.y).ToString("f5")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
+
+                // Friction surface 
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Surface: {(wheelData.FrictionSurfaceName)}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Mu: {(this.wheelFrictionCoefficient).ToString("F2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rr: {(this.rollingResistanceCoefficient).ToString("F2")}");
                 return yOffset;
             }
             
@@ -268,7 +280,7 @@ namespace vc
                 // https://en.wikipedia.org/wiki/Slip_angle
                 public float lateralSlipAngle { get; private set; }
 
-                public float lateralSlipAnglePeak = 8f; /// peak slip angle for maximum grip (8 degrees) 
+                public float lateralSlipAnglePeak = 8f; /// peak slip angle for maximum grip (8 degrees) for dynamic slip calculation
 
                 private float RelaxationCoefficient(Vector3 veloLS, float dt) => Mathf.Clamp((Mathf.Abs(veloLS.x) / relaxationLength) * dt, 0f, 1f);
 

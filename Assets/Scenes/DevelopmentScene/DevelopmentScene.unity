@@ -525,6 +525,27 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bde06e7a046f3f341a9c307888b8df9a, type: 3}
+--- !u!1 &136011814 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2080814552035695874, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &136011819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136011814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 0.8
+  nameOfSurface: Garage
+  type: 2
 --- !u!4 &146677759 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5798724189896924608, guid: a3ce4271597121f44869d10a0a567d64,
@@ -3821,6 +3842,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 678465750}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &699764941 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5408019424630358028, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &699764946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699764941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 0.8
+  nameOfSurface: Dirty Asphalt
+  type: 2
+--- !u!1 &701977309 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 657628949618136669, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &701977314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701977309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 0.35
+  nameOfSurface: Grass
+  type: 4
 --- !u!1 &709118020
 GameObject:
   m_ObjectHideFlags: 0
@@ -6216,7 +6279,7 @@ Transform:
   m_GameObject: {fileID: 1036116906}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -69.48, y: 0, z: 4.26}
+  m_LocalPosition: {x: -69.48, y: 36.4, z: 4.26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6264,22 +6327,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WheelConfig:
   - id: 0
-    WheelConfig: {fileID: 11400000, guid: 34ccb67f3ea02cb46bf2e9d70beb3f5b, type: 2}
+    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 8685391415739764689}
     suspMount: {fileID: 1773216263}
   - id: 1
-    WheelConfig: {fileID: 11400000, guid: 34ccb67f3ea02cb46bf2e9d70beb3f5b, type: 2}
+    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 4687046986587810273}
     suspMount: {fileID: 1458127160}
   - id: 2
-    WheelConfig: {fileID: 11400000, guid: 34ccb67f3ea02cb46bf2e9d70beb3f5b, type: 2}
+    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 3721743467644756221}
     suspMount: {fileID: 897996560}
   - id: 3
-    WheelConfig: {fileID: 11400000, guid: 34ccb67f3ea02cb46bf2e9d70beb3f5b, type: 2}
+    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 5496477129613955038}
     suspMount: {fileID: 889438523}
@@ -7567,6 +7630,27 @@ Transform:
   - {fileID: 269761023}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1241317915 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3839842156091723747, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1241317920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241317915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 0.8
+  nameOfSurface: Garage
+  type: 2
 --- !u!1 &1245328939
 GameObject:
   m_ObjectHideFlags: 0
@@ -8661,6 +8745,27 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 270618664}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1365798150 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3938809068057682443, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1365798155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365798150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 1
+  nameOfSurface: Inner Asphalt
+  type: 1
 --- !u!1 &1372237375
 GameObject:
   m_ObjectHideFlags: 0
@@ -8872,6 +8977,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1401919656}
   m_CullTransparentMesh: 1
+--- !u!1 &1423883432 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8460521343329377906, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1423883437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423883432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 1
+  nameOfSurface: Oval Asphalt
+  type: 1
 --- !u!4 &1443900206 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4025225445679518885, guid: 27e8bc534fb9c974fa4da2c0a43518fd,
@@ -10257,6 +10383,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1752037113}
   m_CullTransparentMesh: 1
+--- !u!1 &1760025712 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4471290738519422562, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+    type: 3}
+  m_PrefabInstance: {fileID: 2101603374}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1760025717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1760025712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7fd80b5e60292499069ba31daf2003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 0.65
+  nameOfSurface: dirt
+  type: 3
 --- !u!1 &1773216262
 GameObject:
   m_ObjectHideFlags: 0
@@ -11363,7 +11510,35 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2080814552035695874, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 136011819}
+    - targetCorrespondingSourceObject: {fileID: 657628949618136669, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 701977314}
+    - targetCorrespondingSourceObject: {fileID: 4471290738519422562, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1760025717}
+    - targetCorrespondingSourceObject: {fileID: 3839842156091723747, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1241317920}
+    - targetCorrespondingSourceObject: {fileID: 3938809068057682443, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1365798155}
+    - targetCorrespondingSourceObject: {fileID: 8460521343329377906, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1423883437}
+    - targetCorrespondingSourceObject: {fileID: 5408019424630358028, guid: 0272d5b08108c7543b70c3ccbcd7249c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 699764946}
   m_SourcePrefab: {fileID: 100100000, guid: 0272d5b08108c7543b70c3ccbcd7249c, type: 3}
 --- !u!1 &2129250322
 GameObject:
