@@ -27,4 +27,7 @@ MonoBehaviour:
   engineInternalFrictionCoefficient: {fileID: 11400000, guid: 4c4d48189254435499e55f6b9714de49,
     type: 2}
   engineInertia: {fileID: 11400000, guid: f5cdf007caf9e11428a340fcde13d83c, type: 2}
+  clutchCapacity: {fileID: 11400000, guid: 8ac2786f12192f14db3cd8e5cffb882c, type: 2}
+  clutchDampingRate: {fileID: 11400000, guid: 876fbcb3e28928944886126d2fc1b852, type: 2}
+  clutchStiffness: {fileID: 11400000, guid: 73d8a34afc0076d4e8a10e641ecc2e20, type: 2}
   currentGearText: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990, type: 2}

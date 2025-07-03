@@ -232,7 +232,7 @@ namespace vc
             newVehicle.transmission = new(transmissionConfig, vehicleVariables);
             newVehicle.transmission.Start();
 
-            newVehicle.clutch = new (clutchConfig);
+            newVehicle.clutch = new (clutchConfig, vehicleVariables);
             newVehicle.clutch.Start();
 
             newVehicle.engine = new (engineConfig, vehicleVariables);

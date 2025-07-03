@@ -26,6 +26,11 @@ namespace vc
             public FloatVariable engineInternalFrictionCoefficient;
             public FloatVariable engineInertia;
 
+            [Header("Clutch")]
+            public FloatVariable clutchCapacity;
+            public FloatVariable clutchDampingRate;
+            public FloatVariable clutchStiffness;
+
             [Header("Transmission")]
             public StringVariable currentGearText;
 
