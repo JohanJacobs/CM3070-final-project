@@ -31,5 +31,13 @@ MonoBehaviour:
   clutchDampingRate: {fileID: 11400000, guid: 876fbcb3e28928944886126d2fc1b852, type: 2}
   clutchStiffness: {fileID: 11400000, guid: 73d8a34afc0076d4e8a10e641ecc2e20, type: 2}
   currentGearText: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990, type: 2}
+  differentialGear: {fileID: 11400000, guid: 5fa647aa2b8628042af3cf0588e1725d, type: 2}
   brakeTorque: {fileID: 11400000, guid: c0c715703a00c5d409e7e70e564a65c5, type: 2}
   brakeBalance: {fileID: 11400000, guid: 60a930c79614d6944aaf44562e4060d4, type: 2}
+  DragCoefficient: {fileID: 11400000, guid: 4fbdf04cb2112c341b3f7cbde2eb72f3, type: 2}
+  LiftCoefficient: {fileID: 11400000, guid: 1885b4854b4b66f4ab146fbf020a0cb7, type: 2}
+  SurfaceAera: {fileID: 11400000, guid: 34050f5df0badf242894ed688f4eb8bb, type: 2}
+  AntiRollbarForceFront: {fileID: 11400000, guid: be95fc812853cc646a2b7413fc04ac9d,
+    type: 2}
+  AntiRollbarForceRear: {fileID: 11400000, guid: 0ef4d481544d85c408b0b1b401029bf1,
+    type: 2}

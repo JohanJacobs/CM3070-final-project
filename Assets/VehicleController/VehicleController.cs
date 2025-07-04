@@ -1,10 +1,7 @@
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using UnityEngine;
-using UnityEngine.Events;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using vc.VehicleConfiguration;
@@ -31,6 +28,8 @@ namespace vc
         [SerializeField] BodySO bodyConfig;
         [SerializeField] BrakeSO brakeConfig;
         [SerializeField] AeroSO aeroConfig;
+        [SerializeField] AntiRollbarSO frontAntiRollbar;
+        [SerializeField] AntiRollbarSO rearAntiRollbar;
 
         Rigidbody carRigidbody;
                 
@@ -46,7 +45,19 @@ namespace vc
                 Debug.LogError("Missing rigid body!");
             }
 
-            vehicle = Vehicle.Setup(carRigidbody, WheelConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig, brakeConfig, aeroConfig, vehicleVariables);
+            vehicle = Vehicle.Setup(
+                carRigidbody, 
+                WheelConfig, 
+                bodyConfig, 
+                differentialConfig, 
+                transmissionConfig, 
+                clutchConfig, 
+                engineConfig, 
+                brakeConfig, 
+                aeroConfig, 
+                frontAntiRollbar, 
+                rearAntiRollbar,
+                vehicleVariables);
         }
 
         public void Update()
@@ -181,7 +192,8 @@ namespace vc
         public EngineComponent engine;
         public ClutchComponent clutch;
         public BodyComponent body;
-        public RollbarComponet rollbarFront, rollbarRear;
+        public RollbarComponent rollbarFront;
+        public RollbarComponent rollbarRear;
         public BrakeComponent brake;
         public AeroComponent aero;
 
@@ -194,6 +206,8 @@ namespace vc
             EngineSO engineConfig,
             BrakeSO brakeConfig,
             AeroSO aeroConfig,
+            AntiRollbarSO antiRollbarFront,
+            AntiRollbarSO antiRollbarRear,
             VehicleVariablesSO vehicleVariables)
         {
             Vehicle newVehicle = new();
@@ -220,10 +234,10 @@ namespace vc
             newVehicle.suspension.ForEach(s=>s.Value.Start());             
             newVehicle.wheels.ForEach(w=>w.Value.Start());
 
-            newVehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
+            newVehicle.rollbarFront = new(carRigidbody, antiRollbarFront, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront], vehicleVariables);
             newVehicle.rollbarFront.Start();
 
-            newVehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
+            newVehicle.rollbarRear = new(carRigidbody, antiRollbarRear, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear], vehicleVariables);
             newVehicle.rollbarRear.Start();
 
             newVehicle.differential = new(differentialConfig, 2, vehicleVariables);

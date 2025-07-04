@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: SurfacAera
   m_EditorClassIdentifier: 
   label: 
-  _value: 0
+  _value: 0.2

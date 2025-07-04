@@ -1,26 +1,38 @@
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
     namespace VehicleComponent
     {
 
-        public class RollbarComponet : IVehicleComponent<RollbarComponentStepParams>,IDebugInformation
+        public class RollbarComponent : IVehicleComponent<RollbarComponentStepParams>,IDebugInformation
         {
-            Rigidbody rb;
+            public enum RollbarPosition
+            {
+                Front,
+                Rear
+            }
 
-            public float rollbarStrength = 0f;
+            Rigidbody rb;
+            AntiRollbarSO config;
+
+            FloatVariable rollbarStrength;
 
             WheelHitData leftWheel;
             WheelHitData rightWheel;
 
             #region RollbarComponent
-            public RollbarComponet(Rigidbody rb,WheelHitData leftWheelData, WheelHitData rightWheelData)
+            public RollbarComponent(Rigidbody rb,AntiRollbarSO config, WheelHitData leftWheelData, WheelHitData rightWheelData, VehicleVariablesSO variables)
             {
                 this.rb = rb;
+                this.config = config;
+                
                 this.leftWheel = leftWheelData;  
-                this.rightWheel = rightWheelData;    
+                this.rightWheel = rightWheelData;
+
+                this.rollbarStrength = config.position == RollbarPosition.Front ? variables.AntiRollbarForceFront : variables.AntiRollbarForceRear;
             }
 
             Vector3 leftForce = default;
@@ -31,7 +43,7 @@ namespace vc
                 var leftCompression = leftWheel.isGrounded ? leftWheel.springCompression : 0f * 100f;
                 var rightCompression = rightWheel.isGrounded ? rightWheel.springCompression : 0f * 100f;
 
-                var antiRollforce = (leftCompression - rightCompression) * rollbarStrength;
+                var antiRollforce = (leftCompression - rightCompression) * rollbarStrength.Value;
 
                 if (leftWheel.isGrounded) 
                 {
@@ -65,7 +77,7 @@ namespace vc
 
             public void Start()
             {
-
+                this.rollbarStrength.Value = this.config.rollbarStrength;
             }
 
 

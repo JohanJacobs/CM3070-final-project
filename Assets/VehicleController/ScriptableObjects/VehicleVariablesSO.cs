@@ -45,6 +45,10 @@ namespace vc
             public FloatVariable DragCoefficient;
             public FloatVariable LiftCoefficient;
             public FloatVariable SurfaceAera;
+
+            [Header("Anti Rollbar")]
+            public FloatVariable AntiRollbarForceFront;
+            public FloatVariable AntiRollbarForceRear;
         }
     }
 }

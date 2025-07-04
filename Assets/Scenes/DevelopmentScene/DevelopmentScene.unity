@@ -6324,22 +6324,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WheelConfig:
   - id: 0
-    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
+    WheelConfig: {fileID: 11400000, guid: edada8c0389602544aeeb7a87badd0ab, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 8685391415739764689}
     suspMount: {fileID: 1773216263}
   - id: 1
-    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
+    WheelConfig: {fileID: 11400000, guid: edada8c0389602544aeeb7a87badd0ab, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 4687046986587810273}
     suspMount: {fileID: 1458127160}
   - id: 2
-    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
+    WheelConfig: {fileID: 11400000, guid: edada8c0389602544aeeb7a87badd0ab, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 3721743467644756221}
     suspMount: {fileID: 897996560}
   - id: 3
-    WheelConfig: {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
+    WheelConfig: {fileID: 11400000, guid: edada8c0389602544aeeb7a87badd0ab, type: 2}
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 5496477129613955038}
     suspMount: {fileID: 889438523}
@@ -6350,6 +6350,8 @@ MonoBehaviour:
   bodyConfig: {fileID: 11400000, guid: 41dc0249613a36c48b181f84e9e3f984, type: 2}
   brakeConfig: {fileID: 11400000, guid: 14151ac891c5a024580b5cca6456e0af, type: 2}
   aeroConfig: {fileID: 11400000, guid: c96902096aa94274bb9d999417eb374d, type: 2}
+  frontAntiRollbar: {fileID: 11400000, guid: d1bb6c11d7c70dd46b4c4967c6893d87, type: 2}
+  rearAntiRollbar: {fileID: 11400000, guid: 164e61b7a7af1d841b3529996f0b9594, type: 2}
   vehicleVariables: {fileID: 11400000, guid: 33cbb8478f639a84b81652628cdb1324, type: 2}
 --- !u!114 &1036116911
 MonoBehaviour:
