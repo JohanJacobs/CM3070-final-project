@@ -32,7 +32,18 @@ namespace vc
             public FloatVariable clutchStiffness;
 
             [Header("Transmission")]
+            public FloatVariable transmissionEfficiency;
             public StringVariable currentGearText;
+            public FloatVariable gearCount;
+            public FloatVariable gearShiftTime;
+            public FloatVariable gearRatioNeutral;
+            public FloatVariable gearRatioFirst;
+            public FloatVariable gearRatioSecond;
+            public FloatVariable gearRatioThird;
+            public FloatVariable gearRatioForth;
+            public FloatVariable gearRatioFifth;
+            public FloatVariable gearRatioSixth;
+            public FloatVariable gearRatioReverse;
 
             [Header("Differential")]
             public FloatVariable differentialGear;

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: RearAntiRollBarForce
   m_EditorClassIdentifier: 
   label: 
-  _value: 0
+  _value: 2000

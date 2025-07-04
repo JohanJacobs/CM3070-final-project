@@ -30,7 +30,19 @@ MonoBehaviour:
   clutchCapacity: {fileID: 11400000, guid: 8ac2786f12192f14db3cd8e5cffb882c, type: 2}
   clutchDampingRate: {fileID: 11400000, guid: 876fbcb3e28928944886126d2fc1b852, type: 2}
   clutchStiffness: {fileID: 11400000, guid: 73d8a34afc0076d4e8a10e641ecc2e20, type: 2}
+  transmissionEfficiency: {fileID: 11400000, guid: b203e8c2b7197fe40af3b6f5754efc21,
+    type: 2}
   currentGearText: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990, type: 2}
+  gearCount: {fileID: 11400000, guid: 5ae61335fbcef724e9a90bd3c5e7888a, type: 2}
+  gearShiftTime: {fileID: 11400000, guid: 65d3f6a4a3d2aa244847a8c17250f0e2, type: 2}
+  gearRatioNeutral: {fileID: 11400000, guid: e7085f59b9d14bd44b197b2eef2d4705, type: 2}
+  gearRatioFirst: {fileID: 11400000, guid: 3935d03c214abba43a50cfe2c71c184d, type: 2}
+  gearRatioSecond: {fileID: 11400000, guid: b5a4ea3a03dcdbe4d9701f08f21d27ea, type: 2}
+  gearRatioThird: {fileID: 11400000, guid: e79698327ca1cfb4e883209a2fb5eaf0, type: 2}
+  gearRatioForth: {fileID: 11400000, guid: 8f5891b03df5eea44aae32c410b8709d, type: 2}
+  gearRatioFifth: {fileID: 11400000, guid: b6f1751ffea9aa846ac1953c86ca3bf8, type: 2}
+  gearRatioSixth: {fileID: 11400000, guid: d329bf23cdc88b842a4369950b958444, type: 2}
+  gearRatioReverse: {fileID: 11400000, guid: 901532a0bb527094cbbcb207397c5d24, type: 2}
   differentialGear: {fileID: 11400000, guid: 5fa647aa2b8628042af3cf0588e1725d, type: 2}
   brakeTorque: {fileID: 11400000, guid: c0c715703a00c5d409e7e70e564a65c5, type: 2}
   brakeBalance: {fileID: 11400000, guid: 60a930c79614d6944aaf44562e4060d4, type: 2}

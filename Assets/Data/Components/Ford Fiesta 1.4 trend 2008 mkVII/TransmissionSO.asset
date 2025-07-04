@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8700039b5119242b0c6a944ab07b35, type: 3}
   m_Name: TransmissionSO
   m_EditorClassIdentifier: 
-  GearRatio: 0
-  gearUpInputVariable: {fileID: 0}
-  gearDownInputVariable: {fileID: 0}
-  currentGearTextVariable: {fileID: 0}
+  gearShiftTime: 0.5
+  efficiency: 0.8
+  reverseGearRatio: -3.545
+  gearRatios:
+  - 3.658
+  - 1.93
+  - 1.28
+  - 0.95
+  - 0.76

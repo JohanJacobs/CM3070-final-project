@@ -7,9 +7,16 @@ namespace vc
     namespace VehicleComponentsSO
     {
         [CreateAssetMenu(fileName = "Transmission", menuName = "Components/Transmission SO")]
-        public class TransmissionSO: ScriptableObjectBase
+        public class TransmissionSO : ScriptableObjectBase
         {
-            public float GearRatio;
+            [Tooltip("Seconds")]
+            public float gearShiftTime;
+
+            [Tooltip("% of Torque conversion efficiency"),Range(0,1)]
+            public float efficiency;
+
+            public float reverseGearRatio;
+            public float[] gearRatios;
 
             public static ComponentTypes GetVehicleComponentType()
             {
@@ -19,9 +26,9 @@ namespace vc
             public static TransmissionSO CreateDefault()
             {
                 var trans = new TransmissionSO();
-                trans.GearRatio= 1f;
                 return trans;
             }
+
         }
     }
 }

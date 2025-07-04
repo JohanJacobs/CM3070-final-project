@@ -10,7 +10,8 @@ namespace vc
     {
         public class TransmissionComponent : IVehicleComponent<TransmissionStepParameters>, IDebugInformation
         {
-            public float numberOfGears => gearRatios.Count - 1;
+            public float numberOfGears => gearCount.Value;
+            FloatVariable gearCount;
             public float GearRatio => ratio;
             public float CurrentGear => currentGear;
             TransmissionSO config;
@@ -20,23 +21,43 @@ namespace vc
             FloatVariable gearDownInput;
 
             StringVariable currentGearText;
+            FloatVariable gearShiftTime;
+            FloatVariable reverseGearRatio;
+
+            FloatVariable efficiency;
 
             bool isInGear = true;
-            float ratio = default;            
-            float gearShiftTime = 0.1f;
-            //List<float> gearRatios = new List<float> { 0, 3.675f, 2.375f, 1.761f, 1.346f, 1.062f, 0.842f };
-            List<float> gearRatios = new List<float> { 0, 3.658f, 1.93f, 1.28f, 0.95f, 0.76f, 0.76f };// fiesta
-            float reverseGearRatio = -3.545f;
+            float ratio = default;
+            //List<float> gearRatios = new List<float> 0, 3.658f, 1.93f, 1.28f, 0.95f, 0.76f, 0.76f };// fiesta
+            List<FloatVariable> gearRatios;
+            FloatVariable gearRatioNeutral;
 
             #region Transmission Component
             public TransmissionComponent(TransmissionSO config, VehicleVariablesSO variables)
             {
                 this.config = config;
 
-                // setup variables
-                this.currentGearText = variables.currentGearText;
+                // input
                 this.gearUpInput = variables.gearUp;
                 this.gearDownInput = variables.gearDown;
+
+                // setup variables
+                this.currentGearText = variables.currentGearText;
+                this.gearShiftTime = variables.gearShiftTime;
+                this.reverseGearRatio = variables.gearRatioReverse;
+                this.gearCount = variables.gearCount;
+
+                this.gearRatioNeutral = variables.gearRatioNeutral;
+                gearRatios = new();
+                gearRatios.Add(gearRatioNeutral);
+                gearRatios.Add(variables.gearRatioFirst);
+                gearRatios.Add(variables.gearRatioSecond);
+                gearRatios.Add(variables.gearRatioThird);
+                gearRatios.Add(variables.gearRatioForth);
+                gearRatios.Add(variables.gearRatioFifth);
+                gearRatios.Add(variables.gearRatioSixth);
+
+                this.efficiency = variables.transmissionEfficiency;
             }
                                     
             private void ShiftUp(float v)
@@ -49,7 +70,7 @@ namespace vc
                 {
                     isInGear = false;
                     ratio = 0f;
-                    ExecuteAfterDelay(gearShiftTime, () =>
+                    ExecuteAfterDelay(gearShiftTime.Value, () =>
                     {
                         currentGear += 1f; // TODO: MAke INT variable
                         UpdateRatio();
@@ -69,7 +90,7 @@ namespace vc
                 {
                     isInGear = false;
                     ratio = 0f;
-                    ExecuteAfterDelay(gearShiftTime, () =>
+                    ExecuteAfterDelay(gearShiftTime.Value, () =>
                     {
                         currentGear -= 1f; // TODO: MAke INT variable
                         UpdateRatio();
@@ -104,14 +125,14 @@ namespace vc
             bool inReverseGear => (currentGear == -1f);
             void UpdateRatio()
             {
-                ratio = (inReverseGear) ? reverseGearRatio : gearRatios[(int)currentGear];                
+                ratio = (inReverseGear) ? reverseGearRatio.Value : gearRatios[(int)currentGear].Value;
             }
 
             float diffiretialTorque = default;
-            float efficiency = 0.90f;
+
             public float CaclulateDifferentialTorque(float inputTorque)
             {
-                diffiretialTorque = inputTorque * ratio * efficiency;
+                diffiretialTorque = inputTorque * ratio * efficiency.Value;
                 return inputTorque * ratio;
             }
 
@@ -137,7 +158,7 @@ namespace vc
             #endregion Transmission
 
             #region IVehicleComponent
-            public ComponentTypes GetComponentType() => ComponentTypes.Differential;
+            public ComponentTypes GetComponentType() => ComponentTypes.Transmission;
             public void Shutdown()
             {
                 gearUpInput.OnValueChanged -= ShiftUp;
@@ -146,6 +167,19 @@ namespace vc
 
             public void Start()
             {
+                this.gearRatioNeutral.Value = 0f;
+
+                gearCount.Value = this.config.gearRatios.Length;
+
+                this.reverseGearRatio.Value = this.config.reverseGearRatio;
+                this.efficiency.Value = this.config.efficiency;
+                this.gearShiftTime.Value = this.config.gearShiftTime;
+
+                for (int i = 0; i < numberOfGears; i++) 
+                {
+                    gearRatios[i+1].Value = this.config.gearRatios[i];
+                }
+
                 currentGear = 0f;
                 SetCurrentGearText(currentGear);
                 gearUpInput.OnValueChanged += ShiftUp;
