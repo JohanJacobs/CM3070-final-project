@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 using static vc.VehicleComponent.DiffernetialTypes;
 
 namespace vc
@@ -12,12 +13,13 @@ namespace vc
         {
             DifferentialSO config;
             int connectedWheels;
-            float ratio;
+            FloatVariable ratio;
             float[] wheelOutput;
-            public DifferentialComponent(DifferentialSO config, int connectedWheels)
+            public DifferentialComponent(DifferentialSO config, int connectedWheels, VehicleVariablesSO variables)
             {
                 this.config = config;
-                ratio = config.GearRatio;
+                this.ratio = variables.differentialGear;
+                
                 this.connectedWheels = connectedWheels;
                 this.wheelOutput = new float[connectedWheels];
             }
@@ -28,14 +30,14 @@ namespace vc
             public float[] CalculateWheelOutputTorque(float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt) 
             {
                 //return DiffernetialTypes.TorqueSensingDiffernetial(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
-                return DiffernetialTypes.StandardDifferential(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
+                return DiffernetialTypes.StandardDifferential(connectedWheels, ratio.Value, transmissionTorque, leftWheel, rightWheel, dt);
             }
 
             float transmissionVelo = default;
             public float CalculateTransmissionVelocity(float leftWheel, float rightWheel)
             {
                 float avgVelo = (leftWheel + rightWheel ) / 2f;
-                transmissionVelo = avgVelo * ratio;
+                transmissionVelo = avgVelo * ratio.Value;
                 return transmissionVelo;
             }
             #endregion Differential Component
@@ -50,7 +52,7 @@ namespace vc
 
             public void Start()
             {
-                
+                this.ratio.Value =  this.config.GearRatio;
             }
 
             public void Step(DifferentialComponenetStepParameters parameters)

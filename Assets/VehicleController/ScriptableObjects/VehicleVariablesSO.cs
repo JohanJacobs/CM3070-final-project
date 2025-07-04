@@ -34,6 +34,8 @@ namespace vc
             [Header("Transmission")]
             public StringVariable currentGearText;
 
+            [Header("Differential")]
+            public FloatVariable differentialGear;
 
             [Header("Brakes")]
             public FloatVariable brakeTorque;

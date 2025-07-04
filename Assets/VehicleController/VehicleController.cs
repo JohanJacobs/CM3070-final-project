@@ -226,7 +226,7 @@ namespace vc
             newVehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
             newVehicle.rollbarRear.Start();
 
-            newVehicle.differential = new(differentialConfig, 2);
+            newVehicle.differential = new(differentialConfig, 2, vehicleVariables);
             newVehicle.differential.Start();
 
             newVehicle.transmission = new(transmissionConfig, vehicleVariables);
