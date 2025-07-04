@@ -44,18 +44,21 @@ namespace vc
             {
                 Debug.LogError("Missing rigid body!");
             }
+        }
 
+        public void Start()
+        {
             vehicle = Vehicle.Setup(
-                carRigidbody, 
-                WheelConfig, 
-                bodyConfig, 
-                differentialConfig, 
-                transmissionConfig, 
-                clutchConfig, 
-                engineConfig, 
-                brakeConfig, 
-                aeroConfig, 
-                frontAntiRollbar, 
+                carRigidbody,
+                WheelConfig,
+                bodyConfig,
+                differentialConfig,
+                transmissionConfig,
+                clutchConfig,
+                engineConfig,
+                brakeConfig,
+                aeroConfig,
+                frontAntiRollbar,
                 rearAntiRollbar,
                 vehicleVariables);
         }
