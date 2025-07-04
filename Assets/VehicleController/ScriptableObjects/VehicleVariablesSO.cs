@@ -39,6 +39,10 @@ namespace vc
             public FloatVariable brakeTorque;
             public FloatVariable brakeBalance;
 
+            [Header("Aero")]
+            public FloatVariable DragCoefficient;
+            public FloatVariable LiftCoefficient;
+            public FloatVariable SurfaceAera;
         }
     }
 }

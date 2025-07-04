@@ -241,7 +241,7 @@ namespace vc
             newVehicle.brake = new (brakeConfig, vehicleVariables);
             newVehicle.brake.Start();
 
-            newVehicle.aero = new(aeroConfig, carRigidbody);
+            newVehicle.aero = new(aeroConfig, carRigidbody, vehicleVariables);
             newVehicle.aero.Start();
 
             return newVehicle;
