@@ -60,6 +60,16 @@ namespace vc
             [Header("Anti Rollbar")]
             public FloatVariable AntiRollbarForceFront;
             public FloatVariable AntiRollbarForceRear;
+
+            [Header("Suspension - Front")]
+            public FloatVariable RestLengthFront;
+            public FloatVariable SpringForceFront;
+            public FloatVariable DamperForceFront;
+
+            [Header("Suspension - Rear")]
+            public FloatVariable RestLengthRear;
+            public FloatVariable SpringForceRear;
+            public FloatVariable DamperForceRear;
         }
     }
 }

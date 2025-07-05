@@ -224,7 +224,7 @@ namespace vc
             wheelConfig.ForEach(wc => {
                 
                 newVehicle.wheels.Add(wc.id, new (wc.id, wc.WheelConfig, wheelHitData[wc.id], wc.wheelMesh));
-                newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount));
+                newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount, vehicleVariables));
             });
 
             // car body
