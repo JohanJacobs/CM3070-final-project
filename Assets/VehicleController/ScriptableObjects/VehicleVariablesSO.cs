@@ -70,6 +70,14 @@ namespace vc
             public FloatVariable RestLengthRear;
             public FloatVariable SpringForceRear;
             public FloatVariable DamperForceRear;
+
+
+            [Header("Body")]
+            public FloatVariable BodyMass;
+            public FloatVariable BodyDrag;
+
+            [Header("Tires")]
+            public ScriptableObjectVariable Tires;
         }
     }
 }

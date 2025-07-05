@@ -169,7 +169,7 @@ namespace vc
 
             //yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
 
             //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
@@ -177,10 +177,10 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
-            yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
         }
         #endregion
@@ -223,7 +223,7 @@ namespace vc
 
             wheelConfig.ForEach(wc => {
                 
-                newVehicle.wheels.Add(wc.id, new (wc.id, wc.WheelConfig, wheelHitData[wc.id], wc.wheelMesh));
+                newVehicle.wheels.Add(wc.id, new (wc.id, wc.WheelConfig, wheelHitData[wc.id], wc.wheelMesh, vehicleVariables));
                 newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount, vehicleVariables));
             });
 

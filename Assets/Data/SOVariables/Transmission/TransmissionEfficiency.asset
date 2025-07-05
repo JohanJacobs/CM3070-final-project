@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67815bbc13e4454097f88ea65201b5f, type: 3}
   m_Name: TransmissionEfficiency
   m_EditorClassIdentifier: 
-  label: 
-  _value: 0
+  label: Efficiency
+  _value: 0.8

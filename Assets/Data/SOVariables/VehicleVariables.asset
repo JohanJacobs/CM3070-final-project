@@ -59,3 +59,6 @@ MonoBehaviour:
   RestLengthRear: {fileID: 11400000, guid: aa5a49f9cfe4daa40929ccf40e33735d, type: 2}
   SpringForceRear: {fileID: 11400000, guid: 63c851447a4377e468a77ff036246df9, type: 2}
   DamperForceRear: {fileID: 11400000, guid: e111356837c2a6d4ca148906d9d88e77, type: 2}
+  BodyMass: {fileID: 11400000, guid: 0f4c635f7c6956342a919f29815ccc4a, type: 2}
+  BodyDrag: {fileID: 11400000, guid: 124a8650e7b676147993039fec05650a, type: 2}
+  Tires: {fileID: 11400000, guid: de980eb280d55314886c93d890c70d7d, type: 2}

@@ -21,7 +21,7 @@ namespace vc
 
             GForce gForce = new();
 
-            float bodyDragCoefficient; // constant https://www.netcarshow.com/ford/2009-fiesta_econetic/#:~:text=This%20is%20because%20Fiesta%20boasts,performance%2C%20especially%20in%20highway%20cruising.
+            FloatVariable BodyDragCoefficient; // constant https://www.netcarshow.com/ford/2009-fiesta_econetic/#:~:text=This%20is%20because%20Fiesta%20boasts,performance%2C%20especially%20in%20highway%20cruising.
 
             //http://www.mayfco.com/dragcd~1.htm
             float bodyArea = 1.74f; // m² 
@@ -30,8 +30,8 @@ namespace vc
             float turnRadius;      // m
             float wheelBaseRearTrackLength; // m
                                     
-            float bodyDrag => PhysicsHelper.CalculateDrag(Mathf.Abs(velocityLS.z), bodyArea, bodyDragCoefficient); // nm TODO: check if drag is always calculated correctly forward and reverse
-            public float BodyMass { get; private set; } // kg
+            float bodyDrag => PhysicsHelper.CalculateDrag(Mathf.Abs(velocityLS.z), bodyArea, BodyDragCoefficient.Value); // nm TODO: check if drag is always calculated correctly forward and reverse
+            public FloatVariable BodyMass { get; private set; } // kg
             public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
             Vector3 velocityLS =default; //MS
 
@@ -47,28 +47,32 @@ namespace vc
                 this.leftWheel = leftWheel;
                 this.rightWheel = rightWheel;
 
+                this.BodyMass = variables.BodyMass;
+                this.BodyDragCoefficient = variables.BodyDrag;
+                
                 wheelBaseLength = config.wheelBaseLength;
                 turnRadius = config.turnRadius;
                 wheelBaseRearTrackLength = config.wheelBaseRearTrackLength;
             }
-
-
+            
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Body;
 
             public void Start()
             {
-                speed.Value = 0f;
-                this.BodyMass = this.config.mass;
-                this.bodyDragCoefficient = this.config.coefficientOfDrag;
+                speed.Value = 0f;                
+
                 this.rb.mass = this.config.mass;
-            }   
+                this.BodyMass.Value = this.config.mass;
+                this.BodyMass.OnValueChanged += BodyMass_OnValueChanged;
+
+                this.BodyDragCoefficient.Value = this.config.coefficientOfDrag;
+            }
 
             public void Shutdown()
             {
-
+                this.BodyMass.OnValueChanged -= BodyMass_OnValueChanged;
             }
-
             
             public void Step(BodyComponentStepParams parameters)
             {
@@ -105,7 +109,13 @@ namespace vc
                 rightWheel.localRotation = Quaternion.Euler(new Vector3(rightWheel.localRotation.x, ackermanAngleLeft, rightWheel.localRotation.z));
             }
 
+            void BodyMass_OnValueChanged(float value)
+            {
+                if (value <= 0f)
+                    return;
 
+                rb.mass = value;
+            }
             Vector3 dragDirection => -rb.transform.forward;
             void AddBodyDragForce()
             {

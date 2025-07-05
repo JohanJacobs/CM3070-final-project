@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
@@ -12,6 +13,8 @@ namespace vc
             WheelSO config;
             WheelHitData wheelData;
             Transform wheelMesh;
+
+            ScriptableObjectVariable Tires;
             public WheelID id { get; private set; }
             public float radius { get; private set; }        // meter
             public float wheelAngularVelocity { get; private set; } //rads
@@ -43,17 +46,18 @@ namespace vc
 
             #region wheelComponent
 
-            public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData, Transform wheelMesh)
+            public WheelComponent(WheelID id, WheelSO config, WheelHitData wheelHitData, Transform wheelMesh, VehicleVariablesSO variables)
             {
                 this.config = config;
                 this.id = id;
-                this.radius = config.RadiusMeter; 
-                this.wheelMass = config.Mass; //kg
+                this.Tires = variables.Tires;
+
                 this.wheelData = wheelHitData;
                 this.wheelData.wheel = this;
+                
                 this.wheelMesh = wheelMesh;
-                this.wheelMesh.gameObject.SetActive(true);                
             }
+
             public void UpdatePhysics(float dt, float driveTorque = default, float brakeTorque = default)
             {
                 this.dt = dt;
@@ -69,6 +73,14 @@ namespace vc
 
                 ApplyWheelForces();
             }
+            public void UpdateWheelData(ScriptableObjectBase soBase)
+            {
+                var wd = this.Tires.Value as WheelSO;
+
+                this.wheelFrictionValues = WheelSurfaceProperties.CreateDictionary(wd.frictionProperties);
+                this.wheelMass = wd.Mass; //kg
+            }
+
             public void UpdateVisuals(float dt)
             {
                 // update position
@@ -193,12 +205,17 @@ namespace vc
             public void Start()
             {
                 this.wheelMesh.parent = wheelData.suspensionMountPoint;
-                this.wheelFrictionValues = WheelSurfaceProperties.CreateDictionary(this.config.frictionProperties);
+                this.wheelMesh.gameObject.SetActive(true);
+
+                this.Tires.Value = this.config;
+                this.Tires.OnValueChanged += UpdateWheelData;
+                this.radius = config.RadiusMeter;
+                UpdateWheelData(this.Tires.Value);
             }
 
             public void Shutdown()
             {
-             
+                this.Tires.OnValueChanged -= UpdateWheelData;
             }
 
             public void Step(WheelComponenetStepParameters parameters)
