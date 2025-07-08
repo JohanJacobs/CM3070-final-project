@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WheelStandardSO
   m_EditorClassIdentifier: 
   Radius: 34
-  Mass: 11
+  Mass: 20
   frictionProperties:
   - surfaceType: 0
     Dry: 1

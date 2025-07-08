@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-[CreateAssetMenu(fileName = "Float Variable", menuName = "Variables/Float currentRPM")]
+[CreateAssetMenu(fileName = "Float Variable", menuName = "Variables/FloatVariableSO")]
 public class FloatVariable : ScriptableObject
 {
     [SerializeField] string label;

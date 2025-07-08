@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-[CreateAssetMenu(fileName = "String Variable", menuName = "Variables/String currentRPM")]
+[CreateAssetMenu(fileName = "String Variable", menuName = "Variables/String Variable")]
 public class StringVariable : ScriptableObject
 {
     [SerializeField] string label;    

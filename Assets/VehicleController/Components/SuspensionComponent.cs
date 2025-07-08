@@ -3,6 +3,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
@@ -13,13 +14,16 @@ namespace vc
             SuspensionSO config;
             public Transform mountPoint { get; private set; }
 
-            public float restLength; // meters;
-            float raycastLength=> restLength + wheelData.wheel?.radius??0f;
+            public FloatVariable restLength; // meters;
+            public FloatVariable springStrength; // newton meters      
+            public FloatVariable damperStrength; // newton meters
+
+            float raycastLength=> restLength.Value + wheelData.wheel?.radius??0f;
 
             float currentLength;
             float previousLength;
-            public float springCompression => (compressedLength / restLength);
-            float compressedLength => restLength - currentLength; // m
+            public float springCompression => (compressedLength / restLength.Value);
+            float compressedLength => restLength.Value - currentLength; // m
             float wheelRadius => wheelData.wheel.radius; // m
             float damperVelocity (float dt) => (previousLength - currentLength) / dt;
 
@@ -27,26 +31,21 @@ namespace vc
             public float normalForce; 
             public bool isGrounded { get; private set; }
             public Vector3 axlePosition => mountPoint.position - mountPoint.up * currentLength;
-            
                         
-            public float springStrength;            
-            public float damperStrength;
             Vector3 forceVector;
 
             WheelHitData wheelData;            
             
             #region SuspensionComponent
-            public SuspensionComponent(SuspensionSO config, WheelHitData wd, Transform mountPoint)
+            public SuspensionComponent(SuspensionSO config, WheelHitData wd, Transform mountPoint, VehicleVariablesSO variables)
             {                
                 this.config = config;
                 this.wheelData = wd;
                 this.mountPoint = mountPoint;
 
-                this.currentLength = this.restLength;
-                this.previousLength = this.restLength;
-                this.restLength = config.RestLengthMeter;                
-                this.springStrength = config.suspensionForce;                
-                this.damperStrength = config.DamperStrength;
+;               this.restLength = (wd.id == WheelID.LeftFront || wd.id == WheelID.RightFront) ? variables.RestLengthFront : variables.RestLengthRear;
+                this.springStrength = (wd.id == WheelID.LeftFront || wd.id == WheelID.RightFront) ? variables.SpringForceFront : variables.SpringForceRear;
+                this.damperStrength = (wd.id == WheelID.LeftFront || wd.id == WheelID.RightFront) ? variables.DamperForceFront : variables.DamperForceRear;
 
                 this.wheelData.suspension = this;
             }
@@ -64,8 +63,8 @@ namespace vc
                     currentLength = wheelData.hitInfo.distance - wheelRadius; // in meters
 
                     // calculate suspension forces using Hooks Law Fz = -kFw
-                    var springForce = (compressedLength * springStrength);
-                    var damperForce = damperVelocity(dt) * damperStrength;
+                    var springForce = (compressedLength * springStrength.Value);
+                    var damperForce = damperVelocity(dt) * damperStrength.Value;
                                         
                     normalForce = (springForce + damperForce) * 100f; // scale to the correct factor
                     forceVector = normalForce * wheelData.hitInfo.normal;
@@ -94,7 +93,7 @@ namespace vc
                 {
                     wheelData.hitInfo = new();
                     previousLength = currentLength;
-                    currentLength = restLength;
+                    currentLength = restLength.Value;
                     isGrounded = false;
                     normalForce = 0f;
                     forceVector = Vector3.zero;
@@ -121,7 +120,13 @@ namespace vc
 
             public void Start()
             {
+                this.restLength.Value = config.RestLengthMeter;
 
+                this.currentLength = this.restLength.Value;
+                this.previousLength = this.restLength.Value;
+
+                this.springStrength.Value = config.suspensionForce;
+                this.damperStrength.Value = config.DamperStrength;
             }
 
             public void Shutdown()
@@ -175,7 +180,7 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep),$"SUSP : {this.wheelData.id.ToString()}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" length / rest: {(this.currentLength).ToString("f2")}/{(this.restLength).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" length / rest: {(this.currentLength).ToString("f2")}/{(this.restLength.Value).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" compression: {(this.springCompression).ToString("f1")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" normalForce: {(this.normalForce).ToString("f1")}");
 
@@ -183,8 +188,8 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rayDist: {(this.wheelData.hitInfo.distance).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" currentL: {(currentLength).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" prevL: {(previousLength).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" sStrength: {(springStrength).ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" dStrength: {(damperStrength).ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" sStrength: {(springStrength).Value.ToString("f1")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" dStrength: {(damperStrength).Value.ToString("f1")}");
 
 
                 return yOffset;

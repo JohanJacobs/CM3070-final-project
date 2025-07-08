@@ -9,16 +9,20 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        
         public class EngineComponent : IVehicleComponent<EngineComponentStepParams>,IDebugInformation
         {
             EngineSO config;
             FloatVariable throttle;
             
             AnimationCurve torqueCurve;
-            FloatVariable idleRPM;
-            FloatVariable redlineRPM;
-            FloatVariable currentRPM;
+
+            FloatVariable idleRPM;      // Revolutions per minute
+            FloatVariable redlineRPM;   // Revolutions per minute
+            FloatVariable currentRPM;   // Revolutions per minute
+            FloatVariable startFriction;            // nm
+            FloatVariable frictionCoefficient;       // mu
+            FloatVariable engineInertia;            // kg m²
+
             float RPMtoRad (float rpm)=> PhysicsHelper.Conversions.RPMToRad(rpm);
             float RadtoRPM(float radians) => PhysicsHelper.Conversions.RadToRPM(radians);
 
@@ -27,20 +31,22 @@ namespace vc
                 this.config = config;
 
                 // setup variables
-                this.idleRPM = variables.idleRPM;
-                this.redlineRPM = variables.redlineRPM;
-                this.currentRPM = variables.currentRPM;
                 this.throttle = variables.throttle;
+
+                this.idleRPM = variables.engineIdleRPM;
+                this.redlineRPM = variables.engineRedlineRPM;
+                this.currentRPM = variables.engineCurrentRPM;
+                this.startFriction = variables.engineStartFriction;
+                this.frictionCoefficient = variables.engineInternalFrictionCoefficient;
+                this.engineInertia = variables.engineInertia;
             }
 
             #region Engine Component
-            float startFriction = 50f;          // nm
-            float frictionCoefficient = 0.02f;  // mu
-            float engineInertia = 0.2f;         // kg m²
 
             float maxEffectiveTorque => torqueCurve.Evaluate(engineRPM);
             float engineRPM => currentRPM.Value;
-            float engineInternalFriction => startFriction + (engineRPM * frictionCoefficient);
+            
+            float engineInternalFriction => startFriction.Value + (engineRPM * frictionCoefficient.Value);
             float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
             float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
             float idleAngularRotation => RPMtoRad(idleRPM.Value);
@@ -52,7 +58,7 @@ namespace vc
             void UpdateEngineAcceleration(float dt,float loadTorque)
             {
                 engineEffectiveTorque = currentEffectiveTorque;
-                float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia;                
+                float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia.Value;                
                 engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + acceleration * dt, idleAngularRotation , redlineAngularRotation);
                 currentRPM.Value = RadtoRPM(engineAngularVelocity);
 
@@ -61,16 +67,14 @@ namespace vc
 
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Engine;
-
-
             public void Start()
             {                
                 this.torqueCurve = config.torqueCurve;
                 this.idleRPM.Value = this.config.idleRPM;                
                 this.redlineRPM.Value = this.config.redlineRPM;
-                this.startFriction = this.config.startFriction;
-                this.engineInertia = this.config.engineEnirtia;
-                this.frictionCoefficient = this.config.frictionCoefficient;
+                this.startFriction.Value = this.config.startFriction;
+                this.engineInertia.Value = this.config.engineEnirtia;
+                this.frictionCoefficient.Value = this.config.frictionCoefficient;
             }
 
             public void Shutdown()

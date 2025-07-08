@@ -4,6 +4,7 @@ using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
+using vc.VehicleConfiguration;
 
 namespace vc
 {
@@ -11,6 +12,10 @@ namespace vc
     {
         AeroSO config;
         Rigidbody rb;
+
+        public FloatVariable DragCoefficient;
+        public FloatVariable LiftCoefficient;
+        public FloatVariable SurfaceAera;
 
         float totalDownforce = default; // newton
         float totalDragForce = default; // newton
@@ -21,10 +26,14 @@ namespace vc
         Vector3 downforceDirection => -rb.transform.up;
 
         #region AeroComponent
-        public AeroComponent(AeroSO config, Rigidbody carRigidbody)
+        public AeroComponent(AeroSO config, Rigidbody carRigidbody, VehicleVariablesSO variables)
         {
             this.config = config;
             this.rb = carRigidbody;
+
+            this.DragCoefficient = variables.DragCoefficient;
+            this.LiftCoefficient = variables.LiftCoefficient;
+            this.SurfaceAera = variables.SurfaceAera;
         }
 
         private void CalculateAeroForces()
@@ -35,12 +44,12 @@ namespace vc
 
         private void CalculateDrag()
         {         
-            totalDragForce += PhysicsHelper.CalculateDrag(aeroVelocity, config.surfaceArea, config.dragCoefficient);
+            totalDragForce += PhysicsHelper.CalculateDrag(aeroVelocity, SurfaceAera.Value, DragCoefficient.Value);
         }
 
         private void CalculateDownforce()
         {            
-            totalDownforce += PhysicsHelper.CalculateLift(aeroVelocity, config.surfaceArea, config.LiftCoefficient);            
+            totalDownforce += PhysicsHelper.CalculateLift(aeroVelocity, SurfaceAera.Value, LiftCoefficient.Value);
         }
 
         private void ApplyAeroForces()
@@ -65,7 +74,9 @@ namespace vc
         }
         public void Start()
         {
-
+            this.DragCoefficient.Value = this.config.dragCoefficient;
+            this.LiftCoefficient.Value = this.config.LiftCoefficient;
+            this.SurfaceAera.Value = this.config.surfaceArea;
         }
         public void Shutdown()
         {

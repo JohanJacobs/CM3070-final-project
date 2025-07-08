@@ -1,10 +1,7 @@
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using UnityEngine;
-using UnityEngine.Events;
 using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using vc.VehicleConfiguration;
@@ -31,6 +28,8 @@ namespace vc
         [SerializeField] BodySO bodyConfig;
         [SerializeField] BrakeSO brakeConfig;
         [SerializeField] AeroSO aeroConfig;
+        [SerializeField] AntiRollbarSO frontAntiRollbar;
+        [SerializeField] AntiRollbarSO rearAntiRollbar;
 
         Rigidbody carRigidbody;
                 
@@ -45,8 +44,23 @@ namespace vc
             {
                 Debug.LogError("Missing rigid body!");
             }
+        }
 
-            vehicle = Vehicle.Setup(carRigidbody, WheelConfig, bodyConfig, differentialConfig, transmissionConfig, clutchConfig, engineConfig, brakeConfig, aeroConfig, vehicleVariables);
+        public void Start()
+        {
+            vehicle = Vehicle.Setup(
+                carRigidbody,
+                WheelConfig,
+                bodyConfig,
+                differentialConfig,
+                transmissionConfig,
+                clutchConfig,
+                engineConfig,
+                brakeConfig,
+                aeroConfig,
+                frontAntiRollbar,
+                rearAntiRollbar,
+                vehicleVariables);
         }
 
         public void Update()
@@ -155,7 +169,7 @@ namespace vc
 
             //yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
+            yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
 
             //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
@@ -163,10 +177,10 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
-            yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
+            //yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
         }
         #endregion
@@ -181,7 +195,8 @@ namespace vc
         public EngineComponent engine;
         public ClutchComponent clutch;
         public BodyComponent body;
-        public RollbarComponet rollbarFront, rollbarRear;
+        public RollbarComponent rollbarFront;
+        public RollbarComponent rollbarRear;
         public BrakeComponent brake;
         public AeroComponent aero;
 
@@ -194,6 +209,8 @@ namespace vc
             EngineSO engineConfig,
             BrakeSO brakeConfig,
             AeroSO aeroConfig,
+            AntiRollbarSO antiRollbarFront,
+            AntiRollbarSO antiRollbarRear,
             VehicleVariablesSO vehicleVariables)
         {
             Vehicle newVehicle = new();
@@ -206,8 +223,8 @@ namespace vc
 
             wheelConfig.ForEach(wc => {
                 
-                newVehicle.wheels.Add(wc.id, new (wc.id, wc.WheelConfig, wheelHitData[wc.id], wc.wheelMesh));
-                newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount));
+                newVehicle.wheels.Add(wc.id, new (wc.id, wc.WheelConfig, wheelHitData[wc.id], wc.wheelMesh, vehicleVariables));
+                newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount, vehicleVariables));
             });
 
             // car body
@@ -220,19 +237,19 @@ namespace vc
             newVehicle.suspension.ForEach(s=>s.Value.Start());             
             newVehicle.wheels.ForEach(w=>w.Value.Start());
 
-            newVehicle.rollbarFront = new(carRigidbody, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront]);
+            newVehicle.rollbarFront = new(carRigidbody, antiRollbarFront, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront], vehicleVariables);
             newVehicle.rollbarFront.Start();
 
-            newVehicle.rollbarRear = new(carRigidbody, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear]);
+            newVehicle.rollbarRear = new(carRigidbody, antiRollbarRear, wheelHitData[WheelID.LeftRear], wheelHitData[WheelID.RightRear], vehicleVariables);
             newVehicle.rollbarRear.Start();
 
-            newVehicle.differential = new(differentialConfig, 2);
+            newVehicle.differential = new(differentialConfig, 2, vehicleVariables);
             newVehicle.differential.Start();
 
             newVehicle.transmission = new(transmissionConfig, vehicleVariables);
             newVehicle.transmission.Start();
 
-            newVehicle.clutch = new (clutchConfig);
+            newVehicle.clutch = new (clutchConfig, vehicleVariables);
             newVehicle.clutch.Start();
 
             newVehicle.engine = new (engineConfig, vehicleVariables);
@@ -241,7 +258,7 @@ namespace vc
             newVehicle.brake = new (brakeConfig, vehicleVariables);
             newVehicle.brake.Start();
 
-            newVehicle.aero = new(aeroConfig, carRigidbody);
+            newVehicle.aero = new(aeroConfig, carRigidbody, vehicleVariables);
             newVehicle.aero.Start();
 
             return newVehicle;

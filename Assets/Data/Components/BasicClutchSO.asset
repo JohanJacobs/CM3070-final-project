@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190f40b6a606039499b16e541e28dc52, type: 3}
   m_Name: BasicClutchSO
   m_EditorClassIdentifier: 
-  engineTorque: {fileID: 11400000, guid: 6d33f1c78ec7cd04fb8cb82660689a1d, type: 2}
+  clutchCapacity: 400
+  clutchStiffness: 40
+  clutchDampingRate: 0.7
