@@ -6861,6 +6861,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: edada8c0389602544aeeb7a87badd0ab, type: 2}
   - {fileID: 11400000, guid: c4716f84ae36754419f574a2eb6db79c, type: 2}
   dropdown: {fileID: 233845912}
+  label: {fileID: 0}
 --- !u!1 &458426040
 GameObject:
   m_ObjectHideFlags: 0
@@ -31169,7 +31170,7 @@ MonoBehaviour:
   handbrakeVariable: {fileID: 11400000, guid: 572457dd301430e46af27ad10d78392c, type: 2}
   GearUpVariable: {fileID: 11400000, guid: d0474294165e45c4da7eb551fa2e098e, type: 2}
   GearDownVariable: {fileID: 11400000, guid: cb59c3e875672d34e8c15f9203a7c0f9, type: 2}
-  SteerSensitivity: 0.5
+  SteerSensitivity: 1
   steerStrength: 2
   throttleStrength: 5
   brakeStrength: 5

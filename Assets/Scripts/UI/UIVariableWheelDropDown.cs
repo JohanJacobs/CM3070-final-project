@@ -11,9 +11,13 @@ public class UIVariableDropDown : MonoBehaviour
     [SerializeField] WheelSO[] options;
 
     [SerializeField] TMPro.TMP_Dropdown dropdown;
-    
+    [SerializeField] TextMeshProUGUI label;
+
     private void Awake()
     {
+        label = transform.Find("Label").GetComponent<TextMeshProUGUI>();
+        dropdown = transform.Find("Dropdown").GetComponent<TMP_Dropdown>();
+
         dropdown.options.Clear();
         foreach (var i in options)
         {
@@ -21,7 +25,7 @@ public class UIVariableDropDown : MonoBehaviour
             dropdown.options.Add(new TMP_Dropdown.OptionData(n));
         }
 
-
+        label.text = variable.VariableLabel;
     }
     private void OnEnable()
     {

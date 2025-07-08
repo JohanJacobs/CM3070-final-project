@@ -75,6 +75,7 @@ namespace vc
             }
             public void UpdateWheelData(ScriptableObjectBase soBase)
             {
+                Debug.Log("Updating Wheel Data");
                 var wd = this.Tires.Value as WheelSO;
 
                 this.wheelFrictionValues = WheelSurfaceProperties.CreateDictionary(wd.frictionProperties);
