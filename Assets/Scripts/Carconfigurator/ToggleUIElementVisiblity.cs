@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarConfigurationUI : MonoBehaviour,IToggle
+public class ToggleUIElementVisiblity : MonoBehaviour,IToggle
 {
 
     void Start()

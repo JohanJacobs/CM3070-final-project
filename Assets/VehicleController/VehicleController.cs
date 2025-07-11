@@ -14,7 +14,7 @@ using static vc.VehicleController;
  */
 namespace vc
 {
-    public class VehicleController : MonoBehaviour
+    public class VehicleController : MonoBehaviour,IToggle
     {
 
         [Title("Configuration")]
@@ -140,6 +140,7 @@ namespace vc
         {
             if (!Application.isPlaying)
                 return;
+            if (!ShowGizmos) return;
 
             vehicle.rollbarFront.DrawGizmos();
 
@@ -158,6 +159,8 @@ namespace vc
 
         private void OnGUI()
         {
+            if (!ShowGizmos) return;
+
             float yOffset = 10f;
             float yStep = 20f;
             float xPos = 10f;
@@ -182,9 +185,15 @@ namespace vc
             //yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
         }
+
+        bool ShowGizmos= false;
+        public void Toggle()
+        {
+            ShowGizmos = !ShowGizmos;
+        }
         #endregion
     }
-       
+
 
     namespace VehicleConfiguration
     {
