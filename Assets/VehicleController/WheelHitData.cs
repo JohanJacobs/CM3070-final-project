@@ -33,9 +33,11 @@ namespace vc
             public string FrictionSurfaceName => surface.surfaceName;
             public IFrictionSurface surface;
 
-            public float normalforce => suspension.normalForce;        
-            public float longitudinalSlipRatio => wheel?.LongitudinalSlipRatio ?? 0f;
-            public bool isLocked => longitudinalSlipRatio >= 1f;
+            public float normalforce => suspension.normalForce;
+            public Vector2 combinedSlip = default;
+
+            //public float longitudinalSlipRatio => wheel?.LongitudinalSlipRatio ?? 0f;
+            //public bool isLocked => longitudinalSlipRatio >= 1f;
             public float springCompression => suspension?.springCompression ?? 0f;
             public float SpeedMS => velocityLS.z;
             public float SpeedKMH=> SpeedMS / 3.6f;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using vc.VehicleComponentsSO;
 using vc.VehicleConfiguration;
 
@@ -42,7 +43,7 @@ namespace vc
             float driveTorque = default;
             float brakeTorque = default;
             bool isLocked = true;
-            Vector2 combinedSlip = default; // combined Slip X=Force, Y=sideways
+            //Vector2 combinedSlip = default; // combined Slip X=Force, Y=sideways
 
             #region wheelComponent
 
@@ -66,7 +67,7 @@ namespace vc
 
                 if (!wheelData.isGrounded)
                     return;
-                
+
                 CalculateLongitudinal();
                 CalculateLateral();
                 CombinedSlip();
@@ -75,13 +76,13 @@ namespace vc
             }
             public void UpdateWheelData(ScriptableObjectBase soBase)
             {
-                Debug.Log("Updating Wheel Data");
                 var wd = this.Tires.Value as WheelSO;
 
                 this.wheelFrictionValues = WheelSurfaceProperties.CreateDictionary(wd.frictionProperties);
                 this.wheelMass = wd.Mass; //kg
             }
 
+            public static event UnityAction<WheelID, WheelHitData> onVisualWheelUpdate;
             public void UpdateVisuals(float dt)
             {
                 // update position
@@ -92,12 +93,14 @@ namespace vc
                 float yRot = wheelData.suspensionMountPoint.eulerAngles.y;
                                 
                 wheelMesh.Rotate(new Vector3(WheelMeshDegRotation * dt, 0f, 0f), Space.Self);
+
+                // notify listeners that the wheel visuals and data has been udpated.
+                onVisualWheelUpdate?.Invoke(id, wheelData);
             }
             void CombinedSlip()
             {
                 var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
-                combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined;
-
+                wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined;
             }
             #region Lateral Forces
             
@@ -185,10 +188,10 @@ namespace vc
             Vector3 FzForceVec, FxForceVec;
             void ApplyWheelForces()
             {
-                Fz = combinedSlip.x * Fn; // Pacejka longitudinal * normalForce;
+                Fz = wheelData.combinedSlip.x * Fn; // Pacejka longitudinal * normalForce;
                 FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
-                Fx = combinedSlip.y * Fn; //Pacejka Lateral * normalForce;
+                Fx = wheelData.combinedSlip.y * Fn; //Pacejka Lateral * normalForce;
                 FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
 
                 // add force to rigidbody
@@ -250,14 +253,14 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Locked : {(this.isLocked?"Yes":"No")}");
 
                 // Longitudinal 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.combinedSlip.x).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.wheelData.combinedSlip.x).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
 
                 // Lateral                 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.combinedSlip.y).ToString("f5")}");                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
 
                 // Friction surface 
@@ -326,9 +329,7 @@ namespace vc
                     // TODO: add a logic to always nudge slip ratio to 0 if its very close to zero
                     return lateralSlipRatio;
                 }
-
             }
-
         }
         #region Wheel Componenet Step Parameters
         public class WheelComponenetStepParameters 
