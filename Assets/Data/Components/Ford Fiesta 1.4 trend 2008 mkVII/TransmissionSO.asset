@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: TransmissionSO
   m_EditorClassIdentifier: 
   gearShiftTime: 0.5
-  efficiency: 0.8
+  efficiency: 0.9
   reverseGearRatio: -3.545
   gearRatios:
-  - 3.658
-  - 1.93
-  - 1.28
-  - 0.95
-  - 0.76
+  - 3.72
+  - 2.16
+  - 1.48
+  - 1.15
+  - 0.88

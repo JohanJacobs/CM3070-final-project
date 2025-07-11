@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 885de2b875b92c6419167cc619a00fdc, type: 3}
-  m_Name: EngineSO
+  m_Name: FiestaEngineSO
   m_EditorClassIdentifier: 
   redlineRPM: 6000
   idleRPM: 900
@@ -63,17 +63,17 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.22931445
     - serializedVersion: 3
-      time: 5000
-      value: 125
-      inSlope: -0.010510633
-      outSlope: -0.010510633
+      time: 5018.421
+      value: 126.39262
+      inSlope: -0.006566573
+      outSlope: -0.006566573
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0.22496106
+      outWeight: 0.10045281
     - serializedVersion: 3
-      time: 6000
-      value: 110
+      time: 6016.6465
+      value: 115
       inSlope: -0.02355901
       outSlope: -0.02355901
       tangentMode: 0
@@ -81,7 +81,7 @@ MonoBehaviour:
       inWeight: 0.30958593
       outWeight: 0.07801416
     - serializedVersion: 3
-      time: 9000
+      time: 9016.646
       value: 0
       inSlope: -0.02523989
       outSlope: -0.02523989
@@ -95,7 +95,3 @@ MonoBehaviour:
   startFriction: 50
   engineEnirtia: 0.2
   frictionCoefficient: 0.05
-  throttleVariable: {fileID: 11400000, guid: e19849970ec0b34419cebfea16613ef8, type: 2}
-  idleRPMVariable: {fileID: 11400000, guid: 5984b2ed124a9d2479fe3ef0e431c1a2, type: 2}
-  redlineRPMVariable: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}
-  currentRPMVariable: {fileID: 11400000, guid: 6811291d21d8e4b42a5ed93c3b5bf991, type: 2}
