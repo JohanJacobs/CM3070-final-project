@@ -59,7 +59,7 @@ namespace vc
                 aeroConfig,
                 frontAntiRollbar,
                 rearAntiRollbar,
-                vehicleVariables);                        
+                vehicleVariables);
         }
 
         public void Update()

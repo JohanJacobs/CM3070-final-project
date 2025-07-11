@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using vc.VehicleComponentsSO;
 using vc.VehicleConfiguration;
 
@@ -81,6 +82,7 @@ namespace vc
                 this.wheelMass = wd.Mass; //kg
             }
 
+            public static event UnityAction<WheelID, WheelHitData> onVisualWheelUpdate;
             public void UpdateVisuals(float dt)
             {
                 // update position
@@ -91,6 +93,9 @@ namespace vc
                 float yRot = wheelData.suspensionMountPoint.eulerAngles.y;
                                 
                 wheelMesh.Rotate(new Vector3(WheelMeshDegRotation * dt, 0f, 0f), Space.Self);
+
+                // notify listeners that the wheel visuals and data has been udpated.
+                onVisualWheelUpdate?.Invoke(id, wheelData);
             }
             void CombinedSlip()
             {
@@ -324,9 +329,7 @@ namespace vc
                     // TODO: add a logic to always nudge slip ratio to 0 if its very close to zero
                     return lateralSlipRatio;
                 }
-
             }
-
         }
         #region Wheel Componenet Step Parameters
         public class WheelComponenetStepParameters 
