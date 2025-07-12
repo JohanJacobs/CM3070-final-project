@@ -25,7 +25,7 @@ namespace vc
             public float springCompression => (compressedLength / restLength.Value);
             float compressedLength => restLength.Value - currentLength; // m
             float wheelRadius => wheelData.wheel.radius; // m
-            float damperVelocity (float dt) => (previousLength - currentLength) / dt;
+            float damperVelocity(float dt) => (previousLength - currentLength) / dt;
 
 
             public float normalForce; 
