@@ -49,13 +49,13 @@ public class TireSound : MonoBehaviour
 
     void UpdateAudio(WheelAudioData  wad)
     {
-        var v = new Vector2(wad.wheelComponent.longSlipVelocity, wad.wheelComponent.lateralSlipVelocity);
+        var v = new Vector2(wad.wheelComponent.longSlipVelocity, wad.wheelComponent.lateralSlipVelocity * 0.7f);
         var vLen = v.magnitude;
 
         var volume = 0f;
-        var slipConstant = 5f;
-        if (vLen > slipConstant)
-            volume = MathHelper.MapAndClamp(vLen, slipConstant, 20f, 0f, 1.5f);
+        var slipEnableSoundConstant = 5f;
+        if (vLen > slipEnableSoundConstant)
+            volume = MathHelper.MapAndClamp(vLen, slipEnableSoundConstant, 20f, 0f, 1.5f);
 
         if (volume > 0f && wad.wheelComponent.isGrounded)
         {

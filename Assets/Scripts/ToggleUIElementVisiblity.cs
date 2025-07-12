@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class ToggleUIElementVisiblity : MonoBehaviour,IToggle
 {
-
+    [SerializeField] bool VisibleOnStart=false;
     void Start()
     {
-        transform.gameObject.SetActive(false);
+        transform.gameObject.SetActive(VisibleOnStart);
     }
 
     public void Toggle()
