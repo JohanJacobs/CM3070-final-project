@@ -1,33 +1,55 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace vc
 {
     /*
         Script to active components when the vehicle tutorial closes
      */
-    public class ActiveOnTutorialClose : MonoBehaviour,IToggle
+    public class ActiveOnTutorialClose : MonoBehaviour
     {
         [SerializeField] MonoBehaviour[] gameObjects;
+        [SerializeField] Button[] EnableInteractivity;
+
 
         private void Start()
         {
-            SetObjectsState(false);
+            SetInteractivity(false);
+            SetObjectsActive(false);
         }
 
-        public void Toggle()
+        private void OnEnable()
         {
-            SetObjectsState(true);
+            TutorialPlayButtonClicked.onPlayButtonClicked += TutorialPlayButtonClicked_onPlayButtonClicked;
         }
 
-        void SetObjectsState(bool state)
+        private void OnDisable()
         {
-            foreach (var go in gameObjects)
-            {
+            
+        }
+
+        void TutorialPlayButtonClicked_onPlayButtonClicked(object sender, EventArgs e)
+        {
+            SetInteractivity(true);
+            SetObjectsActive(true);
+        }
+
+
+        void SetObjectsActive(bool state)
+        {
+            foreach (var go in gameObjects) {
                 go.enabled = state;
             }
         }
-
+        void SetInteractivity(bool state)
+        {
+            foreach(Button b in EnableInteractivity)
+            {
+                b.interactable = state;
+            }
+        }
     }
 }

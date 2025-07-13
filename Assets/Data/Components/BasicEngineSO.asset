@@ -39,11 +39,11 @@ MonoBehaviour:
       time: 6495.773
       value: 399.36816
       inSlope: -0.0030252002
-      outSlope: -0.057355307
+      outSlope: 0.0024927505
       tangentMode: 1
       weightedMode: 0
       inWeight: 0.08122369
-      outWeight: 0.451269
+      outWeight: 0.21212518
     - serializedVersion: 3
       time: 7512.631
       value: 298.8428
@@ -68,7 +68,3 @@ MonoBehaviour:
   startFriction: 50
   engineEnirtia: 0.2
   frictionCoefficient: 0.02
-  throttleVariable: {fileID: 11400000, guid: e19849970ec0b34419cebfea16613ef8, type: 2}
-  idleRPMVariable: {fileID: 11400000, guid: 5984b2ed124a9d2479fe3ef0e431c1a2, type: 2}
-  redlineRPMVariable: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}
-  currentRPMVariable: {fileID: 11400000, guid: 6811291d21d8e4b42a5ed93c3b5bf991, type: 2}

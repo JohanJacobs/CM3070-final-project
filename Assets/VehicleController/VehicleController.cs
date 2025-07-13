@@ -14,10 +14,10 @@ using static vc.VehicleController;
  */
 namespace vc
 {
-    public class VehicleController : MonoBehaviour,IToggle
+    public class VehicleController : MonoBehaviour,IToggle,IHUDController
     {
 
-        [Title("Configuration")]
+        [Title("Vehicle Configuration")]
         [SerializeField] VehicleConfiguration.WheelConfiguration[] WheelConfig;
 
         [Space,SerializeField] DifferentialSO differentialConfig;
@@ -36,6 +36,8 @@ namespace vc
         public Vehicle GetVehicle => vehicle;
         [SerializeField] VehicleVariablesSO vehicleVariables;
 
+
+        
         public void Awake()
         {
             carRigidbody = GetComponent<Rigidbody>();
@@ -43,6 +45,8 @@ namespace vc
             {
                 Debug.LogError("Missing rigid body!");
             }
+
+            CreateHUD();
         }
 
         public void Start()
@@ -186,12 +190,61 @@ namespace vc
 
         }
 
-        bool ShowGizmos= false;
+        #endregion
+
+        #region IToggle
+        bool ShowGizmos = false;
         public void Toggle()
         {
             ShowGizmos = !ShowGizmos;
         }
-        #endregion
+        #endregion IToggle
+
+        #region IHUDController
+        [Header("Vehicle Dashboard-HUD")]
+        [SerializeField] GameObject HUDPrefab;        
+        [SerializeField] bool isHUDVisible = true;
+        Transform HUD;
+
+        void CreateHUD()
+        {
+            HUD = Instantiate(HUDPrefab).transform;
+            HUD.SetParent(transform);
+
+            if (isHUDVisible)
+            {
+                ShowHUD();
+            }
+            else
+            {
+                HideHUD();
+            }
+        }
+
+        public void ShowHUD()
+        {
+            HUD.gameObject.SetActive(true);
+        }
+
+        public void HideHUD()
+        {
+            HUD.gameObject.SetActive(false);
+        }
+
+        public void ToggleHUD()
+        {
+            if (isHUDVisible)
+            {
+                HideHUD();
+                isHUDVisible = false;
+            }
+            else
+            {
+                ShowHUD();
+                isHUDVisible = true;
+            }
+        }
+        #endregion IHUDController
     }
 
 

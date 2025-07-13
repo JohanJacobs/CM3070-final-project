@@ -5,6 +5,10 @@ using UnityEngine;
 public class ToggleUIElementVisiblity : MonoBehaviour,IToggle
 {
     [SerializeField] bool VisibleOnStart=false;
+    
+    void Awake()
+    {
+    }
     void Start()
     {
         transform.gameObject.SetActive(VisibleOnStart);
@@ -14,4 +18,6 @@ public class ToggleUIElementVisiblity : MonoBehaviour,IToggle
     {
         transform.gameObject.SetActive(!transform.gameObject.activeSelf);
     }
+
+    
 }
