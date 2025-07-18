@@ -6,9 +6,6 @@ public class UIToggleDisplayPrefab : MonoBehaviour, IToggle
     [SerializeField] GameObject prefab;
     GameObject ui;
     [SerializeField] bool isVisibleOnStart;
-    [SerializeField] bool currentState;
-    Canvas canvas;
-
     /*
      * Event to trigger when this objects visibility state change
      *  TRUE: object is visible and enabled
@@ -16,18 +13,17 @@ public class UIToggleDisplayPrefab : MonoBehaviour, IToggle
      */
 
     public UnityEvent<bool> OnStateChange;
-
+    
     private void Awake()
     {
         ui = CreateUI(prefab);
-
-        currentState = isVisibleOnStart;
-        SetVisible(ui, currentState);
+                
+        SetVisible(ui, isVisibleOnStart);
     }
 
     GameObject CreateUI(GameObject uiPrefab)
     {
-        ui = Instantiate(uiPrefab, transform);        
+        ui = Instantiate(uiPrefab, transform.parent);        
         return ui;
     }
 
@@ -38,19 +34,15 @@ public class UIToggleDisplayPrefab : MonoBehaviour, IToggle
 
         return ui;
     }
-    bool SwitchStateAndReturnUpdated() 
-    {
-        currentState = !currentState;        
-        return currentState;
-    }
-
+    
     private void SetVisible(GameObject go, bool state) => go.SetActive(state);
 
 
     #region IToggle
     public void Toggle()
     {
-        SetVisible(GetOrCreateUI(), SwitchStateAndReturnUpdated());
+        var ui = GetOrCreateUI();
+        SetVisible(ui, !ui.activeSelf);
     }
     #endregion IToggle
 

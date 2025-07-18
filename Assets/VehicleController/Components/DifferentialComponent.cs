@@ -9,7 +9,14 @@ namespace vc
     {
         public class DifferentialComponent:IVehicleComponent<DifferentialComponenetStepParameters>,IDebugInformation
         {
+            public enum DifferentialType
+            {
+                Standard,
+                TorqueSensing
+            }
+
             DifferentialSO config;
+            DifferentialType diffType = DifferentialType.Standard;
             int connectedWheels;
             FloatVariable ratio;
             float[] wheelOutput;
@@ -27,7 +34,17 @@ namespace vc
             // torque sensing differential sending more torque to the wheel that is slower as it has more grip.
             public float[] CalculateWheelOutputTorque(float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt) 
             {
-                //return DiffernetialTypes.TorqueSensingDiffernetial(connectedWheels, ratio, transmissionTorque, leftWheel, rightWheel, dt);
+                switch(diffType)
+                {
+                    case DifferentialType.Standard: 
+                        return DiffernetialTypes.StandardDifferential(connectedWheels, ratio.Value, transmissionTorque, leftWheel, rightWheel, dt);
+                        
+                    case DifferentialType.TorqueSensing: 
+                        return DiffernetialTypes.TorqueSensingDiffernetial(connectedWheels, ratio.Value, transmissionTorque, leftWheel, rightWheel, dt);
+
+                }
+
+                // default case for invalid differential types.
                 return DiffernetialTypes.StandardDifferential(connectedWheels, ratio.Value, transmissionTorque, leftWheel, rightWheel, dt);
             }
 
@@ -96,6 +113,7 @@ namespace vc
             #endregion TorqueSensingStandardDifferential
 
             #region StandardDifferential
+            // Open Differential
             public static float[] StandardDifferential(float connectedWheels, float ratio, float transmissionTorque, WheelComponent leftWheel, WheelComponent rightWheel, float dt)
             {
                 float wheelTorque = (transmissionTorque * ratio) / connectedWheels;
