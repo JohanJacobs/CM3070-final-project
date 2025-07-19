@@ -10,7 +10,8 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>, IDebugInformation
+       
+        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>,IDebugInformation
         {
             BrakeSO config;
             FloatVariable brakeInput;
@@ -30,8 +31,9 @@ namespace vc
                 this.brakeBalance = variables.brakeBalance;
             }
 
-            public float rearBrakeTorque=> brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
+            public float rearBrakeTorque => brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
             public float frontBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque.Value * (1f - brakeBalance.Value) + handbrakeInput.Value * maxBrakeTorque.Value, maxBrakeTorque.Value); //nm
+            
             #endregion Brake Component
 
             #region IVehicleComponent
@@ -54,7 +56,7 @@ namespace vc
             }
             #endregion IVehicleComponent
 
-            #region IDebugInfomration
+            #region IDebugInformation
             public void DrawGizmos()
             {
             }
@@ -64,8 +66,6 @@ namespace vc
                 return yOffset;
             }
             #endregion IDebugInfomration
-
-
         }
         #region Brake Componenet Step Parameters
         public class BrakeComponenetStepParameters

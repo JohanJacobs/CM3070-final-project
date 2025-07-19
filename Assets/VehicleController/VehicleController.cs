@@ -16,7 +16,6 @@ namespace vc
 {
     public class VehicleController : MonoBehaviour,IToggle,IHUDController
     {
-
         [Title("Vehicle Configuration")]
         [SerializeField] VehicleConfiguration.WheelConfiguration[] WheelConfig;
 
@@ -65,9 +64,14 @@ namespace vc
                 rearAntiRollbar,
                 vehicleVariables);
         }
+        private void OnDestroy()
+        {
+            Vehicle.Shutdown(vehicle);
+        }
 
         public void Update()
         {
+            // update visuals of the wheel
             vehicle.wheels.ForEach(w => {
                 w.Value.UpdateVisuals(Time.deltaTime); 
             });
@@ -100,11 +104,11 @@ namespace vc
                     vehicle.wheels[WheelID.RightRear],
                     dt);
 
-            var frontBrakeTorque = vehicle.brake.frontBrakeTorque;
-            var rearBrakeTorque = vehicle.brake.rearBrakeTorque;
-            
+            var frontBrakeTorque = vehicle.brake.frontBrakeTorque;            
             vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontBrakeTorque));
             vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f,frontBrakeTorque));
+
+            var rearBrakeTorque = vehicle.brake.rearBrakeTorque;            
             vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearBrakeTorque));
             vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearBrakeTorque));
 
@@ -117,26 +121,6 @@ namespace vc
             vehicle.clutch.Update(clutchVelo, vehicle.transmission.GearRatio, vehicle.engine.engineAngularVelocity);
             vehicle.engine.Step(new (dt, vehicle.clutch.clutchTorque));
         }
-
-        #region Vehicle
-                
-        private void OnDestroy()
-        {
-            Vehicle.Shutdown(vehicle);
-            //vehicle.body.Shutdown();
-            //vehicle.aero.Shutdown();
-            //vehicle.engine.Shutdown();
-            //vehicle.clutch.Shutdown();
-            //vehicle.transmission.Shutdown();
-            //vehicle.differential.Shutdown();
-            //vehicle.rollbarFront.Shutdown();
-            //vehicle.rollbarRear.Shutdown();
-            //vehicle.brake.Shutdown();
-            //vehicle.wheels.ForEach(w => w.Value.Shutdown());
-            //vehicle.suspension.ForEach(s => s.Value.Shutdown());
-        }
-
-        #endregion Vehicle
 
         #region DebugInformation
 
@@ -154,10 +138,10 @@ namespace vc
             vehicle.wheels[WheelID.LeftRear].DrawGizmos();
 
 
-            vehicle.suspension[WheelID.RightFront].DrawGizmos();
-            vehicle.suspension[WheelID.LeftFront].DrawGizmos();
-            vehicle.suspension[WheelID.RightRear].DrawGizmos();
-            vehicle.suspension[WheelID.LeftRear].DrawGizmos();
+            //vehicle.suspension[WheelID.RightFront].DrawGizmos();
+            //vehicle.suspension[WheelID.LeftFront].DrawGizmos();
+            //vehicle.suspension[WheelID.RightRear].DrawGizmos();
+            //vehicle.suspension[WheelID.LeftRear].DrawGizmos();
 
         }
 
@@ -193,7 +177,7 @@ namespace vc
         #endregion
 
         #region IToggle
-        bool ShowGizmos = false;
+        [SerializeField] bool ShowGizmos = false;
         public void Toggle()
         {
             ShowGizmos = !ShowGizmos;

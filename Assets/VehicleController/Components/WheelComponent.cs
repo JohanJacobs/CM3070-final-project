@@ -42,6 +42,7 @@ namespace vc
             float dt = default;
             float driveTorque = default;
             float brakeTorque = default;
+            public bool ISLocked => isLocked;
             bool isLocked = true;
             //Vector2 combinedSlip = default; // combined Slip X=Force, Y=sideways
 
@@ -141,12 +142,40 @@ namespace vc
             //wheel Acceleration Calculations
             float frictionTorque => Fz * radius; // nm
             float angularAcceleration => MathHelper.SafeDivide((driveTorque - frictionTorque), wheelInertia); // Rad/s²
+            float CalculateLongitudinalSlipVelocity(float wheelAngularVelocity) => wheelAngularVelocity * radius - wheelData.velocityLS.z;
+
+            bool ABSEnabled = true;
+            bool ABSActive = false;
+            float absFactor =default;
+            float GetBrakeTorque()
+            {
+                var absBrakeTorque = brakeTorque;
+
+                // is the ABS active ? 
+                float absTargetSlipRatio = 0.8f;
+                ABSActive = Mathf.Abs(slipZ) > absTargetSlipRatio && brakeTorque > 0f;
+
+                // the more the slip ratio overshoots the more brake torque we reduce 
+                var currentDelta = absTargetSlipRatio - LongitudinalSlipRatio;
+                float minABSTorqueRatio = 0.1f;// 10% minimum force;
+                absFactor = MathHelper.MapAndClamp(currentDelta, absTargetSlipRatio, 1f, minABSTorqueRatio, 1f) ;
+                absBrakeTorque = brakeTorque * (1-absFactor);
+
+                Debug.DrawRay(wheelData.suspensionMountPoint.position, wheelData.suspensionMountPoint.forward * 2f * slipZ,(ABSActive?Color.red:Color.green));
+                                
+                return ABSActive ? absBrakeTorque : brakeTorque;
+            }
             void UpdateWheelVelocity()
             {
                 wheelAngularVelocity += angularAcceleration * dt; // Rad/s
- 
+
+                #region abs section
+                float absBrakeTorque = GetBrakeTorque();
+                #endregion abs section 
+
                 float rollResistanceTorque = wheelData.normalforce * radius * rollingResistanceCoefficient; // nm
-                float totalBrakingTorque= -Mathf.Sign(wheelAngularVelocity) * (brakeTorque + rollResistanceTorque); // nm
+                //float totalBrakingTorque= -Mathf.Sign(wheelAngularVelocity) * (brakeTorque + rollResistanceTorque); // nm
+                float totalBrakingTorque = -Mathf.Sign(wheelAngularVelocity) * (absBrakeTorque + rollResistanceTorque); // nm
                 float brakeAcceleration = (totalBrakingTorque / wheelInertia) * dt;
                 float newAngularVelocity = wheelAngularVelocity + brakeAcceleration;
                 if (Mathf.Sign(newAngularVelocity) != Mathf.Sign(wheelAngularVelocity))
@@ -161,8 +190,8 @@ namespace vc
                 }
 
                 // speed at which we slide
-                longSlipVelocity = wheelAngularVelocity * radius - wheelData.velocityLS.z;
-            }
+                longSlipVelocity = CalculateLongitudinalSlipVelocity(wheelAngularVelocity);
+            }            
             #endregion Longitudinal Wheel Acceleration 
            
             #region Slip Ratio Calculations
@@ -236,16 +265,26 @@ namespace vc
                 if (!wheelData.isGrounded)
                     return;
 
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(wheelData.axlePosition, wheelData.axlePosition + FxForceVec);
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(wheelData.axlePosition, wheelData.axlePosition + FzForceVec);
+                bool drawIsLocked = true;
+                if (drawIsLocked)
+                {
+                    Gizmos.color = ABSActive ? Color.red:Color.green;
+                    Gizmos.DrawSphere(wheelData.suspensionMountPoint.position + wheelData.suspensionMountPoint.up, 0.15f);
+                }
 
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawRay(wheelData.axlePosition, wheelData.forward);
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawRay(wheelData.axlePosition, wheelData.suspensionMountPoint.TransformDirection(wheelData.velocityLS.normalized));
+                bool drawForceVectors = false;
+                if (drawForceVectors)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawLine(wheelData.axlePosition, wheelData.axlePosition + FxForceVec);
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawLine(wheelData.axlePosition, wheelData.axlePosition + FzForceVec);
 
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawRay(wheelData.axlePosition, wheelData.forward);
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawRay(wheelData.axlePosition, wheelData.suspensionMountPoint.TransformDirection(wheelData.velocityLS.normalized));
+                }
             }
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
@@ -254,19 +293,22 @@ namespace vc
 
                 // Longitudinal 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.wheelData.combinedSlip.x).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" absFactor: {(absFactor).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrakeTrq: {(this.brakeTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
+                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
 
                 // Lateral                 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
 
                 // Friction surface 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Surface: {(wheelData.FrictionSurfaceName)}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Mu: {(this.wheelFrictionCoefficient).ToString("F2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rr: {(this.rollingResistanceCoefficient).ToString("F2")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Surface: {(wheelData.FrictionSurfaceName)}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Mu: {(this.wheelFrictionCoefficient).ToString("F2")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rr: {(this.rollingResistanceCoefficient).ToString("F2")}");
                 return yOffset;
             }
             
