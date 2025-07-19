@@ -89,6 +89,7 @@ namespace vc
             // Start the physics step
             vehicle.body.Step(new (dt,veloLS));
             vehicle.aero.Step(new (veloLS));
+            vehicle.transmission.Step(new(vehicle.differential, vehicle.engine, vehicle.body, dt));
 
             vehicle.suspension[WheelID.LeftFront].Step(new (dt));
             vehicle.suspension[WheelID.RightFront].Step(new (dt));
@@ -157,7 +158,7 @@ namespace vc
             float yOffset = 10f;
             float yStep = 20f;
             float xPos = 10f;
-            
+
             //yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.aero.OnGUI(xPos, yOffset, yStep);
 
@@ -172,10 +173,23 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
-            yOffset = vehicle.wheels[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
-            yOffset = vehicle.wheels[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
+
+            bool drawWheelDebug = false;
+            if (drawWheelDebug)
+            {
+                yOffset = vehicle.wheels[WheelID.LeftFront].OnGUI(xPos, yOffset, yStep);
+                yOffset = vehicle.wheels[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
+                yOffset = vehicle.wheels[WheelID.LeftRear].OnGUI(xPos, yOffset, yStep);
+                yOffset = vehicle.wheels[WheelID.RightRear].OnGUI(xPos, yOffset, yStep);
+            }
+
+            bool drawTransmissionDebug = true;
+            if (drawTransmissionDebug)
+            {
+                yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
+                yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
+                yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
+            }
 
         }
 

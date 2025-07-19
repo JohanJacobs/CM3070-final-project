@@ -10,6 +10,12 @@ namespace vc
     {
         public class TransmissionComponent : IVehicleComponent<TransmissionStepParameters>, IDebugInformation
         {
+            public enum TransmissionType
+            {
+                Automatic,
+                Manual
+            }
+
             public float numberOfGears => gearCount.Value;
             FloatVariable gearCount;
             public float GearRatio => ratio;
@@ -26,8 +32,12 @@ namespace vc
 
             FloatVariable efficiency;
 
+            FloatVariable throttleInput;
+            FloatVariable brakeInput;
             bool isInGear = true;
             float ratio = default;
+            TransmissionType transmissionType;
+
             //List<float> gearRatios = new List<float> 0, 3.658f, 1.93f, 1.28f, 0.95f, 0.76f, 0.76f };// fiesta
             List<FloatVariable> gearRatios;
             FloatVariable gearRatioNeutral;
@@ -46,6 +56,8 @@ namespace vc
                 this.gearShiftTime = variables.gearShiftTime;
                 this.reverseGearRatio = variables.gearRatioReverse;
                 this.gearCount = variables.gearCount;
+                this.throttleInput = variables.throttle;
+                this.brakeInput = variables.brake;
 
                 this.gearRatioNeutral = variables.gearRatioNeutral;
                 gearRatios = new();
@@ -184,11 +196,110 @@ namespace vc
                 SetCurrentGearText(currentGear);
                 gearUpInput.OnValueChanged += ShiftUp;
                 gearDownInput.OnValueChanged += ShiftDown;
+
+                transmissionType = this.config.TransmissionType;
+
+                autoShiftTimeTarget = this.config.gearShiftTime * 3f;
             }
+
             public void Step(TransmissionStepParameters parameters)
             {
-
+                if (transmissionType == TransmissionType.Automatic)
+                {
+                    CheckShift(parameters.engine, parameters.differential, parameters.vehicle);
+                    lastAutoShiftTime += parameters.deltaTime;
+                }
             }
+
+            float gearDownSpdTarget;
+            float rpmShiftDownTarget;
+
+            float gearUpSpdTarget;
+
+            float lastAutoShiftTime = 0f;
+            float autoShiftTimeTarget;
+           
+            void CheckShift(IEngineRPM engine,IRatio differential,ISpeed vehicle)
+            {
+                if (lastAutoShiftTime < autoShiftTimeTarget) return;
+
+                bool inFirstGear = currentGear == 1f;
+                bool inReverse = currentGear == -1;
+                bool inNeutral = currentGear == 0f;
+                bool inDriveGear = currentGear > 0f;
+                
+                bool isIdling = engine.CurrentRPM == engine.IdleRRM;
+
+                bool throttleDown = throttleInput.Value > 0f;
+                bool brakeDown = brakeInput.Value > 0f;
+
+                // Neutral to "Reverse" of "First"
+                float rpmTarget = engine.IdleRRM * 1.2f;
+                if (inNeutral && throttleDown && !isIdling)
+                {
+                    // shift up
+                    ShiftUp(1f);
+                    lastAutoShiftTime = 0f;
+                    return;
+                }
+
+                // Go to Reverse Gear 
+                if (inNeutral && brakeDown && isIdling)
+                {
+                    ShiftDown(1f);
+                    lastAutoShiftTime = 0f;
+                    return;
+                }
+
+                // go to neutral from reverse
+                if (inReverse && isIdling)
+                {
+                    ShiftUp(1f);
+                    lastAutoShiftTime = 0f;
+                    return;
+                }
+
+                // GOTO neutral from 1st 
+                if (inFirstGear && (!throttleDown || brakeDown) && isIdling)
+                {
+                    ShiftDown(1f);
+                    lastAutoShiftTime = 0f;
+                    return;
+                }
+
+                if (inDriveGear)
+                {
+                    // GEAR UP
+                    float driveTrainRatio = differential.Ratio * ratio;
+                    float wheelCircumference = 2.14f; //meters
+
+                    float rpmShiftUpTarget = engine.RedlineRPM * efficiency.Value;
+                    float uppserSpdRPM = MathHelper.SafeDivide(rpmShiftUpTarget, driveTrainRatio);
+                    gearUpSpdTarget = uppserSpdRPM * wheelCircumference * 60f / 1000f;
+                                                
+                    if (vehicle.SpeedKMH > gearUpSpdTarget && throttleDown)
+                    {
+                        ShiftUp(1f);
+                        lastAutoShiftTime = 0f;
+                        return;
+                    }
+
+                    //GEAR DOWN
+                    rpmShiftDownTarget = engine.RedlineRPM * 0.5f;
+                    float lowerSpdRPM = MathHelper.SafeDivide(rpmShiftDownTarget, driveTrainRatio);
+                    gearDownSpdTarget = lowerSpdRPM * wheelCircumference * 60f / 1000f;
+                    gearDownSpdTarget = (currentGear == 1f) ? 0f : gearDownSpdTarget;
+                    
+                    if (vehicle.SpeedKMH  < gearDownSpdTarget && currentGear > 1f)
+                    {                        
+                        ShiftDown(1f);
+                        lastAutoShiftTime = 0f;
+                        return;
+                    }
+                }
+            }
+
+
             #endregion IVehicleComponent
 
             #region IDebugInformation
@@ -200,22 +311,41 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"TRANSMISSION");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear Up SPD: ({gearUpSpdTarget.ToString("F2")})");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear Dwn SPD: ({gearDownSpdTarget.ToString("F2")})");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear Dwn RPM: ({rpmShiftDownTarget.ToString("F2")})");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  BrakeInput: ({brakeInput.Value.ToString("F2")})");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  currentGear: ({currentGear.ToString("F2")})");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  lastShiftTime: ({lastAutoShiftTime.ToString("F2")})");
+
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Gear: ({GetGearLabel()})");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Raio: {GearRatio.ToString("F3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Diff.Trq: {diffiretialTorque.ToString("F2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Clutch.Vel: {clutchVelocity.ToString("F2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  in Gear: {isInGear.ToString()}");
                 return yOffset;
             }
             #endregion IDebugInformation
-
-
         }
         #region Parameters
         public class TransmissionStepParameters
         {
+            public TransmissionStepParameters(IRatio differentialComponent,IEngineRPM engineComponent, ISpeed vehicleBodyComponent,float dt)
+            {
+                this.differential = differentialComponent;
+                this.engine = engineComponent;
+                this.vehicle = vehicleBodyComponent;
+                this.deltaTime = dt;
+            }
 
+            public float deltaTime;
+            public IRatio differential;
+            public IEngineRPM engine;
+            public ISpeed vehicle;
         }
         #endregion Parameters
+        
+        
 
     }
 }

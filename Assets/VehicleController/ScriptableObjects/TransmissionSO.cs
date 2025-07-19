@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using vc.VehicleComponent;
 
 namespace vc
 {
@@ -9,6 +10,9 @@ namespace vc
         [CreateAssetMenu(fileName = "Transmission", menuName = "Components/Transmission SO")]
         public class TransmissionSO : ScriptableObjectBase
         {
+            [Tooltip("Type")]
+            public TransmissionComponent.TransmissionType TransmissionType;
+
             [Tooltip("Seconds")]
             public float gearShiftTime;
 

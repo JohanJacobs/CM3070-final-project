@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a8700039b5119242b0c6a944ab07b35, type: 3}
-  m_Name: TransmissionSO
+  m_Name: FiestaTransmissionSO
   m_EditorClassIdentifier: 
+  TransmissionType: 1
   gearShiftTime: 0.5
   efficiency: 0.9
   reverseGearRatio: -3.545

@@ -9,7 +9,15 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class EngineComponent : IVehicleComponent<EngineComponentStepParams>,IDebugInformation
+        public interface IEngineRPM
+        {
+            public float RedlineRPM{ get; }
+            public float IdleRRM { get; }
+            public float CurrentRPM { get; }
+
+        }
+
+        public class EngineComponent : IVehicleComponent<EngineComponentStepParams>,IDebugInformation, IEngineRPM
         {
             EngineSO config;
             FloatVariable throttle;
@@ -22,6 +30,10 @@ namespace vc
             FloatVariable startFriction;            // nm
             FloatVariable frictionCoefficient;       // mu
             FloatVariable engineInertia;            // kg m²
+
+            public float RedlineRPM => redlineRPM.Value;
+            public float IdleRRM => idleRPM.Value;
+            public float CurrentRPM => currentRPM.Value;
 
             float RPMtoRad (float rpm)=> PhysicsHelper.Conversions.RPMToRad(rpm);
             float RadtoRPM(float radians) => PhysicsHelper.Conversions.RadToRPM(radians);

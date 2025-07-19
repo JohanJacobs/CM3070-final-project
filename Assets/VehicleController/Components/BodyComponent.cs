@@ -7,9 +7,14 @@ using static vc.VehicleComponent.BodyComponent;
 
 namespace vc
 {
+    public interface ISpeed
+    {
+        float SpeedKMH { get; }
+    }
+
     namespace VehicleComponent
     {
-        public class BodyComponent : IVehicleComponent<BodyComponentStepParams>, IDebugInformation
+        public class BodyComponent : IVehicleComponent<BodyComponentStepParams>, IDebugInformation, ISpeed
         {
             Rigidbody rb;
             BodySO config;
