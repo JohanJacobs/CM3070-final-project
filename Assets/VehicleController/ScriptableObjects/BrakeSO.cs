@@ -10,6 +10,7 @@ namespace vc
             public float MaxBrakeforce;
             [Range(0f,1f),Tooltip("% to the front, 0.5 middle")]
             public float brakeBalance;
+            public bool ABSEnabled;
 
             [Header("Input")]
             public FloatVariable brakeInputVariable;

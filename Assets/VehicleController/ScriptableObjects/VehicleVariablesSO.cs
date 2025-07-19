@@ -51,6 +51,7 @@ namespace vc
             [Header("Brakes")]
             public FloatVariable brakeTorque;
             public FloatVariable brakeBalance;
+            public BoolVariable ABSActive;
 
             [Header("Aero")]
             public FloatVariable DragCoefficient;

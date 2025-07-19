@@ -4858,7 +4858,7 @@ Transform:
   m_GameObject: {fileID: 1036116906}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 55.6349, y: 36.406, z: 10.221616}
+  m_LocalPosition: {x: 13.3, y: -0.136, z: 10.221616}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4927,7 +4927,7 @@ MonoBehaviour:
     suspMount: {fileID: 266966726}
   differentialConfig: {fileID: 11400000, guid: f22dc8ad94613f147bb55211227af8c4, type: 2}
   transmissionConfig: {fileID: 11400000, guid: f7e672977cc907442a1ebfcce2b1199f, type: 2}
-  engineConfig: {fileID: 11400000, guid: 42fdf52b317f5ab42806772f82b1e92b, type: 2}
+  engineConfig: {fileID: 11400000, guid: 61ce403ec78bb2a4e8e5f77262cfe10a, type: 2}
   clutchConfig: {fileID: 11400000, guid: 32954204d18020c46bbf02c4353a3f70, type: 2}
   bodyConfig: {fileID: 11400000, guid: 41dc0249613a36c48b181f84e9e3f984, type: 2}
   brakeConfig: {fileID: 11400000, guid: 14151ac891c5a024580b5cca6456e0af, type: 2}
@@ -4935,6 +4935,7 @@ MonoBehaviour:
   frontAntiRollbar: {fileID: 11400000, guid: d1bb6c11d7c70dd46b4c4967c6893d87, type: 2}
   rearAntiRollbar: {fileID: 11400000, guid: 164e61b7a7af1d841b3529996f0b9594, type: 2}
   vehicleVariables: {fileID: 11400000, guid: 33cbb8478f639a84b81652628cdb1324, type: 2}
+  ShowGizmos: 0
   HUDPrefab: {fileID: 9100181437917035275, guid: d8508c8882756584da3b05b95546a413,
     type: 3}
   isHUDVisible: 1

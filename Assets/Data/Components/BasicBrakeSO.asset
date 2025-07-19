@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef6f5c15757bef64bb6d72690f54e9f6, type: 3}
   m_Name: BasicBrakeSO
   m_EditorClassIdentifier: 
-  MaxBrakeforce: 3000
-  brakeBalance: 0.65
+  MaxBrakeforce: 4000
+  brakeBalance: 0.4
+  ABSEnabled: 1
   brakeInputVariable: {fileID: 11400000, guid: 0d47960c992689b45be4754409a8a1ba, type: 2}
   handbrakeInputVariable: {fileID: 11400000, guid: 572457dd301430e46af27ad10d78392c,
     type: 2}

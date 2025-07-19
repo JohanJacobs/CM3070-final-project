@@ -75,6 +75,8 @@ namespace vc
             vehicle.wheels.ForEach(w => {
                 w.Value.UpdateVisuals(Time.deltaTime); 
             });
+
+            vehicle.brake.UpdateVisuals(Time.deltaTime);
         }
 
         private void FixedUpdate()
@@ -103,14 +105,17 @@ namespace vc
                     vehicle.wheels[WheelID.LeftRear], 
                     vehicle.wheels[WheelID.RightRear],
                     dt);
-
-            var frontBrakeTorque = vehicle.brake.frontBrakeTorque;            
-            vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontBrakeTorque));
-            vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f,frontBrakeTorque));
-
-            var rearBrakeTorque = vehicle.brake.rearBrakeTorque;            
-            vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearBrakeTorque));
-            vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearBrakeTorque));
+            
+            // Wheels
+            var frontLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftFront]);
+            var frontRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightFront]);
+            vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontLeftBrakeTorque));
+            vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f, frontRightBrakeTorque));
+                        
+            var rearLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftRear]);
+            var rearRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightRear]);
+            vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearLeftBrakeTorque));
+            vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearRightBrakeTorque));
 
             // FEEDBACK PHASE
             var transVelo = vehicle.differential.CalculateTransmissionVelocity(
