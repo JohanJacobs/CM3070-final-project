@@ -20,7 +20,7 @@ namespace vc
         public class EngineComponent : IVehicleComponent<EngineComponentStepParams>,IDebugInformation, IEngineRPM
         {
             EngineSO config;
-            FloatVariable throttle;
+            FloatVariable throttleInput;
             
             AnimationCurve torqueCurve;
 
@@ -30,6 +30,7 @@ namespace vc
             FloatVariable startFriction;            // nm
             FloatVariable frictionCoefficient;       // mu
             FloatVariable engineInertia;            // kg m²
+            BoolVariable tcEnabled;
 
             public float RedlineRPM => redlineRPM.Value;
             public float IdleRRM => idleRPM.Value;
@@ -43,7 +44,7 @@ namespace vc
                 this.config = config;
 
                 // setup variables
-                this.throttle = variables.throttle;
+                this.throttleInput = variables.throttle;
 
                 this.idleRPM = variables.engineIdleRPM;
                 this.redlineRPM = variables.engineRedlineRPM;
@@ -51,15 +52,24 @@ namespace vc
                 this.startFriction = variables.engineStartFriction;
                 this.frictionCoefficient = variables.engineInternalFrictionCoefficient;
                 this.engineInertia = variables.engineInertia;
+                this.tcEnabled = variables.TractionControlEnabled;
             }
 
             #region Engine Component
 
             float maxEffectiveTorque => torqueCurve.Evaluate(engineRPM);
             float engineRPM => currentRPM.Value;
-            
+
+
             float engineInternalFriction => startFriction.Value + (engineRPM * frictionCoefficient.Value);
-            float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * throttle.Value;
+            
+            float autoThrottle => (throttleValue < 1f)?0.01f:0f; // idling, only add it if the throttle is not maxed out
+            float tractionControlFactor = 1f;
+
+            bool isTCEnabled => tcEnabled.Value;
+            
+            float throttleValue => throttleInput.Value * tractionControlFactor;
+            float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * (throttleValue + autoThrottle);
             float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
             float idleAngularRotation => RPMtoRad(idleRPM.Value);
             float redlineAngularRotation => RPMtoRad(redlineRPM.Value);
@@ -67,8 +77,10 @@ namespace vc
             public float engineAngularVelocity=100f;
             float engineEffectiveTorque =default;
             
-            void UpdateEngineAcceleration(float dt,float loadTorque)
+            void UpdateEngineAcceleration(float dt,float loadTorque,float tractionControlThrottleAdjustFactor)
             {
+                tractionControlFactor = isTCEnabled?tractionControlThrottleAdjustFactor:1f;
+
                 engineEffectiveTorque = currentEffectiveTorque;
                 float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia.Value;                
                 engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + acceleration * dt, idleAngularRotation , redlineAngularRotation);
@@ -86,7 +98,9 @@ namespace vc
                 this.redlineRPM.Value = this.config.redlineRPM;
                 this.startFriction.Value = this.config.startFriction;
                 this.engineInertia.Value = this.config.engineEnirtia;
-                this.frictionCoefficient.Value = this.config.frictionCoefficient;
+                this.frictionCoefficient.Value = this.config.frictionCoefficient;             
+                
+                
             }
 
             public void Shutdown()
@@ -95,7 +109,7 @@ namespace vc
             }
             public void Step(EngineComponentStepParams parameters)
             {
-                UpdateEngineAcceleration(parameters.dt, parameters.loadTorque);
+                UpdateEngineAcceleration(parameters.dt, parameters.loadTorque, parameters.tc.TractionControlThrottleAdjustFactor);
             }
             #endregion IVehicleComponent
 
@@ -108,7 +122,7 @@ namespace vc
             public float OnGUI(float xOffset, float yOffset, float yStep)
             {
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"ENGINE");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Throttle : {throttle.Value.ToString("F3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Throttle : {throttleInput.Value.ToString("F3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Torque: {engineEffectiveTorque.ToString("F3")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  RPM: {engineRPM.ToString("F3")}");
                 return yOffset;
@@ -121,13 +135,15 @@ namespace vc
         }
         public class EngineComponentStepParams
         {
-            public EngineComponentStepParams(float dt, float loadTorque)
+            public EngineComponentStepParams(float dt, float loadTorque, ITractionControl tc)
             {
                 this.dt = dt;
                 this.loadTorque = loadTorque;
+                this.tc = tc;
             }
             public float dt;
             public float loadTorque;
+            public ITractionControl tc;
         }
         #endregion  VehicleComponentStepParams
 

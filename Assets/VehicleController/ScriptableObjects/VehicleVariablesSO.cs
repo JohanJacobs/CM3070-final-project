@@ -79,6 +79,11 @@ namespace vc
 
             [Header("Tires")]
             public ScriptableObjectVariable Tires;
+
+            [Header("Traction Control")]
+            public FloatVariable TractionControlSetting;
+            public BoolVariable TractionControlEnabled;
+            public BoolVariable TractionControlActive;
         }
     }
 }

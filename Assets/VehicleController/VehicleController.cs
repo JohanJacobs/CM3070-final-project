@@ -28,13 +28,32 @@ namespace vc
         [SerializeField] AeroSO aeroConfig;
         [SerializeField] AntiRollbarSO frontAntiRollbar;
         [SerializeField] AntiRollbarSO rearAntiRollbar;
+        [SerializeField] TractionControlSO tractionControl;
+
+        [Header("Drive Wheel Config")]
+        [SerializeField] bool FrontLeft = false;
+        [SerializeField] bool FrontRight = false;
+        [SerializeField] bool RearLeft =true;
+        [SerializeField] bool RearRight = true;
 
         Rigidbody carRigidbody;
                 
         Vehicle vehicle;
         public Vehicle GetVehicle => vehicle;
         [SerializeField] VehicleVariablesSO vehicleVariables;
-        
+
+
+        [Button("TC Increase")]
+        private void IncreaseTC()
+        {
+            vehicle.TractionControlEngine.IncreaseStrength();
+        }
+        [Button("TC Decrease")]
+        private void DecreaseTC()
+        {
+            vehicle.TractionControlEngine.DecreaseStrength();
+        }
+
         public void Awake()
         {
             carRigidbody = GetComponent<Rigidbody>();
@@ -60,7 +79,11 @@ namespace vc
                 aeroConfig,
                 frontAntiRollbar,
                 rearAntiRollbar,
-                vehicleVariables);
+                vehicleVariables,
+                tractionControl
+                );
+
+            vehicle.SetDriveWheels(FrontLeft,FrontRight,RearLeft,RearRight);
         }
         private void OnDestroy()
         {
@@ -99,13 +122,13 @@ namespace vc
             vehicle.rollbarFront.Step(new (dt));
             vehicle.rollbarRear.Step(new (dt));
 
+
             // DRIVE PHASE 
-            var diffInpuTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
+            var diffInputTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
             var driveTorque = vehicle.differential.CalculateWheelOutputTorque(
-                    diffInpuTorque, 
-                    vehicle.wheels[WheelID.LeftRear], 
-                    vehicle.wheels[WheelID.RightRear],
-                    dt);
+                diffInputTorque,
+                vehicle.wheels[WheelID.LeftRear], vehicle.wheels[WheelID.RightRear],
+                dt);
             
             // Wheels
             var frontLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftFront]);
@@ -125,7 +148,10 @@ namespace vc
             var clutchVelo = vehicle.transmission.CalculateClutchVelocity(transVelo);
 
             vehicle.clutch.Update(clutchVelo, vehicle.transmission.GearRatio, vehicle.engine.engineAngularVelocity);
-            vehicle.engine.Step(new (dt, vehicle.clutch.clutchTorque));
+
+            vehicle.TractionControlEngine.Step(new());
+
+            vehicle.engine.Step(new (dt, vehicle.clutch.clutchTorque, vehicle.TractionControlEngine));
         }
 
         #region DebugInformation
@@ -173,8 +199,13 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
+            bool drawTractionControlDedug = true;
+            if (drawTractionControlDedug)
+            {
+                yOffset = vehicle.TractionControlEngine.OnGUI(xPos, yOffset, yStep);
+            }
 
-            bool drawWheelDebug = false;
+            bool drawWheelDebug = true;
             if (drawWheelDebug)
             {
                 yOffset = vehicle.wheels[WheelID.LeftFront].OnGUI(xPos, yOffset, yStep);
@@ -183,7 +214,7 @@ namespace vc
                 yOffset = vehicle.wheels[WheelID.RightRear].OnGUI(xPos, yOffset, yStep);
             }
 
-            bool drawTransmissionDebug = true;
+            bool drawTransmissionDebug = false;
             if (drawTransmissionDebug)
             {
                 yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);

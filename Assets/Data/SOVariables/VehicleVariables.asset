@@ -63,3 +63,9 @@ MonoBehaviour:
   BodyMass: {fileID: 11400000, guid: 0f4c635f7c6956342a919f29815ccc4a, type: 2}
   BodyDrag: {fileID: 11400000, guid: 124a8650e7b676147993039fec05650a, type: 2}
   Tires: {fileID: 11400000, guid: de980eb280d55314886c93d890c70d7d, type: 2}
+  TractionControlSetting: {fileID: 11400000, guid: 2d5814f913830574e94c6e7af1945bf9,
+    type: 2}
+  TractionControlEnabled: {fileID: 11400000, guid: 83a6bbdea6fc09b419e8542dd6346c51,
+    type: 2}
+  TractionControlActive: {fileID: 11400000, guid: d7ead9ba2cebd2e4ab172a34ff4527ee,
+    type: 2}

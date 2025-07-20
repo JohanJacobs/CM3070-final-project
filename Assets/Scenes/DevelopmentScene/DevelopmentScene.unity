@@ -2357,7 +2357,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -85.4, y: -61.1}
+  m_AnchoredPosition: {x: -85.3999, y: -61.099976}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &495128792
@@ -4934,6 +4934,11 @@ MonoBehaviour:
   aeroConfig: {fileID: 11400000, guid: c96902096aa94274bb9d999417eb374d, type: 2}
   frontAntiRollbar: {fileID: 11400000, guid: d1bb6c11d7c70dd46b4c4967c6893d87, type: 2}
   rearAntiRollbar: {fileID: 11400000, guid: 164e61b7a7af1d841b3529996f0b9594, type: 2}
+  tractionControl: {fileID: 11400000, guid: c8d61fd834c7b204f9e10105e90ea5d5, type: 2}
+  FrontLeft: 0
+  FrontRight: 0
+  RearLeft: 1
+  RearRight: 1
   vehicleVariables: {fileID: 11400000, guid: 33cbb8478f639a84b81652628cdb1324, type: 2}
   ShowGizmos: 0
   HUDPrefab: {fileID: 9100181437917035275, guid: d8508c8882756584da3b05b95546a413,

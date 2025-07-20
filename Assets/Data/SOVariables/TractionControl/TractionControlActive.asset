@@ -9,16 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a8700039b5119242b0c6a944ab07b35, type: 3}
-  m_Name: FiestaTransmissionSO
+  m_Script: {fileID: 11500000, guid: 717b2e0a48772a74fb14f30d7db0af1c, type: 3}
+  m_Name: TractionControlActive
   m_EditorClassIdentifier: 
-  TransmissionType: 0
-  gearShiftTime: 0.5
-  efficiency: 0.9
-  reverseGearRatio: -3.545
-  gearRatios:
-  - 3.72
-  - 2.16
-  - 1.48
-  - 1.15
-  - 0.88
+  label: 
+  _value: 0

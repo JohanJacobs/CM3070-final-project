@@ -21,6 +21,7 @@ namespace vc
         public RollbarComponent rollbarRear;
         public BrakeComponent brake;
         public AeroComponent aero;
+        public TractionControlEngineComponent TractionControlEngine;
 
         public static Vehicle Setup(Rigidbody carRigidbody,
             VehicleConfiguration.WheelConfiguration[] wheelConfig,
@@ -33,7 +34,8 @@ namespace vc
             AeroSO aeroConfig,
             AntiRollbarSO antiRollbarFront,
             AntiRollbarSO antiRollbarRear,
-            VehicleVariablesSO vehicleVariables)
+            VehicleVariablesSO vehicleVariables,
+            TractionControlSO tcEngine)
         {
             Vehicle newVehicle = new();
 
@@ -84,13 +86,27 @@ namespace vc
             newVehicle.aero = new(aeroConfig, carRigidbody, vehicleVariables);
             newVehicle.aero.Start();
 
+            newVehicle.TractionControlEngine = new(tcEngine, vehicleVariables, newVehicle.wheels);
+            newVehicle.TractionControlEngine.Start();
+
             return newVehicle;
+        }
+
+
+        public void SetDriveWheels(bool leftFront, bool rightFront, bool leftRear, bool rightRear)
+        {
+            wheels[WheelID.LeftFront].SetDriveWheel(leftFront);
+            wheels[WheelID.RightFront].SetDriveWheel(rightFront);
+            wheels[WheelID.LeftRear].SetDriveWheel(leftRear);
+            wheels[WheelID.RightRear].SetDriveWheel(rightRear);
+
         }
 
         public static void Shutdown(Vehicle vehicle)
         {
             vehicle.body.Shutdown();
             vehicle.aero.Shutdown();
+            vehicle.TractionControlEngine.Shutdown();
             vehicle.engine.Shutdown();
             vehicle.clutch.Shutdown();
             vehicle.transmission.Shutdown();
@@ -99,7 +115,7 @@ namespace vc
             vehicle.rollbarRear.Shutdown();
             vehicle.brake.Shutdown();
             vehicle.wheels.ForEach(w => w.Value.Shutdown());
-            vehicle.suspension.ForEach(s => s.Value.Shutdown());
+            vehicle.suspension.ForEach(s => s.Value.Shutdown());            
             vehicle = null;
         }
     }

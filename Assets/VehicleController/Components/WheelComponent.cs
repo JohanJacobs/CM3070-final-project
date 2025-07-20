@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,7 +9,14 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class WheelComponent : IVehicleComponent<WheelComponenetStepParameters>, IDebugInformation, IHasInertia, IABS
+        public interface IDriveWheel
+        {
+            public bool isDriveWheel { get;}
+            public void SetDriveWheel(bool state);
+            public float LongitudinalSlipRatio { get; }
+        }
+
+        public class WheelComponent : IVehicleComponent<WheelComponenetStepParameters>, IDebugInformation, IHasInertia, IABS, IDriveWheel
         {
 
             WheelSO config;
@@ -108,8 +116,7 @@ namespace vc
                 wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined;
             }
             #region Lateral Forces
-            
-            
+                       
             private WheelLateralSlipCalculator latCalc = new();
             
             public float SlipAngleDynamic => latCalc.lateralSlipAngleDynamic;
@@ -271,21 +278,31 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip: {(this.LongitudinalSlipRatio).ToString("f2")}");
+
 
                 // Lateral                 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
 
                 // Friction surface 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Surface: {(wheelData.FrictionSurfaceName)}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Mu: {(this.wheelFrictionCoefficient).ToString("F2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rr: {(this.rollingResistanceCoefficient).ToString("F2")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Surface: {(wheelData.FrictionSurfaceName)}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Mu: {(this.wheelFrictionCoefficient).ToString("F2")}");
+                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" rr: {(this.rollingResistanceCoefficient).ToString("F2")}");
                 return yOffset;
             }
-            
+
             #endregion IDebugInformation
 
+            #region IDriveWheel
+            public bool isDriveWheel => driveWheelState;
+            bool driveWheelState = false;
+            public void SetDriveWheel(bool state)
+            {
+                driveWheelState = state;
+            }
+            #endregion IDriveWheel
             public class WheelLateralSlipCalculator
             {
 
