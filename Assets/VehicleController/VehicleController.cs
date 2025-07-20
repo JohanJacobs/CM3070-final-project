@@ -34,8 +34,6 @@ namespace vc
         Vehicle vehicle;
         public Vehicle GetVehicle => vehicle;
         [SerializeField] VehicleVariablesSO vehicleVariables;
-
-
         
         public void Awake()
         {
