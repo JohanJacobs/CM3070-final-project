@@ -83,13 +83,15 @@ namespace vc
         {
             float dt = Time.fixedDeltaTime;
 
+            float wheelRadius = vehicle.wheels[WheelID.RightRear].radius;
+
             // Calculate the velocity of the vehicle
             Vector3 veloLS = carRigidbody.transform.InverseTransformDirection(carRigidbody.velocity);   
             
             // Start the physics step
             vehicle.body.Step(new (dt,veloLS));
             vehicle.aero.Step(new (veloLS));
-            vehicle.transmission.Step(new(vehicle.differential, vehicle.engine, vehicle.body, dt));
+            vehicle.transmission.Step(new(vehicle.differential, vehicle.engine, vehicle.body, dt, wheelRadius));
 
             vehicle.suspension[WheelID.LeftFront].Step(new (dt));
             vehicle.suspension[WheelID.RightFront].Step(new (dt));

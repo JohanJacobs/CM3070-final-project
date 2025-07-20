@@ -9,6 +9,9 @@ namespace vc
             static readonly float ms_kmh_conversion = 3.6f;
             public static float MStoKMH(float metersPerSecond) => metersPerSecond * ms_kmh_conversion; // km/h
 
+            static readonly float meterPerMinute_kmh_converstion = 60f / 1000f;
+            public static float MPerMinuteToKMH(float meterPerMinute) => meterPerMinute * meterPerMinute_kmh_converstion;
+
             static float radians_to_revolutions_per_minute = 60f / (2 * Mathf.PI);
             public static float RadToRPM(float radians) => radians * radians_to_revolutions_per_minute;
             public static float RPMToRad(float rpm) => rpm / radians_to_revolutions_per_minute;

@@ -206,7 +206,8 @@ namespace vc
             {
                 if (transmissionType == TransmissionType.Automatic)
                 {
-                    CheckShift(parameters.engine, parameters.differential, parameters.vehicle);
+                    var wheelCircumference = parameters.wheelRadiusMeter * 2f * Mathf.PI;
+                    CheckShift(parameters.engine, parameters.differential, parameters.vehicle, wheelCircumference);
                     lastAutoShiftTime += parameters.deltaTime;
                 }
             }
@@ -219,7 +220,7 @@ namespace vc
             float lastAutoShiftTime = 0f;
             float autoShiftTimeTarget;
            
-            void CheckShift(IEngineRPM engine,IRatio differential,ISpeed vehicle)
+            void CheckShift(IEngineRPM engine,IRatio differential,ISpeed vehicle, float wheelCircumference)
             {
                 if (lastAutoShiftTime < autoShiftTimeTarget) return;
 
@@ -233,6 +234,8 @@ namespace vc
                 bool throttleDown = throttleInput.Value > 0f;
                 bool brakeDown = brakeInput.Value > 0f;
 
+
+                // TODO : should be a state machine 
                 // Neutral to "Reverse" of "First"
                 float rpmTarget = engine.IdleRRM * 1.2f;
                 if (inNeutral && throttleDown && !isIdling)
@@ -270,13 +273,11 @@ namespace vc
                 if (inDriveGear)
                 {
                     // GEAR UP
-                    float driveTrainRatio = differential.Ratio * ratio;
-                    float wheelCircumference = 2.14f; //meters
+                    var driveTrainRatio = differential.Ratio * ratio;
+                    var rpmShiftUpTarget = engine.RedlineRPM * 0.75f;
+                    var uppserSpdRPM = MathHelper.SafeDivide(rpmShiftUpTarget, driveTrainRatio);
+                    gearUpSpdTarget = PhysicsHelper.Conversions.MPerMinuteToKMH(uppserSpdRPM * wheelCircumference);
 
-                    float rpmShiftUpTarget = engine.RedlineRPM * efficiency.Value;
-                    float uppserSpdRPM = MathHelper.SafeDivide(rpmShiftUpTarget, driveTrainRatio);
-                    gearUpSpdTarget = uppserSpdRPM * wheelCircumference * 60f / 1000f;
-                                                
                     if (vehicle.SpeedKMH > gearUpSpdTarget && throttleDown)
                     {
                         ShiftUp(1f);
@@ -286,8 +287,8 @@ namespace vc
 
                     //GEAR DOWN
                     rpmShiftDownTarget = engine.RedlineRPM * 0.5f;
-                    float lowerSpdRPM = MathHelper.SafeDivide(rpmShiftDownTarget, driveTrainRatio);
-                    gearDownSpdTarget = lowerSpdRPM * wheelCircumference * 60f / 1000f;
+                    var lowerSpdRPM = MathHelper.SafeDivide(rpmShiftDownTarget, driveTrainRatio);
+                    gearDownSpdTarget = (lowerSpdRPM * wheelCircumference) * 60f / 1000f;
                     gearDownSpdTarget = (currentGear == 1f) ? 0f : gearDownSpdTarget;
                     
                     if (vehicle.SpeedKMH  < gearDownSpdTarget && currentGear > 1f)
@@ -330,18 +331,20 @@ namespace vc
         #region Parameters
         public class TransmissionStepParameters
         {
-            public TransmissionStepParameters(IRatio differentialComponent,IEngineRPM engineComponent, ISpeed vehicleBodyComponent,float dt)
+            public TransmissionStepParameters(IRatio differentialComponent,IEngineRPM engineComponent, ISpeed vehicleBodyComponent,float dt, float wheelRadiusMeter)
             {
                 this.differential = differentialComponent;
                 this.engine = engineComponent;
                 this.vehicle = vehicleBodyComponent;
                 this.deltaTime = dt;
+                this.wheelRadiusMeter = wheelRadiusMeter;
             }
 
             public float deltaTime;
             public IRatio differential;
             public IEngineRPM engine;
             public ISpeed vehicle;
+            public float wheelRadiusMeter;
         }
         #endregion Parameters
         
