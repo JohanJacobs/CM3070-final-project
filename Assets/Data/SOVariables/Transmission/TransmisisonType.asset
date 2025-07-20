@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24ac4d5bec4cb8e4ba98335b5ee31a2d, type: 3}
-  m_Name: BasicTractionControlSO
+  m_Script: {fileID: 11500000, guid: 8586d64695d80f348a9e91087d9e1f3b, type: 3}
+  m_Name: TransmisisonType
   m_EditorClassIdentifier: 
-  TCEnabled: 1
-  TCMin: 0.5
-  TCMax: 10
-  TCDefault: 7
-  TCStep: 0.5
+  label: Type
+  _value: 0

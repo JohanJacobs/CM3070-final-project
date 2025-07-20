@@ -199,7 +199,7 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
-            bool drawTractionControlDedug = true;
+            bool drawTractionControlDedug = false;
             if (drawTractionControlDedug)
             {
                 yOffset = vehicle.TractionControlEngine.OnGUI(xPos, yOffset, yStep);

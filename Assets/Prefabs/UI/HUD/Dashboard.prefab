@@ -864,6 +864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentRPM: {fileID: 11400000, guid: 6811291d21d8e4b42a5ed93c3b5bf991, type: 2}
+  maxRPM: {fileID: 11400000, guid: 5ab4091859e40774f81300cafb86d71e, type: 2}
   preFix: 
   postFix: ' PRM'
   textDisplay: {fileID: 1634635324326248238}

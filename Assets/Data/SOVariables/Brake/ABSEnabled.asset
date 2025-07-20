@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 717b2e0a48772a74fb14f30d7db0af1c, type: 3}
   m_Name: ABSEnabled
   m_EditorClassIdentifier: 
-  label: 
-  _value: 0
+  label: Abs Enabled
+  _value: 1

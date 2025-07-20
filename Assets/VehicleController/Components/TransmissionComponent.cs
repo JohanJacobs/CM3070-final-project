@@ -36,7 +36,7 @@ namespace vc
             FloatVariable brakeInput;
             bool isInGear = true;
             float ratio = default;
-            TransmissionType transmissionType;
+            TransmissionTypeVariable transmissionType;
 
             //List<float> gearRatios = new List<float> 0, 3.658f, 1.93f, 1.28f, 0.95f, 0.76f, 0.76f };// fiesta
             List<FloatVariable> gearRatios;
@@ -58,6 +58,7 @@ namespace vc
                 this.gearCount = variables.gearCount;
                 this.throttleInput = variables.throttle;
                 this.brakeInput = variables.brake;
+                this.transmissionType = variables.transmissionType;
 
                 this.gearRatioNeutral = variables.gearRatioNeutral;
                 gearRatios = new();
@@ -197,14 +198,15 @@ namespace vc
                 gearUpInput.OnValueChanged += ShiftUp;
                 gearDownInput.OnValueChanged += ShiftDown;
 
-                transmissionType = this.config.TransmissionType;
+                transmissionType.Value = this.config.TransmissionType;
 
                 autoShiftTimeTarget = this.config.gearShiftTime * 3f;
             }
 
+            bool isAutomaticTransmission => transmissionType.Value == TransmissionType.Automatic;
             public void Step(TransmissionStepParameters parameters)
             {
-                if (transmissionType == TransmissionType.Automatic)
+                if (isAutomaticTransmission)
                 {
                     var wheelCircumference = parameters.wheelRadiusMeter * 2f * Mathf.PI;
                     CheckShift(parameters.engine, parameters.differential, parameters.vehicle, wheelCircumference);

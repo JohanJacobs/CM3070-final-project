@@ -30,6 +30,7 @@ MonoBehaviour:
   clutchCapacity: {fileID: 11400000, guid: 8ac2786f12192f14db3cd8e5cffb882c, type: 2}
   clutchDampingRate: {fileID: 11400000, guid: 876fbcb3e28928944886126d2fc1b852, type: 2}
   clutchStiffness: {fileID: 11400000, guid: 73d8a34afc0076d4e8a10e641ecc2e20, type: 2}
+  transmissionType: {fileID: 11400000, guid: 1380e59dfc2500c4cb09b43c2b1c5d90, type: 2}
   transmissionEfficiency: {fileID: 11400000, guid: b203e8c2b7197fe40af3b6f5754efc21,
     type: 2}
   currentGearText: {fileID: 11400000, guid: 8974291530e23704a8f7686efaea7990, type: 2}
@@ -47,6 +48,7 @@ MonoBehaviour:
   brakeTorque: {fileID: 11400000, guid: c0c715703a00c5d409e7e70e564a65c5, type: 2}
   brakeBalance: {fileID: 11400000, guid: 60a930c79614d6944aaf44562e4060d4, type: 2}
   ABSActive: {fileID: 11400000, guid: c1d87dcaddb7ada438d2f588aca94d04, type: 2}
+  ABSEnabled: {fileID: 11400000, guid: 3ff08c5345d5be746a45c07736cbd934, type: 2}
   DragCoefficient: {fileID: 11400000, guid: 4fbdf04cb2112c341b3f7cbde2eb72f3, type: 2}
   LiftCoefficient: {fileID: 11400000, guid: 1885b4854b4b66f4ab146fbf020a0cb7, type: 2}
   SurfaceAera: {fileID: 11400000, guid: 34050f5df0badf242894ed688f4eb8bb, type: 2}
