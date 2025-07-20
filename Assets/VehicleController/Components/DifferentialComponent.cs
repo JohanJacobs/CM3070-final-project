@@ -7,11 +7,6 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public interface IRatio
-        {
-            public float Ratio { get; }
-        }
-
         public class DifferentialComponent:IVehicleComponent<DifferentialComponenetStepParameters>,IDebugInformation,IRatio
         {
             public enum DifferentialType
