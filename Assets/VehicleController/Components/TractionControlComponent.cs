@@ -109,10 +109,13 @@ namespace vc
                 if (transmissionCurrentGear.Value == "N" || throttleInput.Value <= float.Epsilon)
                     return;
 
-                // update the traction control
+                // Update the traction control
                 averageSlip = CalculateAverageSlip();         
                 
+                // Caclualte the new Factor to limit the engine by
                 tcInputFactor = Mathf.Clamp(MathHelper.SafeDivide(TCStrength, Mathf.Abs(averageSlip)),0f,1f);
+
+                // Set the flag
                 TCActive.Value = tcInputFactor < 1f;
             }
 

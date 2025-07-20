@@ -25,7 +25,8 @@ public class UIDisplayRPM : MonoBehaviour
     void Variable_OnValueChanged(float newValue)
     {
         textDisplay.text =preFix + (Mathf.RoundToInt(newValue/10f)*10f).ToString("f0") + postFix;
-        if (newValue > 6500)
+        //TODO: Redline start should be a variable
+        if (newValue > 7000)
             textDisplay.color = Color.red;
         else
             textDisplay.color = Color.white;

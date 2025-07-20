@@ -20,8 +20,8 @@ namespace vc
             FloatVariable maxBrakeTorque;
             FloatVariable brakeBalance;
             BoolVariable ABSActive;
-            Dictionary<WheelID, bool> wheelABSState = new();
-            bool absEnabled;
+            BoolVariable ABSEnabled;
+            Dictionary<WheelID, bool> wheelABSState = new();            
 
             #region Brake Component
             public BrakeComponent(BrakeSO brakeConfig, VehicleVariablesSO variables)
@@ -35,6 +35,7 @@ namespace vc
                 this.maxBrakeTorque = variables.brakeTorque;
                 this.brakeBalance = variables.brakeBalance;
                 this.ABSActive = variables.ABSActive;
+                this.ABSEnabled = variables.ABSEnabled;
 
                 // setup data structure                
                 wheelABSState.Add(WheelID.LeftFront, false);
@@ -48,13 +49,14 @@ namespace vc
             
             float absTargetSlipRatio = 0.8f;
             float minABSTorqueRatio = 0.1f;// 10% minimum force;
+            bool isABSEnabled => ABSEnabled.Value;
             public float CalculateBrakeTorque (WheelComponent wheel)
             {
                 var brakeTorque = isFrontWheel(wheel.id) ? frontBrakeTorque : rearBrakeTorque;
 
                 IABS abs = wheel;
                 // If the ABS system is disabled just return the brake torque
-                if (!absEnabled) return brakeTorque;
+                if (!isABSEnabled) return brakeTorque;
                 // Calculate the new brake torque based on the ABS system
                 return ABSAdjustedBrakeToqrue(abs, wheel.LongitudinalSlipRatio,brakeTorque);
             }
@@ -89,7 +91,7 @@ namespace vc
             {
                 this.maxBrakeTorque.Value = this.config.MaxBrakeforce;
                 this.brakeBalance.Value = this.config.brakeBalance;
-                this.absEnabled = this.config.ABSEnabled;
+                this.ABSEnabled.Value = this.config.ABSEnabled;
             }
 
             public void Shutdown()
