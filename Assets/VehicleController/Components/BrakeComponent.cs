@@ -51,8 +51,8 @@ namespace vc
                 wheelABSState.Add(WheelID.RightRear, false);
             }
 
-            float rearBrakeTorque => brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
-            float frontBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque.Value * (1f - brakeBalance.Value) + handbrakeInput.Value * maxBrakeTorque.Value, maxBrakeTorque.Value); //nm
+            float frontBrakeTorque => brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
+            float rearBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque.Value * (1f - brakeBalance.Value) + handbrakeInput.Value * maxBrakeTorque.Value, maxBrakeTorque.Value); //nm
             
             float absTargetSlipRatio = 0.8f;
             float minABSTorqueRatio = 0.1f;// 10% minimum force;
@@ -64,6 +64,7 @@ namespace vc
                 IABS abs = wheel;
                 // If the ABS system is disabled just return the brake torque
                 if (!isABSEnabled) return brakeTorque;
+
                 // Calculate the new brake torque based on the ABS system
                 return ABSAdjustedBrakeToqrue(abs, wheel.LongitudinalSlipRatio,brakeTorque);
             }
