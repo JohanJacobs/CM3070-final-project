@@ -2,10 +2,10 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public interface IABS
+        public interface IABS:IWheel
         {
-            public WheelID id { get; }
-            bool IsActive { get; set; }
+            public bool IsActive { get; set; }
+            public float LongitudinalSlipRatio { get; }
         }
     }
 }

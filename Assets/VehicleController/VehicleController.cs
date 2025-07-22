@@ -130,6 +130,7 @@ namespace vc
                 dt);
             
             // Wheels
+            // TODO: pass the ESC and Brake as params instead of the values
             var frontLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftFront]) + vehicle.ElectronicSpeedController.FrontLeftBrakeForce;
             var frontRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightFront]) + vehicle.ElectronicSpeedController.FrontRightBrakeFroce;
             vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontLeftBrakeTorque));

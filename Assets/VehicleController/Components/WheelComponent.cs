@@ -9,14 +9,18 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public interface IDriveWheel
+        public interface IWheel
+        {
+            public WheelID id { get; }            
+        }
+        public interface IDriveWheel:IWheel
         {
             public bool isDriveWheel { get;}
             public void SetDriveWheel(bool state);
             public float LongitudinalSlipRatio { get; }
         }
 
-        public class WheelComponent : IVehicleComponent<WheelComponenetStepParameters>, IDebugInformation, IHasInertia, IABS, IDriveWheel
+        public class WheelComponent : IVehicleComponent<WheelComponenetStepParameters>, IDebugInformation, IHasInertia, IABS, IDriveWheel,IWheel
         {
 
             WheelSO config;

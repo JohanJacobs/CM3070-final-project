@@ -14,9 +14,11 @@ namespace vc
         public interface IBrake
         {
             public float MaxTorque {get; }
+            public float CalculateBrakeTorque(IABS wheel);
+
         }
        
-        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>,IDebugInformation,IBrake
+        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>, IDebugInformation, IBrake
         {
             BrakeSO config;
             FloatVariable brakeInput;
@@ -27,8 +29,13 @@ namespace vc
             BoolVariable ABSEnabled;
             Dictionary<WheelID, bool> wheelABSState = new();
 
-
+            #region IBrake
             public float MaxTorque => maxBrakeTorque.Value;
+            float frontBrakeTorque => brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
+            float rearBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque.Value * (1f - brakeBalance.Value) + handbrakeInput.Value * maxBrakeTorque.Value, maxBrakeTorque.Value); //nm
+
+            #endregion IBrake
+
 
             #region Brake Component
             public BrakeComponent(BrakeSO brakeConfig, VehicleVariablesSO variables)
@@ -51,22 +58,19 @@ namespace vc
                 wheelABSState.Add(WheelID.RightRear, false);
             }
 
-            float frontBrakeTorque => brakeInput.Value * maxBrakeTorque.Value * brakeBalance.Value; // nm
-            float rearBrakeTorque => Mathf.Min(brakeInput.Value * maxBrakeTorque.Value * (1f - brakeBalance.Value) + handbrakeInput.Value * maxBrakeTorque.Value, maxBrakeTorque.Value); //nm
             
             float absTargetSlipRatio = 0.8f;
             float minABSTorqueRatio = 0.1f;// 10% minimum force;
             bool isABSEnabled => ABSEnabled.Value;
-            public float CalculateBrakeTorque (WheelComponent wheel)
+            public float CalculateBrakeTorque (IABS wheel)
             {
                 var brakeTorque = isFrontWheel(wheel.id) ? frontBrakeTorque : rearBrakeTorque;
-
-                IABS abs = wheel;
+                                
                 // If the ABS system is disabled just return the brake torque
                 if (!isABSEnabled) return brakeTorque;
 
                 // Calculate the new brake torque based on the ABS system
-                return ABSAdjustedBrakeToqrue(abs, wheel.LongitudinalSlipRatio,brakeTorque);
+                return ABSAdjustedBrakeToqrue(wheel, wheel.LongitudinalSlipRatio, brakeTorque);
             }
 
             bool isFrontWheel(WheelID id) => (id == WheelID.LeftFront) || (id == WheelID.RightFront);
