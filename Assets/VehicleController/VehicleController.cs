@@ -106,12 +106,11 @@ namespace vc
 
             float wheelRadius = vehicle.wheels[WheelID.RightRear].radius;
 
-            // Calculate the velocity of the vehicle
-            Vector3 veloLS = carRigidbody.transform.InverseTransformDirection(carRigidbody.velocity);   
-            
             // Start the physics step
-            vehicle.body.Step(new (dt,veloLS));
-            vehicle.aero.Step(new (veloLS));
+            vehicle.body.Step(new (dt));
+            vehicle.aero.Step(new (vehicle.body));
+            vehicle.ElectronicSpeedController.Step(new(vehicle.body, vehicle.brake, vehicle.brake));
+
             vehicle.transmission.Step(new(vehicle.differential, vehicle.engine, vehicle.body, dt, wheelRadius));
 
             vehicle.suspension[WheelID.LeftFront].Step(new (dt));
@@ -131,8 +130,8 @@ namespace vc
                 dt);
             
             // Wheels
-            var frontLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftFront]);
-            var frontRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightFront]);
+            var frontLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftFront]) + vehicle.ElectronicSpeedController.FrontLeftBrakeForce;
+            var frontRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightFront]) + vehicle.ElectronicSpeedController.FrontRightBrakeFroce;
             vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontLeftBrakeTorque));
             vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f, frontRightBrakeTorque));
                         
@@ -163,6 +162,7 @@ namespace vc
             if (!ShowGizmos) return;
 
             vehicle.rollbarFront.DrawGizmos();
+            vehicle.body.DrawGizmos();
 
             vehicle.wheels[WheelID.RightFront].DrawGizmos();
             vehicle.wheels[WheelID.LeftFront].DrawGizmos();
@@ -199,13 +199,19 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
 
-            bool drawTractionControlDedug = false;
+            bool drawBodyDebug = true;
+            if (drawBodyDebug)
+            {
+                yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
+            }
+
+             bool drawTractionControlDedug = false;
             if (drawTractionControlDedug)
             {
                 yOffset = vehicle.TractionControlEngine.OnGUI(xPos, yOffset, yStep);
             }
 
-            bool drawWheelDebug = true;
+            bool drawWheelDebug = false;
             if (drawWheelDebug)
             {
                 yOffset = vehicle.wheels[WheelID.LeftFront].OnGUI(xPos, yOffset, yStep);
@@ -324,4 +330,5 @@ namespace vc
         }
 
     }
+
 }

@@ -81,7 +81,7 @@ namespace vc
             #endregion ITractionControl
 
             #region IVehicleComponent
-            public ComponentTypes GetComponentType() => ComponentTypes.TractionControl;
+            public ComponentTypes GetComponentType() => ComponentTypes.TC;
 
             public void Start()
             {

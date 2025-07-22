@@ -12,6 +12,7 @@ namespace vc
         Brake,
         Body,
         AnitRollbar,
-        TractionControl
+        TC, // Traction control
+        ESC // Electronic Stability Control
     }
 }

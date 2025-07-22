@@ -10,7 +10,7 @@ namespace vc
         public float longGForce => gForce.z;
         public float latGForce => gForce.x;
 
-        public Vector3 updateG(Vector3 veloLS_MS, float dt)
+        public Vector3 UpdateGForce(Vector3 veloLS_MS, float dt)
         {
             this.pVelo = this.cVelo;
             this.cVelo = veloLS_MS;

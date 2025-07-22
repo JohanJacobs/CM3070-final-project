@@ -22,6 +22,7 @@ namespace vc
         public BrakeComponent brake;
         public AeroComponent aero;
         public TractionControlEngineComponent TractionControlEngine;
+        public ElectronicStabilityControlComponent ElectronicSpeedController;
 
         public static Vehicle Setup(Rigidbody carRigidbody,
             VehicleConfiguration.WheelConfiguration[] wheelConfig,
@@ -89,6 +90,9 @@ namespace vc
             newVehicle.TractionControlEngine = new(tcEngine, vehicleVariables, newVehicle.wheels);
             newVehicle.TractionControlEngine.Start();
 
+
+            newVehicle.ElectronicSpeedController = new(vehicleVariables);
+            newVehicle.ElectronicSpeedController.Start();
             return newVehicle;
         }
 
@@ -115,7 +119,9 @@ namespace vc
             vehicle.rollbarRear.Shutdown();
             vehicle.brake.Shutdown();
             vehicle.wheels.ForEach(w => w.Value.Shutdown());
-            vehicle.suspension.ForEach(s => s.Value.Shutdown());            
+            vehicle.suspension.ForEach(s => s.Value.Shutdown());
+            vehicle.TractionControlEngine.Shutdown();
+            vehicle.ElectronicSpeedController.Shutdown();
             vehicle = null;
         }
     }

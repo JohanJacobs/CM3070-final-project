@@ -9,7 +9,15 @@ namespace vc
 {
     namespace VehicleComponent
     {
-        public class BodyComponent : IVehicleComponent<BodyComponentStepParams>, IDebugInformation, ISpeed
+        public interface IBodyComponent
+        {
+            // Velocity in meter per second
+            public Vector3 VelocityLS { get;  }
+            public float SpeedKMH { get;  }            
+            public float DriftAngleDEG { get; }
+        }
+
+        public class BodyComponent : IVehicleComponent<BodyComponentStepParams>, IDebugInformation, ISpeed, IBodyComponent
         {
             Rigidbody rb;
             BodySO config;
@@ -25,15 +33,16 @@ namespace vc
 
             //http://www.mayfco.com/dragcd~1.htm
             float bodyArea = 1.74f; // m² 
-
             float wheelBaseLength; // m
             float turnRadius;      // m
             float wheelBaseRearTrackLength; // m
                                     
-            float bodyDrag => PhysicsHelper.CalculateDrag(Mathf.Abs(velocityLS.z), bodyArea, BodyDragCoefficient.Value); // nm TODO: check if drag is always calculated correctly forward and reverse
-            public FloatVariable BodyMass { get; private set; } // kg
-            public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(velocityLS.z); // Km/H
-            Vector3 velocityLS =default; //MS
+            float bodyDrag => PhysicsHelper.CalculateDrag(Mathf.Abs(VelocityLS.z), bodyArea, BodyDragCoefficient.Value); // nm TODO: check if drag is always calculated correctly forward and reverse
+            FloatVariable BodyMass;// kg
+            public float SpeedKMH => PhysicsHelper.Conversions.MStoKMH(VelocityLS.z); // Km/H
+            public Vector3 VelocityLS { get; private set; } //MS
+
+            public float DriftAngleDEG{ get; private set; }
 
             public BodyComponent( BodySO config, Rigidbody rb, Transform leftWheel, Transform rightWheel, VehicleVariablesSO variables)
             {
@@ -54,6 +63,7 @@ namespace vc
                 turnRadius = config.turnRadius;
                 wheelBaseRearTrackLength = config.wheelBaseRearTrackLength;
             }
+                                    
             
             #region IVehicleComponent
             public ComponentTypes GetComponentType() => ComponentTypes.Body;
@@ -76,16 +86,23 @@ namespace vc
             
             public void Step(BodyComponentStepParams parameters)
             {
-                this.velocityLS = parameters.velocityLS;
-                gForce.updateG(this.velocityLS,parameters.dt);
+                CalculateBodyVelocity();                
+                gForce.UpdateGForce(this.VelocityLS, parameters.dt);
                 UpdateAckermanSteering();
                 AddBodyDragForce();
-                speed.Value = Mathf.Max(SpeedKMH,0f);
+                CalculateVehicleSpeed();
+                UpdateDriftAngles();
+                
             }
             #endregion IVehicleComponent
 
             #region bodycomponent
             float RadtoDeg(float radians) => PhysicsHelper.Conversions.RadtoDeg(radians);
+
+            void CalculateBodyVelocity()
+            {
+                this.VelocityLS = rb.transform.InverseTransformDirection(rb.velocity);
+            }
             void UpdateAckermanSteering()
             {
                 float steerValue = steerInput.Value;
@@ -121,12 +138,31 @@ namespace vc
             {
                 rb.AddForce(dragDirection * bodyDrag);
             }
+
+            void CalculateVehicleSpeed()
+            {
+                speed.Value = Mathf.Max(SpeedKMH, 0f);
+            }
+
+            void UpdateDriftAngles()
+            {
+                var v = this.VelocityLS.normalized;
+                var driftAngleRAD = Mathf.Atan(MathHelper.SafeDivide(v.x, v.z));
+                this.DriftAngleDEG = PhysicsHelper.Conversions.RadtoDeg(driftAngleRAD);
+            }
+
             #endregion bodycomponent
 
             #region IDebugInformation
             public void DrawGizmos()
             {
-                
+                Gizmos.color = Color.green;
+                Gizmos.DrawRay(rb.transform.position, rb.transform.forward*2f);
+
+                Gizmos.color = Color.magenta;
+                var vdir = rb.transform.TransformVector(VelocityLS.normalized);
+                var v = Vector3.ProjectOnPlane(vdir, rb.transform.up);
+                Gizmos.DrawRay(rb.transform.position, v*2f);
             }
 
             public float OnGUI(float xOffset, float yOffset, float yStep)
@@ -135,9 +171,12 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Km/h :{SpeedKMH.ToString("F0")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  long Gs :{gForce.longGForce.ToString("F2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  lat  Gs :{gForce.latGForce.ToString("F2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Velo :{velocityLS.ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  B.Drag :{bodyDrag.ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  DriftAng :{DriftAngleDEG.ToString("F2")}");
 
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  Velo :{VelocityLS.ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  B.Drag :{bodyDrag.ToString("f3")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"  NormV:{VelocityLS.normalized.ToString("f1")}");
+              
                 return yOffset;
             }
 
@@ -147,13 +186,13 @@ namespace vc
             // class to pass parameters to step function
             public class BodyComponentStepParams 
             {
-                public BodyComponentStepParams(float dt, Vector3 velocityLS)
+                public BodyComponentStepParams(float dt/*, Vector3 velocityLS*/)
                 {
                     this.dt = dt;
-                    this.velocityLS = velocityLS;
+                    //this.velocityLS = velocityLS;
                 }
                 public float dt;
-                public Vector3 velocityLS;
+                //public Vector3 velocityLS;
             }
         }
     }

@@ -11,8 +11,12 @@ namespace vc
 {
     namespace VehicleComponent
     {
+        public interface IBrake
+        {
+            public float MaxTorque {get; }
+        }
        
-        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>,IDebugInformation
+        public class BrakeComponent : IVehicleComponent<BrakeComponenetStepParameters>,IDebugInformation,IBrake
         {
             BrakeSO config;
             FloatVariable brakeInput;
@@ -21,7 +25,10 @@ namespace vc
             FloatVariable brakeBalance;
             BoolVariable ABSActive;
             BoolVariable ABSEnabled;
-            Dictionary<WheelID, bool> wheelABSState = new();            
+            Dictionary<WheelID, bool> wheelABSState = new();
+
+
+            public float MaxTorque => maxBrakeTorque.Value;
 
             #region Brake Component
             public BrakeComponent(BrakeSO brakeConfig, VehicleVariablesSO variables)

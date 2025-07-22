@@ -64,7 +64,7 @@ namespace vc
             totalDragForce = 0f;
             totalDownforce = 0f;
             
-            this.velocityLS = parameters.velocityLS;
+            this.velocityLS = parameters.bodyComponet.VelocityLS;
 
             CalculateAeroForces();
             ApplyAeroForces();
@@ -106,11 +106,11 @@ namespace vc
     }
 
     public class AeroComponentStepParameters {
-        public AeroComponentStepParameters(Vector3 veloLS)
+        public AeroComponentStepParameters(IBodyComponent bodyComponent)
         {
-            this.velocityLS = veloLS;
+            this.bodyComponet = bodyComponent;
         }
-        public Vector3 velocityLS;
+        public IBodyComponent bodyComponet;
     }
 
 }

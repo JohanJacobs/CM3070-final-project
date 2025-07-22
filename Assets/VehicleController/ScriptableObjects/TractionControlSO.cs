@@ -18,7 +18,7 @@ namespace vc
             public float TCStep = 1f;
             public static ComponentTypes GetVehicleComponentType()
             {
-                return ComponentTypes.TractionControl;
+                return ComponentTypes.TC;
             }
 
             public static TractionControlSO CreateDefault()
