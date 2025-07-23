@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using vc.VehicleComponentsSO;
 using vc.VehicleConfiguration;
@@ -8,8 +9,9 @@ namespace vc
     {
         public interface IElectronicStabilityControl
         {
-            public float FrontLeftBrakeForce { get; }
-            public float FrontRightBrakeFroce { get; }
+            public float CalculateWheelBrakeForce(WheelID wheel);
+            //public float FrontLeftBrakeForce { get; }
+            //public float FrontRightBrakeFroce { get; }
         }
 
         public class ElectronicStabilityControlComponent : IVehicleComponent<ElectronicStabilityControlComponentParams>,IDebugInformation,IElectronicStabilityControl
@@ -20,8 +22,20 @@ namespace vc
             float escMaxAtAngle = 80f;
 
             #region IElectronicStabilityControl
-            public float FrontLeftBrakeForce { get; private set; }
-            public float FrontRightBrakeFroce { get; private set; }
+
+            float FrontLeftBrakeForce;
+            float FrontRightBrakeFroce;
+            public float CalculateWheelBrakeForce(WheelID wheel)
+            {
+                // TODO: Make dictionary
+                switch (wheel) 
+                {
+                    case WheelID.LeftFront: return FrontLeftBrakeForce;
+                    case WheelID.RightFront: return FrontRightBrakeFroce;                    
+                }
+
+                return 0f;
+            }
             #endregion IElectronicStabilityControl
 
             #region ElectrnoicStabilityControlComponent
@@ -33,8 +47,6 @@ namespace vc
             private void CalculateFrontBrakeForceFromSliding(IBodyComponent body, IBrake leftBrake, IBrake rightBrake)
             {
                 var absDeg = Mathf.Abs(body.DriftAngleDEG);
-                // calculate the angle the body is moving 
-
 
                 // linearly increase the strength
                 float ESCStrength = MathHelper.MapAndClamp(absDeg, escActivateAngleDEG, escMaxAtAngle, 0f, 1f);

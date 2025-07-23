@@ -130,16 +130,13 @@ namespace vc
                 dt);
             
             // Wheels
-            // TODO: pass the ESC and Brake as params instead of the values
-            var frontLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftFront]) + vehicle.ElectronicSpeedController.FrontLeftBrakeForce;
-            var frontRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightFront]) + vehicle.ElectronicSpeedController.FrontRightBrakeFroce;
-            vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, frontLeftBrakeTorque));
-            vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f, frontRightBrakeTorque));
+            vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, vehicle.brake, vehicle.ElectronicSpeedController));
+            vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f, vehicle.brake, vehicle.ElectronicSpeedController));
                         
             var rearLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftRear]);
             var rearRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightRear]);
-            vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], rearLeftBrakeTorque));
-            vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], rearRightBrakeTorque));
+            vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], vehicle.brake, vehicle.ElectronicSpeedController));
+            vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], vehicle.brake, vehicle.ElectronicSpeedController));
 
             // FEEDBACK PHASE
             var transVelo = vehicle.differential.CalculateTransmissionVelocity(
@@ -169,13 +166,6 @@ namespace vc
             vehicle.wheels[WheelID.LeftFront].DrawGizmos();
             vehicle.wheels[WheelID.RightRear].DrawGizmos();
             vehicle.wheels[WheelID.LeftRear].DrawGizmos();
-
-
-            //vehicle.suspension[WheelID.RightFront].DrawGizmos();
-            //vehicle.suspension[WheelID.LeftFront].DrawGizmos();
-            //vehicle.suspension[WheelID.RightRear].DrawGizmos();
-            //vehicle.suspension[WheelID.LeftRear].DrawGizmos();
-
         }
 
         private void OnGUI()

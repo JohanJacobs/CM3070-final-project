@@ -238,7 +238,9 @@ namespace vc
 
             public void Step(WheelComponenetStepParameters parameters)
             {
-                UpdatePhysics(parameters.dt, parameters.driveTorque, parameters.brakeTorque);
+                var brakeTorque = parameters.esc.CalculateWheelBrakeForce(id) + parameters.brake.CalculateBrakeTorque(this);
+                
+                UpdatePhysics(parameters.dt, parameters.driveTorque, brakeTorque);
             }
 
             #endregion IVehicleComponent
@@ -369,15 +371,24 @@ namespace vc
         #region Wheel Componenet Step Parameters
         public class WheelComponenetStepParameters 
         {
-            public WheelComponenetStepParameters(float dt, float driveTorque, float brakeTorque)
+            public WheelComponenetStepParameters(float dt, float driveTorque, IBrake brake, IElectronicStabilityControl esc)
             {
                 this.dt = dt;
                 this.driveTorque = driveTorque;
-                this.brakeTorque = brakeTorque;
+                this.brake = brake;
+                this.esc = esc; 
             }
+            //public WheelComponenetStepParameters(float dt, float driveTorque, float brakeTorque)
+            //{
+            //    this.dt = dt;
+            //    this.driveTorque = driveTorque;
+            //    this.brakeTorque = brakeTorque;
+            //}
             public float dt;
             public float driveTorque;
-            public float brakeTorque;
+            //public float brakeTorque;
+            public IBrake brake;
+            public IElectronicStabilityControl esc;
         }
         #endregion Wheel Componenet Step Parameters
     }
