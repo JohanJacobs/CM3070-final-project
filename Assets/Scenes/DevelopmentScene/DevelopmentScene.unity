@@ -1691,8 +1691,8 @@ MonoBehaviour:
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 5496477129613955038}
     suspMount: {fileID: 266966726}
-  differentialConfig: {fileID: 11400000, guid: f22dc8ad94613f147bb55211227af8c4, type: 2}
-  transmissionConfig: {fileID: 11400000, guid: f7e672977cc907442a1ebfcce2b1199f, type: 2}
+  differentialConfig: {fileID: 11400000, guid: e635d77e4190251419dbad93e870fc87, type: 2}
+  transmissionConfig: {fileID: 11400000, guid: b7d35b10a39d4de4c9e8cc12d1e64f52, type: 2}
   engineConfig: {fileID: 11400000, guid: a40245a457ec61c4a95b7985695957b7, type: 2}
   clutchConfig: {fileID: 11400000, guid: 32954204d18020c46bbf02c4353a3f70, type: 2}
   bodyConfig: {fileID: 11400000, guid: 41dc0249613a36c48b181f84e9e3f984, type: 2}

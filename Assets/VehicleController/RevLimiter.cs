@@ -36,7 +36,6 @@ namespace vc
                 }
             }
 
-
             void ToggleRevLimiter(bool activate)
             {
                 if (activate)
