@@ -32,6 +32,8 @@ namespace vc
             FloatVariable engineInertia;            // kg m²
             BoolVariable tcEnabled;
 
+            RevLimiter revLimiter;
+
             public float RedlineRPM => redlineRPM.Value;
             public float IdleRRM => idleRPM.Value;
             public float CurrentRPM => currentRPM.Value;
@@ -53,6 +55,8 @@ namespace vc
                 this.frictionCoefficient = variables.engineInternalFrictionCoefficient;
                 this.engineInertia = variables.engineInertia;
                 this.tcEnabled = variables.TractionControlEnabled;
+
+                this.revLimiter = new();
             }
 
             #region Engine Component
@@ -69,7 +73,7 @@ namespace vc
             bool isTCEnabled => tcEnabled.Value;
             
             float throttleValue => throttleInput.Value * tractionControlFactor;
-            float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * (throttleValue + autoThrottle);
+            float currentInitialTorque => (maxEffectiveTorque + engineInternalFriction) * (throttleValue + autoThrottle) * revLimiter.ThrottleFactor;
             float currentEffectiveTorque => currentInitialTorque - engineInternalFriction;
             float idleAngularRotation => RPMtoRad(idleRPM.Value);
             float redlineAngularRotation => RPMtoRad(redlineRPM.Value);
@@ -108,7 +112,9 @@ namespace vc
 
             }
             public void Step(EngineComponentStepParams parameters)
-            {
+            {                
+                revLimiter.Step(parameters.dt, this);
+
                 UpdateEngineAcceleration(parameters.dt, parameters.loadTorque, parameters.tc.TractionControlThrottleAdjustFactor);
             }
             #endregion IVehicleComponent
