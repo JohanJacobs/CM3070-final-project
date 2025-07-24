@@ -28,7 +28,8 @@ namespace vc
         [SerializeField] AeroSO aeroConfig;
         [SerializeField] AntiRollbarSO frontAntiRollbar;
         [SerializeField] AntiRollbarSO rearAntiRollbar;
-        [SerializeField] TractionControlSO tractionControl;
+        [SerializeField] TractionControlSO TC;
+        [SerializeField] ElectronicStabilityControlSO ESC;
 
         [Header("Drive Wheel Config")]
         [SerializeField] bool FrontLeft = false;
@@ -80,7 +81,8 @@ namespace vc
                 frontAntiRollbar,
                 rearAntiRollbar,
                 vehicleVariables,
-                tractionControl
+                TC,
+                ESC
                 );
 
             vehicle.SetDriveWheels(FrontLeft,FrontRight,RearLeft,RearRight);

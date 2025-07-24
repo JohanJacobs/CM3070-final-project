@@ -1700,7 +1700,8 @@ MonoBehaviour:
   aeroConfig: {fileID: 11400000, guid: c96902096aa94274bb9d999417eb374d, type: 2}
   frontAntiRollbar: {fileID: 11400000, guid: d1bb6c11d7c70dd46b4c4967c6893d87, type: 2}
   rearAntiRollbar: {fileID: 11400000, guid: 164e61b7a7af1d841b3529996f0b9594, type: 2}
-  tractionControl: {fileID: 11400000, guid: c8d61fd834c7b204f9e10105e90ea5d5, type: 2}
+  TC: {fileID: 11400000, guid: c8d61fd834c7b204f9e10105e90ea5d5, type: 2}
+  ESC: {fileID: 11400000, guid: ddd86abef9c53dc418242a4165065f6f, type: 2}
   FrontLeft: 0
   FrontRight: 0
   RearLeft: 1

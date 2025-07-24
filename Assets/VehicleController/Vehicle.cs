@@ -36,7 +36,8 @@ namespace vc
             AntiRollbarSO antiRollbarFront,
             AntiRollbarSO antiRollbarRear,
             VehicleVariablesSO vehicleVariables,
-            TractionControlSO tcEngine)
+            TractionControlSO tcEngine,
+            ElectronicStabilityControlSO esc)
         {
             Vehicle newVehicle = new();
 
@@ -90,9 +91,9 @@ namespace vc
             newVehicle.TractionControlEngine = new(tcEngine, vehicleVariables, newVehicle.wheels);
             newVehicle.TractionControlEngine.Start();
 
-
-            newVehicle.ElectronicSpeedController = new(vehicleVariables);
+            newVehicle.ElectronicSpeedController = new(esc,vehicleVariables);
             newVehicle.ElectronicSpeedController.Start();
+
             return newVehicle;
         }
 

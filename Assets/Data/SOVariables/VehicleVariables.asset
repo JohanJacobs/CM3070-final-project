@@ -71,3 +71,7 @@ MonoBehaviour:
     type: 2}
   TractionControlActive: {fileID: 11400000, guid: d7ead9ba2cebd2e4ab172a34ff4527ee,
     type: 2}
+  ESCEnabled: {fileID: 11400000, guid: 55a44d4a3c97569419eace19907dda02, type: 2}
+  ESCActivateSpeed: {fileID: 11400000, guid: 99ea0d4fdb514074aa0f7258db8ae586, type: 2}
+  ESCActivateAngle: {fileID: 11400000, guid: 40c45e6374d27f14282ea18981b29764, type: 2}
+  ESCMaxBrakeAngle: {fileID: 11400000, guid: 9b39aedf4b7040d499b1f99c910ea360, type: 2}

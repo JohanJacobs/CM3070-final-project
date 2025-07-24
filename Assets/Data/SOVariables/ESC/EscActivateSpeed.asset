@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 998a6abf28c1d35458b359ae2a9bf4db, type: 3}
-  m_Name: BasicBodySO
+  m_Script: {fileID: 11500000, guid: e67815bbc13e4454097f88ea65201b5f, type: 3}
+  m_Name: EscActivateSpeed
   m_EditorClassIdentifier: 
-  turnRadius: 5.3
-  wheelBaseLength: 2.86
-  wheelBaseRearTrackLength: 1.69
-  coefficientOfDrag: 0.35
-  mass: 1500
+  label: Activate  Speed
+  _value: 20

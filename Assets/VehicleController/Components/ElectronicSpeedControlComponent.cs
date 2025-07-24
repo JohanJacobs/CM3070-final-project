@@ -10,24 +10,24 @@ namespace vc
         public interface IElectronicStabilityControl
         {
             public float CalculateWheelBrakeForce(WheelID wheel);
-            //public float FrontLeftBrakeForce { get; }
-            //public float FrontRightBrakeFroce { get; }
         }
 
         public class ElectronicStabilityControlComponent : IVehicleComponent<ElectronicStabilityControlComponentParams>,IDebugInformation,IElectronicStabilityControl
         {
 
-            float escActivateAngleDEG = 10f;
-            float escActiveSpeedKMH = 20f;
-            float escMaxAtAngle = 80f;
+            BoolVariable enabled;            
+            FloatVariable activateAngleDEG;
+            FloatVariable activateSpeedKMH;
+            FloatVariable maxBrakeAngleDEG;
 
+            ElectronicStabilityControlSO config;
             #region IElectronicStabilityControl
 
             float FrontLeftBrakeForce;
             float FrontRightBrakeFroce;
             public float CalculateWheelBrakeForce(WheelID wheel)
             {
-                // TODO: Make dictionary
+                // TODO: Make dictionary if i do 4 wheels
                 switch (wheel) 
                 {
                     case WheelID.LeftFront: return FrontLeftBrakeForce;
@@ -39,9 +39,16 @@ namespace vc
             #endregion IElectronicStabilityControl
 
             #region ElectrnoicStabilityControlComponent
-            public ElectronicStabilityControlComponent(VehicleVariablesSO variables)
+            public ElectronicStabilityControlComponent(ElectronicStabilityControlSO config, VehicleVariablesSO variables)
             {
+                this.config = config;
 
+                //variables
+                this.enabled = variables.ESCEnabled;
+                this.activateAngleDEG = variables.ESCActivateAngle;
+                this.activateSpeedKMH = variables.ESCActivateSpeed;
+                this.maxBrakeAngleDEG = variables.ESCMaxBrakeAngle;
+                
             }
 
             private void CalculateFrontBrakeForceFromSliding(IBodyComponent body, IBrake leftBrake, IBrake rightBrake)
@@ -49,9 +56,9 @@ namespace vc
                 var absDeg = Mathf.Abs(body.DriftAngleDEG);
 
                 // linearly increase the strength
-                float ESCStrength = MathHelper.MapAndClamp(absDeg, escActivateAngleDEG, escMaxAtAngle, 0f, 1f);
+                float ESCStrength = MathHelper.MapAndClamp(absDeg, activateAngleDEG.Value, maxBrakeAngleDEG.Value, 0f, 1f);
 
-                if (absDeg > escActivateAngleDEG && body.SpeedKMH > escActiveSpeedKMH)
+                if (absDeg > activateAngleDEG.Value && body.SpeedKMH > activateSpeedKMH.Value && enabled)
                 {
                     if (body.DriftAngleDEG > 0f)
                     {
@@ -77,7 +84,10 @@ namespace vc
             public ComponentTypes GetComponentType() => ComponentTypes.ESC;
             public void Start()
             {
-
+                this.activateAngleDEG.Value = this.config.ActivateBrakeAngle;                
+                this.maxBrakeAngleDEG.Value = this.config.MaxBrakeAngle;
+                this.activateSpeedKMH.Value = this.config.ActivateSpeed;
+                this.enabled.Value = this.config.Enabled;
             }
 
             public void Shutdown()
@@ -87,8 +97,7 @@ namespace vc
 
             public void Step(ElectronicStabilityControlComponentParams parameters)
             {
-                CalculateFrontBrakeForceFromSliding(parameters.body,parameters.leftBrake,parameters.rightBrake);
-                                              
+                CalculateFrontBrakeForceFromSliding(parameters.body,parameters.leftBrake,parameters.rightBrake);                   
             }
             #endregion IVehicleComponent
 

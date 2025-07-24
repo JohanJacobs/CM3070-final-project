@@ -86,6 +86,12 @@ namespace vc
             public FloatVariable TractionControlSetting;
             public BoolVariable TractionControlEnabled;
             public BoolVariable TractionControlActive;
+
+            [Header("Electronic Stability Control")]
+            public BoolVariable ESCEnabled;
+            public FloatVariable ESCActivateSpeed;
+            public FloatVariable ESCActivateAngle;
+            public FloatVariable ESCMaxBrakeAngle;
         }
     }
 }
