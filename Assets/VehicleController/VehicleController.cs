@@ -191,8 +191,8 @@ namespace vc
             //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
             //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
-
-            bool drawBodyDebug = true;
+                        
+            bool drawBodyDebug = false;
             if (drawBodyDebug)
             {
                 yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
@@ -204,7 +204,7 @@ namespace vc
                 yOffset = vehicle.TractionControlEngine.OnGUI(xPos, yOffset, yStep);
             }
 
-            bool drawWheelDebug = false;
+            bool drawWheelDebug = true;
             if (drawWheelDebug)
             {
                 yOffset = vehicle.wheels[WheelID.LeftFront].OnGUI(xPos, yOffset, yStep);

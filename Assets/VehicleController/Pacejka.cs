@@ -6,35 +6,36 @@ namespace vc
 
     public static class Pacjeka
     {
-        //https://www.edy.es/dev/docs/pacejka-94-parameters-explained-a-comprehensive-guide/
-        static float A_Adherent_mu = 0.95f;
-        static float B_Stiffness = 10f;
-        static float C_Shape_Long = 1.9f;
-        static float C_Shape_Lat = 1.375f;
-        static float D_Peak = 0.783f;
-        static float E_Curvature = 09.88f;
+        //https://www.edy.es/dev/docs/pacejka-94-parameters-explained-a-comprehensive-guide/        
+        [Serializable]
+        public class PacjekaConfig
+        {
+            public float A_MU;
+            public float B_Stiffness;
+            public float C_Shape;
+            public float D_Peak;
+            public float E_Curvature;
 
-        public static float quickPacjekaLong(float slipratio)
-        {
-            return quickPacejka(slipratio);
-        }
-        public static float quickPacjekaLat(float slipAngle)
-        {
-            return quickPacejka(slipAngle, false);
+            public PacjekaConfig(float mu = 1f, float stiffness = 10f, float shape = 1.375f, float peak = 0.783f,float curvature = 0.98f)
+            {
+                this.A_MU = mu;
+                this.B_Stiffness = stiffness;
+                this.C_Shape = shape;
+                this.D_Peak = peak;
+                this.E_Curvature = curvature;
+            }
         }
 
         // Pacejka formula
-        public static float quickPacejka(float slipratio, bool useLongitudinal = true)
+        public static float MagicFormula(float slipratio, PacjekaConfig config)
         {
-            float b = B_Stiffness;
-            float c = (useLongitudinal ? C_Shape_Long : C_Shape_Lat);
-            float d = D_Peak;
-            float e = E_Curvature;
+            float b = config.B_Stiffness;
+            float c = config.C_Shape;
+            float d = config.D_Peak;
+            float e = config.E_Curvature;
 
             float result = d * Mathf.Sin(c * Mathf.Atan(b * slipratio - e * (b * slipratio - Mathf.Atan(b * slipratio))));
-            return result;
-
+            return result * config.A_MU;
         }
-
     }
 }

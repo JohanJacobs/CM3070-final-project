@@ -117,7 +117,10 @@ namespace vc
             void CombinedSlip()
             {
                 var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
-                wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined;
+                wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined; // Combined slip correction as we can't slip more than 100%
+
+                combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, 10f, 2f   , 1f, 0.98f));
+                combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, 10f, 1.75f, 1f, 0.98f));
             }
             #region Lateral Forces
                        
@@ -130,8 +133,6 @@ namespace vc
 
             void CalculateLateral()
             {
-                //currentSlipAngleDeg = Mathf.Atan(MathHelper.SafeDivide(wheelData.velocityLS.x, Mathf.Abs(wheelData.velocityLS.z))) * Mathf.Rad2Deg;
-
                 latCalc.CalculateSlip(wheelData.velocityLS, dt);
             }
                         
@@ -202,7 +203,7 @@ namespace vc
             Vector3 FzForceVec, FxForceVec;
             void ApplyWheelForces()
             {
-                Fz = wheelData.combinedSlip.x * Fn; // Pacejka longitudinal * normalForce;
+                Fz = wheelData.combinedSlip.x * Fn; //Pacejka Longitudinal * normalForce;
                 FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
                 Fx = wheelData.combinedSlip.y * Fn; //Pacejka Lateral * normalForce;
@@ -279,9 +280,9 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Locked : {(this.isLocked?"Yes":"No")}");
 
                 // Longitudinal 
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.wheelData.combinedSlip.x).ToString("f2")}");                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.wheelData.combinedSlip.x).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrakeTrq: {(this.brakeTorque).ToString("f2")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");                
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip: {(this.LongitudinalSlipRatio).ToString("f2")}");
@@ -378,12 +379,7 @@ namespace vc
                 this.brake = brake;
                 this.esc = esc; 
             }
-            //public WheelComponenetStepParameters(float dt, float driveTorque, float brakeTorque)
-            //{
-            //    this.dt = dt;
-            //    this.driveTorque = driveTorque;
-            //    this.brakeTorque = brakeTorque;
-            //}
+
             public float dt;
             public float driveTorque;
             //public float brakeTorque;
