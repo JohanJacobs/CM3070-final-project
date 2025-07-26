@@ -23,6 +23,7 @@ namespace vc
             ElectronicStabilityControlSO config;
             #region IElectronicStabilityControl
 
+            bool escEnabled => enabled.Value;
             float FrontLeftBrakeForce;
             float FrontRightBrakeFroce;
             public float CalculateWheelBrakeForce(WheelID wheel)
@@ -58,7 +59,7 @@ namespace vc
                 // linearly increase the strength
                 float ESCStrength = MathHelper.MapAndClamp(absDeg, activateAngleDEG.Value, maxBrakeAngleDEG.Value, 0f, 1f);
 
-                if (absDeg > activateAngleDEG.Value && body.SpeedKMH > activateSpeedKMH.Value && enabled)
+                if (absDeg > activateAngleDEG.Value && body.SpeedKMH > activateSpeedKMH.Value && escEnabled)
                 {
                     if (body.DriftAngleDEG > 0f)
                     {

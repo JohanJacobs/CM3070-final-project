@@ -177,20 +177,6 @@ namespace vc
             float yOffset = 10f;
             float yStep = 20f;
             float xPos = 10f;
-
-            //yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.aero.OnGUI(xPos, yOffset, yStep);
-
-
-            //yOffset = vehicle.engine.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.clutch.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.transmission.OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.differential.OnGUI(xPos, yOffset, yStep);
-
-            //yOffset = vehicle.suspension[WheelID.LeftFront ].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.RightFront].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.LeftRear  ].OnGUI(xPos, yOffset, yStep);
-            //yOffset = vehicle.suspension[WheelID.RightRear ].OnGUI(xPos, yOffset, yStep);
                         
             bool drawBodyDebug = false;
             if (drawBodyDebug)
@@ -198,7 +184,13 @@ namespace vc
                 yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);
             }
 
-             bool drawTractionControlDedug = false;
+            bool drawESCDebug = false;
+            if (drawESCDebug)
+            {
+                yOffset = vehicle.ElectronicSpeedController.OnGUI(xPos,yOffset,yStep);
+            }
+
+            bool drawTractionControlDedug = false;
             if (drawTractionControlDedug)
             {
                 yOffset = vehicle.TractionControlEngine.OnGUI(xPos, yOffset, yStep);
