@@ -10,6 +10,7 @@ namespace vc
         [Serializable]
         public class PacjekaConfig
         {
+            [HideInInspector]
             public float A_MU;
             public float B_Stiffness;
             public float C_Shape;
