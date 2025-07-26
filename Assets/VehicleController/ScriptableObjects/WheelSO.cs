@@ -42,10 +42,10 @@ namespace vc {
             private void OnValidate()
             {
                 pacjekaCurve = new AnimationCurve();
-                for(float x = 0f; x <= 1f; x += 0.05f)
+                for(float x = 0f; x < 1.05f; x += 0.05f)
                 {
                     var y = Pacjeka.MagicFormula(x, new Pacjeka.PacjekaConfig(1,PacjekaConfig.B_Stiffness,PacjekaConfig.C_Shape,PacjekaConfig.D_Peak,PacjekaConfig.E_Curvature));
-                    var kf = new Keyframe(x, y) ;                    
+                    var kf = new Keyframe(x, y < 0f ? 0f : y);// clamp to zero
                     pacjekaCurve.AddKey(new Keyframe(x,y) {});
                 }
 

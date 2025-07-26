@@ -12,9 +12,13 @@ namespace vc
         {
             [HideInInspector]
             public float A_MU;
+            [Range(0f,20f)]
             public float B_Stiffness;
+            [Range(1f,2f)]
             public float C_Shape;
+            [Range(0.1f,1.9f)]
             public float D_Peak;
+            [Range(-5f,5f)]
             public float E_Curvature;
 
             public PacjekaConfig(float mu = 1f, float stiffness = 10f, float shape = 1.375f, float peak = 0.783f,float curvature = 0.98f)
