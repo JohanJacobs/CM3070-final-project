@@ -116,11 +116,16 @@ namespace vc
             }
             void CombinedSlip()
             {
+                //var combinedSlip = new Vector2(slipZ, latCalc.lateralSlipRatio);
+                //wheelData.combinedSlip = (combinedSlip.magnitude > 1.0f) ? combinedSlip.normalized : combinedSlip; // Combined slip correction as we can't slip more than 100%
+                
                 var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
                 wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined; // Combined slip correction as we can't slip more than 100%
 
-                combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
-                combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+                // Pacejka
+                // combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+                // combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+
             }
             #region Lateral Forces
                        
@@ -163,7 +168,7 @@ namespace vc
                 wheelAngularVelocity += angularAcceleration * dt; // Rad/s
 
                 float rollResistanceTorque = wheelData.normalforce * radius * rollingResistanceCoefficient; // nm                
-                float totalBrakingTorque = -Mathf.Sign(wheelAngularVelocity) * (brakeTorque+ rollResistanceTorque); // nm
+                float totalBrakingTorque = -Mathf.Sign(wheelAngularVelocity) * (brakeTorque + rollResistanceTorque); // nm
                 float brakeAcceleration = (totalBrakingTorque / wheelInertia) * dt;
                 float newAngularVelocity = wheelAngularVelocity + brakeAcceleration;
                 if (Mathf.Sign(newAngularVelocity) != Mathf.Sign(wheelAngularVelocity))
@@ -177,7 +182,7 @@ namespace vc
                     isLocked = false;
                 }
 
-                // speed at which we slide
+                // speed at which wheel is slipping
                 longSlipVelocity = CalculateLongitudinalSlipVelocity(wheelAngularVelocity);
             }            
             #endregion Longitudinal Wheel Acceleration 
@@ -362,9 +367,9 @@ namespace vc
                 public float CalculateSlip(Vector3 veloLS, float dt)
                 {
                     lateralSlipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
-                    lateralSlipRatio = Mathf.Clamp(MathHelper.SafeDivide(lateralSlipAngleDynamic,lateralSlipAnglePeak), -1f, 1f);
-                    //slipRatio = Mathf.Abs(slipRatio) < float.Epsilon ? 0f : slipRatio;
-                    // TODO: add a logic to always nudge slip ratio to 0 if its very close to zero
+
+                    //lateralSlipRatio = MathHelper.SafeDivide(lateralSlipAngle, lateralSlipAnglePeak);
+                    lateralSlipRatio = Mathf.Clamp(MathHelper.SafeDivide(lateralSlipAngle,lateralSlipAnglePeak), -1f, 1f);
                     return lateralSlipRatio;
                 }
             }

@@ -41,9 +41,9 @@ namespace vc
         {
             Vehicle newVehicle = new();
 
+            // Create wheel and suspension components
             var wheelHitData = WheelHitData.SetupDefault(carRigidbody);
-
-            // wheels 
+                    
             newVehicle.wheels = new();
             newVehicle.suspension = new();
 
@@ -54,16 +54,16 @@ namespace vc
                 newVehicle.suspension.Add(wc.id, new SuspensionComponent(wc.SuspensionConfig, wheelHitData[wc.id], wc.suspMount, vehicleVariables));
             });
 
-            // car body
+            // Body component
             newVehicle.body = new(bodyConfig, carRigidbody, newVehicle.suspension[WheelID.LeftFront].mountPoint, newVehicle.suspension[WheelID.RightFront].mountPoint, vehicleVariables);
             newVehicle.body.Start();
 
-            wheelHitData.ForEach(whd => whd.Value.body = newVehicle.body);
-
-
+            // finalize wheel and suspension startup
+            wheelHitData.ForEach(whd => whd.Value.body = newVehicle.body);            
             newVehicle.suspension.ForEach(s => s.Value.Start());
             newVehicle.wheels.ForEach(w => w.Value.Start());
 
+            
             newVehicle.rollbarFront = new(carRigidbody, antiRollbarFront, wheelHitData[WheelID.LeftFront], wheelHitData[WheelID.RightFront], vehicleVariables);
             newVehicle.rollbarFront.Start();
 

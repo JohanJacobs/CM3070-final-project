@@ -30,7 +30,8 @@ namespace vc
             velocity : ms
             coefficient of drag : constant
             https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/drageq.html
-            // typical values is 0.2 to 0.4 //https://en.wikipedia.org/wiki/Automobile_drag_coefficient#:~:text=The%20average%20modern%20automobile%20achieves,=0.285%20to%20Cd=0.315.
+            // typical values is 0.2 to 0.4 
+            //https://en.wikipedia.org/wiki/Automobile_drag_coefficient#:~:text=The%20average%20modern%20automobile%20achieves,=0.285%20to%20Cd=0.315.
         */
         public static float CalculateDrag(float velocityMS, float areaM, float dragCoefficient, float airDensity = 1.225f)
         {
@@ -48,9 +49,6 @@ namespace vc
          * https://en.wikipedia.org/wiki/Inertia#:~:text=Inertia%20is%20the%20natural%20tendency,forward%20in%20a%20right%20line.
          */
         public static float InertiaWheel(float massKG, float radiusM) => 0.5f * (radiusM * radiusM) * massKG;
-
-
-
 
     }
 }

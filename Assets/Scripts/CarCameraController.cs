@@ -1,6 +1,3 @@
-using Sirenix.OdinInspector.Editor.TypeSearch;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CarCameraController : MonoBehaviour

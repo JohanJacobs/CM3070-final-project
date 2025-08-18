@@ -5,7 +5,7 @@ using UnityEngine;
 public class ToggleUIElementVisiblity : MonoBehaviour,IToggle
 {
     [SerializeField] bool VisibleOnStart=false;
-    
+    [SerializeField] Transform UIElement;
     void Awake()
     {
     }

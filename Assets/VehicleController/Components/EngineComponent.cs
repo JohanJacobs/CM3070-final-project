@@ -22,7 +22,6 @@ namespace vc
             EngineSO config;
             FloatVariable throttleInput;
             
-            AnimationCurve torqueCurve;
 
             FloatVariable idleRPM;      // Revolutions per minute
             FloatVariable redlineRPM;   // Revolutions per minute
@@ -61,6 +60,7 @@ namespace vc
 
             #region Engine Component
 
+            AnimationCurve torqueCurve;
             float maxEffectiveTorque => torqueCurve.Evaluate(engineRPM);
             float engineRPM => currentRPM.Value;
 
@@ -86,7 +86,7 @@ namespace vc
                 tractionControlFactor = isTCEnabled?tractionControlThrottleAdjustFactor:1f;
 
                 engineEffectiveTorque = currentEffectiveTorque;
-                float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia.Value;                
+                float acceleration = (engineEffectiveTorque - loadTorque) / engineInertia.Value;
                 engineAngularVelocity = Mathf.Clamp(engineAngularVelocity + acceleration * dt, idleAngularRotation , redlineAngularRotation);
                 currentRPM.Value = RadtoRPM(engineAngularVelocity);
 

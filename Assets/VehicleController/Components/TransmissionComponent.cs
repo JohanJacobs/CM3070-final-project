@@ -101,13 +101,22 @@ namespace vc
                 // check if we can down shift
                 if ((currentGear > -1) && isInGear)
                 {
+                    // Set in gear to be false and set the vehicle in neutral 
+                    // during the shift duration
                     isInGear = false;
                     ratio = 0f;
+                    // wait for the amount of time it takes to move the lever
+                    // to the new gear by invoking a co-routine to 
+                    // only run after the gear shift time
                     ExecuteAfterDelay(gearShiftTime.Value, () =>
                     {
-                        currentGear -= 1f; // TODO: MAke INT variable
+                        // perform the shift of the gear 
+                        currentGear -= 1f;                         
                         UpdateRatio();
+                        // set in gear true as we completed the shift
                         isInGear = true; 
+
+                        // update the display string
                         SetCurrentGearText(currentGear);
                     });
                 }
@@ -195,6 +204,7 @@ namespace vc
 
                 currentGear = 0f;
                 SetCurrentGearText(currentGear);
+
                 gearUpInput.OnValueChanged += ShiftUp;
                 gearDownInput.OnValueChanged += ShiftDown;
 
@@ -226,20 +236,23 @@ namespace vc
             {
                 if (lastAutoShiftTime < autoShiftTimeTarget) return;
 
+                // Gear states
                 bool inFirstGear = currentGear == 1f;
                 bool inReverse = currentGear == -1;
                 bool inNeutral = currentGear == 0f;
                 bool inDriveGear = currentGear > 0f;
                 
+                // Engine State 
                 bool isIdling = engine.CurrentRPM == engine.IdleRRM;
+                // Neutral to "Reverse" of "First"
+                float rpmTarget = engine.IdleRRM * 1.2f;
 
+                // Input pressed
                 bool throttleDown = throttleInput.Value > 0f;
                 bool brakeDown = brakeInput.Value > 0f;
 
 
                 // TODO : should be a state machine 
-                // Neutral to "Reverse" of "First"
-                float rpmTarget = engine.IdleRRM * 1.2f;
                 if (inNeutral && throttleDown && !isIdling)
                 {
                     // shift up
@@ -333,7 +346,11 @@ namespace vc
         #region Parameters
         public class TransmissionStepParameters
         {
-            public TransmissionStepParameters(IRatio differentialComponent,IEngineRPM engineComponent, ISpeed vehicleBodyComponent,float dt, float wheelRadiusMeter)
+            public TransmissionStepParameters(
+                IRatio differentialComponent,
+                IEngineRPM engineComponent, 
+                ISpeed vehicleBodyComponent,
+                float dt, float wheelRadiusMeter)
             {
                 this.differential = differentialComponent;
                 this.engine = engineComponent;

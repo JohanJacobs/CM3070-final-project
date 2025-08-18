@@ -43,18 +43,6 @@ namespace vc
         public Vehicle GetVehicle => vehicle;
         [SerializeField] VehicleVariablesSO vehicleVariables;
 
-
-        [Button("TC Increase")]
-        private void IncreaseTC()
-        {
-            vehicle.TractionControlEngine.IncreaseStrength();
-        }
-        [Button("TC Decrease")]
-        private void DecreaseTC()
-        {
-            vehicle.TractionControlEngine.DecreaseStrength();
-        }
-
         public void Awake()
         {
             carRigidbody = GetComponent<Rigidbody>();
@@ -134,9 +122,7 @@ namespace vc
             // Wheels
             vehicle.wheels[WheelID.LeftFront ].Step(new (dt, 0f, vehicle.brake, vehicle.ElectronicSpeedController));
             vehicle.wheels[WheelID.RightFront].Step(new (dt, 0f, vehicle.brake, vehicle.ElectronicSpeedController));
-                        
-            var rearLeftBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.LeftRear]);
-            var rearRightBrakeTorque = vehicle.brake.CalculateBrakeTorque(vehicle.wheels[WheelID.RightRear]);
+            
             vehicle.wheels[WheelID.LeftRear].Step(new (dt, driveTorque[0], vehicle.brake, vehicle.ElectronicSpeedController));
             vehicle.wheels[WheelID.RightRear].Step(new (dt, driveTorque[1], vehicle.brake, vehicle.ElectronicSpeedController));
 

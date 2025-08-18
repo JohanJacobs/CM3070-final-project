@@ -49,13 +49,13 @@ public class UIVariableChanger : MonoBehaviour
     {
         UpdateVariable(-changeValue);
     }
-    private void Variable_OnValueChanged(float value)
-    {
-        valueLabel.text = value.ToString("F2");
-    }
     
     private void UpdateVariable(float changeAmount)
     {
         variable.Value = Mathf.Clamp(variable.Value + changeAmount, minValue, maxValue);
+    }
+    private void Variable_OnValueChanged(float value)
+    {
+        valueLabel.text = value.ToString("F2");
     }
 }

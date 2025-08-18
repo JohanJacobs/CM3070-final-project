@@ -11,9 +11,12 @@ namespace vc
         static GameObject _gameObject = null;
         static crHelper _coroutineHelper = null;
         static string _gameObjectName = "CoroutineHelper";
+
         public static Coroutine ExecuteAfterDelay(float delay, Action action)
         {
+            // lazy initialize a new game object to attach a mono behaviour too 
             CheckOrCreateActiveMonobehaviour();
+            // use the monobehaviour  and attach a co-routine
             return _coroutineHelper.StartCoroutine(RunActionAfterWait(delay, action));
         }
 

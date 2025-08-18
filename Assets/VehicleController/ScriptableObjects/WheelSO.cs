@@ -1,7 +1,5 @@
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace vc {
@@ -41,18 +39,45 @@ namespace vc {
             // create pacjeka curve for visual and lookup later
             private void OnValidate()
             {
-                pacjekaCurve = new AnimationCurve();
-                for(float x = 0f; x < 1.05f; x += 0.05f)
+                pacjekaCurve = CreatePacjekaAnimationCurve();
+            }
+
+
+            float animationCurveStepSize = 0.05f;
+            private AnimationCurve CreatePacjekaAnimationCurve()
+            {
+                // Create the new animation curve
+                var pacjekaCurve = new AnimationCurve();
+                
+                // Create a range of slip ratios and populate the animation curve 
+                // with the slip ratio  and the relevant pacjeka value
+                for (float slipRatio = 0f; slipRatio < 1.05f; slipRatio += animationCurveStepSize)
                 {
-                    var y = Pacjeka.MagicFormula(x, new Pacjeka.PacjekaConfig(1,PacjekaConfig.B_Stiffness,PacjekaConfig.C_Shape,PacjekaConfig.D_Peak,PacjekaConfig.E_Curvature));
-                    var kf = new Keyframe(x, y < 0f ? 0f : y);// clamp to zero
-                    pacjekaCurve.AddKey(new Keyframe(x,y) {});
+                    // Evaluate the slipRatio to get the pacejka force factor
+                    var PacjekaForceFactor = Pacjeka.MagicFormula(slipRatio, 
+                        new Pacjeka.PacjekaConfig(1, 
+                        PacjekaConfig.B_Stiffness, 
+                        PacjekaConfig.C_Shape, 
+                        PacjekaConfig.D_Peak, 
+                        PacjekaConfig.E_Curvature));
+
+                    // Create new keyframe and clamp to zero to avoid negative forces 
+                    var kf = new Keyframe(slipRatio, PacjekaForceFactor < 0f ? 0f : PacjekaForceFactor); 
+                    
+                    // Save the new keyframe in the animation curve
+                    pacjekaCurve.AddKey(new Keyframe(slipRatio, PacjekaForceFactor) { });
                 }
 
-                for(int i = 0; i < pacjekaCurve.keys.Length; ++i)
+                // Set all points to Smooth Tangents to have a smooth transition
+                // from one point to the next and eliminate abrupt changes
+                // in the animation curve
+                for (int i = 0; i < pacjekaCurve.keys.Length; ++i)
                 {
                     pacjekaCurve.SmoothTangents(i, 0);
                 }
+
+                // return the animation curve
+                return pacjekaCurve;
             }
         }
 

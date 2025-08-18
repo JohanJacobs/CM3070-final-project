@@ -74,19 +74,12 @@ namespace vc
                     previousLength = currentLength;
                     isGrounded = true;
                     
-                    // update the wheel velocity based on moving objects below it 
-                    var myVelo = this.wheelData.rb.GetPointVelocity(mountPoint.position);
-                    var objectBelowWheelVelo = Vector3.zero;
-                    if (wheelData.hitInfo.rigidbody)
-                    {
-                        objectBelowWheelVelo = wheelData.hitInfo.rigidbody.GetPointVelocity(this.wheelData.hitInfo.point);
-                    }
-
-                    var worldVelo = myVelo - objectBelowWheelVelo;
-
-                    // Update local Velocity
+                    // Get the wheel velocity in world space 
+                    var worldVelo = this.wheelData.rb.GetPointVelocity(mountPoint.position);                    
+                    // convert to local space 
                     this.wheelData.velocityLS = mountPoint.InverseTransformDirection(worldVelo);
-                    this.wheelData.velocityLS.y = 0f;
+
+                    this.wheelData.velocityLS.y = 0f; // remove up/down velocity
 
                 }
                 else
