@@ -368,7 +368,8 @@ namespace vc
                     lateralSlipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
 
                     //lateralSlipRatio = MathHelper.SafeDivide(lateralSlipAngle, lateralSlipAnglePeak);
-                    lateralSlipRatio = Mathf.Clamp(MathHelper.SafeDivide(lateralSlipAngle,lateralSlipAnglePeak), -1f, 1f);
+                    lateralSlipRatio = Mathf.Clamp(MathHelper.SafeDivide(lateralSlipAngleDynamic, lateralSlipAnglePeak), -1f, 1f);
+
                     return lateralSlipRatio;
                 }
             }
