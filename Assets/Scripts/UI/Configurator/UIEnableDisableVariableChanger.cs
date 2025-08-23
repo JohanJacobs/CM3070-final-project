@@ -12,13 +12,14 @@ public class UIEnableDisableVariableChanger : MonoBehaviour
 
     string enableText = "Enabled";
     string disableText = "Disabled";
-    private void Start()
+    private void Awake()
     {
         label.text = variable.VariableLabel;
 
         dropdown.options.Clear();
         dropdown.options.Add(new TMP_Dropdown.OptionData(enableText));
         dropdown.options.Add(new TMP_Dropdown.OptionData(disableText));
+        dropdown.SetValueWithoutNotify(0);
     }
 
 
