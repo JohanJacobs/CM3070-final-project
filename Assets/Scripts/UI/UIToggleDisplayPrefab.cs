@@ -17,7 +17,7 @@ public class UIToggleDisplayPrefab : MonoBehaviour, IToggle
     private void Awake()
     {
         ui = CreateUI(prefab);
-                
+        ui.transform.SetAsFirstSibling();
         SetVisible(ui, isVisibleOnStart);
     }
 

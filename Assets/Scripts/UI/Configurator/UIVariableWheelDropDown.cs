@@ -26,6 +26,7 @@ public class UIVariableDropDown : MonoBehaviour
         }
 
         label.text = variable.VariableLabel;
+        dropdown.SetValueWithoutNotify(0);
     }
     private void OnEnable()
     {
