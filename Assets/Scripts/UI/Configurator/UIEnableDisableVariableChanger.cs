@@ -19,10 +19,15 @@ public class UIEnableDisableVariableChanger : MonoBehaviour
         dropdown.options.Clear();
         dropdown.options.Add(new TMP_Dropdown.OptionData(enableText));
         dropdown.options.Add(new TMP_Dropdown.OptionData(disableText));
-        dropdown.SetValueWithoutNotify(0);
+        
     }
 
-
+    int enableSelectedOptionValue = 0;
+    int disableSelectedOptionValue = 1;
+    private void Start()
+    {
+        dropdown.SetValueWithoutNotify(variable.Value ? enableSelectedOptionValue : disableSelectedOptionValue);
+    }
     private void OnEnable()
     {
         dropdown.onValueChanged.AddListener(TMPDropdown_OnValueChanged);
@@ -36,13 +41,15 @@ public class UIEnableDisableVariableChanger : MonoBehaviour
 
     void TMPDropdown_OnValueChanged(int option)
     {
-        if (dropdown.options[option].text ==enableText)
+        if (dropdown.options[option].text == enableText)
         {
             variable.Value = true;
+            Debug.Log($"Setting {variable.VariableLabel} to true");
         }
         if (dropdown.options[option].text == disableText)
         {
             variable.Value = false;
+            Debug.Log($"Setting {variable.VariableLabel} to false");
         }
     }
 }

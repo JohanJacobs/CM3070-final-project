@@ -19,6 +19,7 @@ public class FloatVariable : ScriptableObject
         get => this._value;
         set
         {
+
             if (this._value == value) return;
             this._value = value;
 

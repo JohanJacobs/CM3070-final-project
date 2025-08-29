@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ESCEnable
   m_EditorClassIdentifier: 
   label: Active
-  _value: 0
+  _value: 1

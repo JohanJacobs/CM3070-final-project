@@ -111,7 +111,6 @@ namespace vc
             vehicle.rollbarFront.Step(new (dt));
             vehicle.rollbarRear.Step(new (dt));
 
-
             // DRIVE PHASE 
             var diffInputTorque = vehicle.transmission.CaclulateDifferentialTorque(vehicle.clutch.clutchTorque);
             var driveTorque = vehicle.differential.CalculateWheelOutputTorque(
@@ -164,7 +163,7 @@ namespace vc
             float yStep = 20f;
             float xPos = 10f;
                         
-            bool drawBodyDebug = false;
+            bool drawBodyDebug = true;
             if (drawBodyDebug)
             {
                 yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);

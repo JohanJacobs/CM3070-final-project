@@ -70,7 +70,7 @@ namespace vc
                     if (body.DriftAngleDEG < 0f)
                     {
                         // slip to the right 
-                        FrontLeftBrakeForce = leftBrake.MaxTorque * ESCStrength;                        
+                        FrontLeftBrakeForce = leftBrake.MaxTorque * ESCStrength;
                         return;
                     }
                 }

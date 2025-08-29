@@ -110,7 +110,7 @@ namespace vc
                                 
                 wheelMesh.Rotate(new Vector3(WheelMeshDegRotation * dt, 0f, 0f), Space.Self);
 
-                // notify listeners that the wheel visuals and data has been udpated.
+                // notify listeners that the wheel visuals and data has been updated.
                 onVisualWheelUpdate?.Invoke(id, wheelData);
             }
             void CombinedSlip()
@@ -121,7 +121,7 @@ namespace vc
                 var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
                 wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined; // Combined slip correction as we can't slip more than 100%
 
-                // Pacejka
+                // old Pacejka
                 // combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
                 // combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
 
