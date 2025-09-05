@@ -43,13 +43,10 @@ public class UIEnableDisableVariableChanger : MonoBehaviour
     {
         if (dropdown.options[option].text == enableText)
         {
-            variable.Value = true;
-            Debug.Log($"Setting {variable.VariableLabel} to true");
-        }
-        if (dropdown.options[option].text == disableText)
+            variable.Value = true;            
+        }else if (dropdown.options[option].text == disableText)
         {
             variable.Value = false;
-            Debug.Log($"Setting {variable.VariableLabel} to false");
         }
     }
 }
