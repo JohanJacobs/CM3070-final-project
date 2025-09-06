@@ -45,11 +45,14 @@ namespace vc
         [SerializeField] bool OverrideThrottle;
         [SerializeField] bool OverrideBrake;
 
-        private void Awake()
+
+        
+
+        private void Start()
         {
-            inputActions = new VehicleControllerInputActions();
-            inputActions.Enable();
+            CreateInputActions();            
         }
+
         private void Update()
         {
             if (OverrideThrottle)
@@ -80,6 +83,7 @@ namespace vc
 
         private void OnEnable()
         {
+            CreateInputActions();
             inputActions.VehicleControllerInputs.Steer.performed += Input_Steer;
             inputActions.VehicleControllerInputs.Steer.canceled += Input_Steer;
 
@@ -147,6 +151,48 @@ namespace vc
         public void Input_GearDown(InputAction.CallbackContext ctx)
         {
             gearDownTarget = ctx.ReadValue<float>();
+        }
+
+
+        public enum VehicleInputActionsEnum
+        {
+            Throttle,            
+            Brake,
+            HandBrake,
+            Steer,
+            GearUp,
+            GearDown,
+
+        }
+        public InputActionReference GetInputActionReference(VehicleInputActionsEnum actionEnum)
+        {
+            CreateInputActions();
+            switch (actionEnum)
+            {
+                case VehicleInputActionsEnum.Throttle:
+                    return InputActionReference.Create(inputActions.VehicleControllerInputs.Throttle);
+                case VehicleInputActionsEnum.Brake:
+                    return InputActionReference.Create(inputActions.VehicleControllerInputs.Brake);
+                case VehicleInputActionsEnum.HandBrake:
+                    return InputActionReference.Create(inputActions.VehicleControllerInputs.HandBrake);
+                case VehicleInputActionsEnum.GearUp:
+                    return InputActionReference.Create(inputActions.VehicleControllerInputs.GearUp);
+                case VehicleInputActionsEnum.GearDown:
+                    return InputActionReference.Create(inputActions.VehicleControllerInputs.GearDown);
+                case VehicleInputActionsEnum.Steer:
+                    return InputActionReference.Create(inputActions.VehicleControllerInputs.Steer);
+                default:
+                    return null;
+            }
+        }
+
+        private void CreateInputActions()
+        {
+            if (inputActions == null)
+            {
+                inputActions = new VehicleControllerInputActions();
+                inputActions.Enable();
+            }
         }
     }
 }
