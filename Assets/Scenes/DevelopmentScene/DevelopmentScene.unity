@@ -3082,7 +3082,7 @@ PrefabInstance:
     - target: {fileID: 8284762645620395645, guid: aac2b185c971544418873464852b9707,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4796,9 +4796,9 @@ MonoBehaviour:
     SuspensionConfig: {fileID: 11400000, guid: 284941503aec980439c036637406be6c, type: 2}
     wheelMesh: {fileID: 5496477129613955038}
     suspMount: {fileID: 266966726}
-  differentialConfig: {fileID: 11400000, guid: e635d77e4190251419dbad93e870fc87, type: 2}
-  transmissionConfig: {fileID: 11400000, guid: b7d35b10a39d4de4c9e8cc12d1e64f52, type: 2}
-  engineConfig: {fileID: 11400000, guid: 42fdf52b317f5ab42806772f82b1e92b, type: 2}
+  differentialConfig: {fileID: 11400000, guid: 381d205db85544742902f338d48f915c, type: 2}
+  transmissionConfig: {fileID: 11400000, guid: a37047f106393d046af827ebed3739d1, type: 2}
+  engineConfig: {fileID: 11400000, guid: 569ff76f88336a54f989d79a34ed8c6f, type: 2}
   clutchConfig: {fileID: 11400000, guid: 32954204d18020c46bbf02c4353a3f70, type: 2}
   bodyConfig: {fileID: 11400000, guid: 41dc0249613a36c48b181f84e9e3f984, type: 2}
   brakeConfig: {fileID: 11400000, guid: 14151ac891c5a024580b5cca6456e0af, type: 2}
@@ -14224,7 +14224,7 @@ PrefabInstance:
     - target: {fileID: 1108891791119607777, guid: 8039f239a4b95eb479f9aace76d3c5fe,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3614527812751096610, guid: 8039f239a4b95eb479f9aace76d3c5fe,
         type: 3}

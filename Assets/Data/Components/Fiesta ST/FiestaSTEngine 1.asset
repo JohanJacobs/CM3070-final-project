@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 885de2b875b92c6419167cc619a00fdc, type: 3}
-  m_Name: FiestaSTEngine
+  m_Name: FiestaSTEngine 1
   m_EditorClassIdentifier: 
   redlineRPM: 6000
   idleRPM: 900
@@ -48,28 +48,28 @@ MonoBehaviour:
       time: 2001.4261
       value: 207.56805
       inSlope: 0.03431991
-      outSlope: 0.00031344575
+      outSlope: -0.009893506
       tangentMode: 1
       weightedMode: 0
       inWeight: 1
-      outWeight: 0.14083858
+      outWeight: 0.082544096
     - serializedVersion: 3
-      time: 4856.4717
-      value: 181.59122
+      time: 3497.7986
+      value: 179.28029
       inSlope: -0.024122857
-      outSlope: -0.0490254
+      outSlope: -0.025046906
       tangentMode: 1
       weightedMode: 0
       inWeight: 0.03460642
-      outWeight: 0.12352837
+      outWeight: 0.06874768
     - serializedVersion: 3
       time: 6350.178
       value: 84.67778
-      inSlope: -0.11166088
-      outSlope: -0.11166088
+      inSlope: -0.05498051
+      outSlope: -0.05498051
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.10590243
+      inWeight: 0.06384506
       outWeight: 0.06368056
     - serializedVersion: 3
       time: 9016.646
@@ -83,6 +83,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  startFriction: 50
-  engineEnirtia: 0.25
-  frictionCoefficient: 0.1
+  startFriction: 70
+  engineEnirtia: 0.5
+  frictionCoefficient: 0.3

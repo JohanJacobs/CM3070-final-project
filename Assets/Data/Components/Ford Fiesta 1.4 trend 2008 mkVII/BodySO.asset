@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 998a6abf28c1d35458b359ae2a9bf4db, type: 3}
   m_Name: BodySO
   m_EditorClassIdentifier: 
-  turnRadius: 9.6
-  wheelBaseLength: 2.86
+  turnRadius: 10.2
+  wheelBaseLength: 2.5
   wheelBaseRearTrackLength: 1.69
-  coefficientOfDrag: 0.3265
-  mass: 1000
+  coefficientOfDrag: 0.35
+  mass: 1300
