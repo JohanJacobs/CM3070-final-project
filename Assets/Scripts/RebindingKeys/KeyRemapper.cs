@@ -52,13 +52,11 @@ public class KeyRemapper : MonoBehaviour
             var mappingText = "";
             while (currentIDX < totalBindings && bindings[currentIDX].isPartOfComposite)
             {
-                //mappingText += bindings[currentIDX].effectivePath  + "/";
                 mappingText += GetKeyText( bindings[currentIDX].effectivePath)+ "/";
                 currentIDX++;
             }
 
-            //Debug.Log(mappingText);
-            keyText.text = mappingText.Remove(mappingText.Length-1); // delete the last /
+            keyText.text = mappingText.Remove(mappingText.Length-1); // delete the last / character
 
         }
         else
@@ -132,22 +130,5 @@ public class KeyRemapper : MonoBehaviour
         {
             inputAction.ToInputAction().Enable();
         }
-
-        //if (inputAction.action.bindings[bindingIDX].isPartOfComposite)
-        //{
-        //    if (bindingIDX+1 < inputAction.action.bindings.Count)
-        //    {
-        //        if (inputAction.action.bindings[bindingIDX+1].groups == currentCompositeGroup)
-        //            CreateRebindingAction(bindingIDX + 1);
-        //        else
-        //            inputAction.ToInputAction().Enable();
-        //    }
-        //    else
-        //        inputAction.ToInputAction().Enable();
-        //}
-        //else
-        //{
-        //    inputAction.ToInputAction().Enable();
-        //}
     }
 }
