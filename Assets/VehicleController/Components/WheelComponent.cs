@@ -115,16 +115,13 @@ namespace vc
             }
             void CombinedSlip()
             {
-                //var combinedSlip = new Vector2(slipZ, latCalc.lateralSlipRatio);
-                //wheelData.combinedSlip = (combinedSlip.magnitude > 1.0f) ? combinedSlip.normalized : combinedSlip; // Combined slip correction as we can't slip more than 100%
-                
+
                 var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
                 wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined; // Combined slip correction as we can't slip more than 100%
-
-                // old Pacejka
-                // combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
-                // combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
-
+                
+                combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+                combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+                
             }
             #region Lateral Forces
                        

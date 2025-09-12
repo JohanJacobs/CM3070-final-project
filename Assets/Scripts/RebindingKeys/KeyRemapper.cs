@@ -57,7 +57,7 @@ public class KeyRemapper : MonoBehaviour
                 currentIDX++;
             }
 
-            Debug.Log(mappingText);
+            //Debug.Log(mappingText);
             keyText.text = mappingText.Remove(mappingText.Length-1); // delete the last /
 
         }
