@@ -1,17 +1,9 @@
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using System.Collections.Generic;
 using UnityEngine;
-using vc.VehicleComponent;
 using vc.VehicleComponentsSO;
 using vc.VehicleConfiguration;
-using static vc.VehicleController;
-/*
-    visuals for skidding
-    visuals for smoke // spinning
-    FIX car freewheeling backwards having no revs
-    fix for custom ForEach
- */
+
 namespace vc
 {
     public class VehicleController : MonoBehaviour,IToggle,IHUDController
@@ -163,7 +155,7 @@ namespace vc
             float yStep = 20f;
             float xPos = 10f;
                         
-            bool drawBodyDebug = true;
+            bool drawBodyDebug = false;
             if (drawBodyDebug)
             {
                 yOffset = vehicle.body.OnGUI(xPos, yOffset, yStep);

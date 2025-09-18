@@ -55,7 +55,6 @@ namespace vc
             float brakeTorque = default;
             public bool ISLocked => isLocked;
             bool isLocked = true;
-            //Vector2 combinedSlip = default; // combined Slip X=Force, Y=sideways
 
             #region IABS
             public bool IsActive { get; set; }            
@@ -113,23 +112,23 @@ namespace vc
                 // notify listeners that the wheel visuals and data has been updated.
                 onVisualWheelUpdate?.Invoke(id, wheelData);
             }
+
+            Vector2 combined;
             void CombinedSlip()
             {
+                combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
+                // Combined slip correction as we can't have more than 100% grip
+                wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined; 
 
-                var combined = new Vector2(slipZ, latCalc.lateralSlipRatio);
-                wheelData.combinedSlip = (combined.magnitude > 1.0f) ? combined.normalized : combined; // Combined slip correction as we can't slip more than 100%
-                
-                combined.x = Pacjeka.MagicFormula(combined.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
-                combined.y = Pacjeka.MagicFormula(combined.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+                // Use slip ratio with pacjeka 
+                wheelData.combinedSlip.x = Pacjeka.MagicFormula(wheelData.combinedSlip.x, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
+                wheelData.combinedSlip.y = Pacjeka.MagicFormula(wheelData.combinedSlip.y, new(wheelFrictionCoefficient, this.config.PacjekaConfig.B_Stiffness, this.config.PacjekaConfig.C_Shape, this.config.PacjekaConfig.D_Peak, this.config.PacjekaConfig.E_Curvature));
                 
             }
             #region Lateral Forces
                        
             private WheelLateralSlipCalculator latCalc = new();
             
-            public float SlipAngleDynamic => latCalc.lateralSlipAngleDynamic;
-            public float SlipAngleRatio => latCalc.lateralSlipAngle;
-            public float LateralSlipAngle => latCalc.lateralSlipAngle;
             public float lateralSlipVelocity => wheelData.velocityLS.x; // m/s
 
             void CalculateLateral()
@@ -154,6 +153,7 @@ namespace vc
             }
 
             #region Longitudinal Wheel Acceleration 
+            
             //wheel Acceleration Calculations
             float frictionTorque => Fz * radius; // nm
             float angularAcceleration => MathHelper.SafeDivide((driveTorque - frictionTorque), wheelInertia); // Rad/s²
@@ -167,6 +167,8 @@ namespace vc
                 float totalBrakingTorque = -Mathf.Sign(wheelAngularVelocity) * (brakeTorque + rollResistanceTorque); // nm
                 float brakeAcceleration = (totalBrakingTorque / wheelInertia) * dt;
                 float newAngularVelocity = wheelAngularVelocity + brakeAcceleration;
+                
+                // wheel rotation changes at this instant so velocity is 0
                 if (Mathf.Sign(newAngularVelocity) != Mathf.Sign(wheelAngularVelocity))
                 {
                     wheelAngularVelocity = 0f;
@@ -205,9 +207,11 @@ namespace vc
             void ApplyWheelForces()
             {
                 Fz = wheelData.combinedSlip.x * Fn; //Pacejka Longitudinal * normalForce;
+                
                 FzForceVec = Vector3.ProjectOnPlane(wheelData.forward, wheelData.hitInfo.normal).normalized * Fz;
 
                 Fx = wheelData.combinedSlip.y * Fn; //Pacejka Lateral * normalForce;
+                
                 FxForceVec = Vector3.ProjectOnPlane(wheelData.right, wheelData.hitInfo.normal).normalized * Fx;
 
                 // add force to rigidbody
@@ -280,18 +284,18 @@ namespace vc
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $"WHEEL {this.wheelData.id.ToString()}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Locked : {(this.isLocked?"Yes":"No")}");
 
-                // Longitudinal 
+                //Longitudinal
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLongSlip : {(this.wheelData.combinedSlip.x).ToString("f2")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrakeTrq: {(this.brakeTorque).ToString("f2")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" BrakeTrq: {(this.brakeTorque).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" AngularVelo: {(this.wheelAngularVelocity).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fz : {(this.Fz).ToString("f2")}");
-                //GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" DrTrq: {(this.driveTorque).ToString("f2")}");
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" LongSlip: {(this.LongitudinalSlipRatio).ToString("f2")}");
 
 
                 // Lateral                 
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" lateralSlipAngle: {this.latCalc.lateralSlipAngle.ToString("f1")}");
-                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");
+                GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" cLatSlip: {(this.wheelData.combinedSlip.y).ToString("f5")}");                
                 GUI.Label(new Rect(xOffset, yOffset += yStep, 200f, yStep), $" Fx: {(this.Fx).ToString("f2")}");
 
                 // Friction surface 
@@ -340,7 +344,7 @@ namespace vc
                 // https://en.wikipedia.org/wiki/Slip_angle
                 public float lateralSlipAngle { get; private set; }
 
-                public float lateralSlipAnglePeak = 8f; /// peak slip angle for maximum grip (8 degrees) for dynamic slip calculation
+                public float lateralSlipAnglePeak = 9f; /// peak slip angle for maximum grip (degrees) for dynamic slip calculation
 
                 private float RelaxationCoefficient(Vector3 veloLS, float dt) => Mathf.Clamp((Mathf.Abs(veloLS.x) / relaxationLength) * dt, 0f, 1f);
 
@@ -364,7 +368,6 @@ namespace vc
                 {
                     lateralSlipAngleDynamic = CaclulateDynamicSlipAngle(veloLS,dt);
 
-                    //lateralSlipRatio = MathHelper.SafeDivide(lateralSlipAngle, lateralSlipAnglePeak);
                     lateralSlipRatio = Mathf.Clamp(MathHelper.SafeDivide(lateralSlipAngleDynamic, lateralSlipAnglePeak), -1f, 1f);
 
                     return lateralSlipRatio;
@@ -383,8 +386,7 @@ namespace vc
             }
 
             public float dt;
-            public float driveTorque;
-            //public float brakeTorque;
+            public float driveTorque;            
             public IBrake brake;
             public IElectronicStabilityControl esc;
         }

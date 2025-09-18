@@ -34,7 +34,7 @@ public class KeyRemapper : MonoBehaviour
         {
             GetInputAction();
         }
-
+        
         labelText.text = inputAction.action.name;
 
         UpdateKeyText();
@@ -87,7 +87,7 @@ public class KeyRemapper : MonoBehaviour
 
     public void RebindKey()
     {
-        EventSystem.current.SetSelectedGameObject(null); // deselect all objects                 
+        EventSystem.current.SetSelectedGameObject(null); // deselect all UI objects                 
         keyText.text = waitingText;
         CreateRebindingAction();
     }
@@ -124,7 +124,7 @@ public class KeyRemapper : MonoBehaviour
             bindingIDX + 1 < inputAction.action.bindings.Count &&
             inputAction.action.bindings[bindingIDX + 1].groups == currentCompositeGroup)
         {
-                    CreateRebindingAction(bindingIDX + 1);
+            CreateRebindingAction(bindingIDX + 1);
         }
         else
         {
